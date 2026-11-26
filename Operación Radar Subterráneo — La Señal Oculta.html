@@ -1,0 +1,2011 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Operación Radar Subterráneo: La Señal Oculta</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Fuentes: Inter para legibilidad en pizarra, JetBrains Mono para HUD de radar, Cinzel para títulos épicos -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg-abyss: #080707;
+      --radar-cyan: #22d3ee;
+      --radar-green: #10b981;
+      --lava-orange: #ff5500;
+      --gold-bright: #fde047;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-abyss);
+      color: #f5f5f4;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      overflow-x: hidden;
+    }
+
+    .font-epic {
+      font-family: 'Cinzel', Georgia, serif;
+    }
+
+    .font-hud {
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+    }
+
+    /* Fondo subterráneo hostil con resplandor volcánico inferior y matiz de radar */
+    .mine-radar-bg {
+      background:
+        radial-gradient(ellipse at 50% 108%, rgba(234, 88, 12, 0.34) 0%, rgba(127, 29, 29, 0.22) 30%, rgba(8, 7, 7, 0.96) 72%),
+        radial-gradient(ellipse at 50% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 45%),
+        linear-gradient(180deg, #0b0c0c 0%, #151110 48%, #1d100c 84%, #2d1006 100%);
+    }
+
+    /* Pozo minero vertical con roca, cuadrícula sutil de radar y vigas */
+    .shaft-container {
+      position: relative;
+      background:
+        repeating-linear-gradient(
+          180deg,
+          rgba(34, 211, 238, 0.035) 0px,
+          rgba(34, 211, 238, 0.035) 1px,
+          transparent 1px,
+          transparent 28px
+        ),
+        linear-gradient(90deg, rgba(8, 6, 5, 0.92) 0%, rgba(28, 21, 18, 0.65) 14%, rgba(18, 15, 14, 0.45) 50%, rgba(28, 21, 18, 0.65) 86%, rgba(8, 6, 5, 0.92) 100%),
+        linear-gradient(180deg, #121110 0%, #1a1310 56%, #2a120a 86%, #4a1406 100%);
+      box-shadow: inset 0 0 26px rgba(0, 0, 0, 0.9);
+      overflow: hidden;
+    }
+
+    /* Línea de escaneo del radar recorriendo suavemente cada pozo */
+    .radar-scanline {
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, rgba(34, 211, 238, 0.55) 50%, transparent 100%);
+      box-shadow: 0 0 12px rgba(34, 211, 238, 0.45);
+      pointer-events: none;
+      z-index: 3;
+      animation: scanSweep 6.5s linear infinite;
+    }
+
+    @keyframes scanSweep {
+      0% { top: 0%; opacity: 0; }
+      8% { opacity: 0.7; }
+      92% { opacity: 0.7; }
+      100% { top: 100%; opacity: 0; }
+    }
+
+    /* Vigas laterales metálicas/madera */
+    .shaft-beam-left,
+    .shaft-beam-right {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 10px;
+      background: repeating-linear-gradient(
+        180deg,
+        #3a2518 0px,
+        #26170e 22px,
+        #170e08 24px,
+        #473123 26px,
+        #2d1b10 50px
+      );
+      z-index: 4;
+      pointer-events: none;
+    }
+    .shaft-beam-left { left: 0; border-right: 1px solid rgba(0, 0, 0, 0.75); }
+    .shaft-beam-right { right: 0; border-left: 1px solid rgba(0, 0, 0, 0.75); }
+
+    /* Grietas incandescentes */
+    .magma-crack {
+      position: absolute;
+      pointer-events: none;
+      opacity: 0.45;
+      filter: drop-shadow(0 0 5px #ff5500);
+      animation: magmaPulse 3.4s ease-in-out infinite;
+    }
+
+    @keyframes magmaPulse {
+      0%, 100% { opacity: 0.25; }
+      50% { opacity: 0.72; }
+    }
+
+    /* Lava incandescente al fondo del pozo */
+    .lava-floor {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 30px;
+      background: linear-gradient(0deg, #ff4500 0%, #ea580c 40%, rgba(234, 88, 12, 0.22) 78%, transparent 100%);
+      animation: lavaGlow 2.4s ease-in-out infinite alternate;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    @keyframes lavaGlow {
+      0% { opacity: 0.72; transform: scaleY(0.95); }
+      100% { opacity: 1; transform: scaleY(1.1); }
+    }
+
+    /* Banda de señal compacta anómala en las profundidades */
+    .anomaly-zone {
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      background: linear-gradient(180deg, transparent 0%, rgba(16, 185, 129, 0.12) 30%, rgba(34, 211, 238, 0.18) 50%, rgba(16, 185, 129, 0.12) 70%, transparent 100%);
+      border-top: 1px dashed rgba(34, 211, 238, 0.35);
+      border-bottom: 1px dashed rgba(34, 211, 238, 0.35);
+      pointer-events: none;
+      z-index: 2;
+      animation: anomalyPulse 2.8s ease-in-out infinite;
+    }
+
+    @keyframes anomalyPulse {
+      0%, 100% { opacity: 0.45; }
+      50% { opacity: 0.9; }
+    }
+
+    /* Mini radar giratorio en cabecera */
+    .radar-sweep-arm {
+      transform-origin: center;
+      animation: radarSpin 2.6s linear infinite;
+    }
+    @keyframes radarSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Movimiento suave del minero */
+    .miner-wrapper {
+      position: absolute;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      transition: top 0.85s cubic-bezier(0.34, 1.35, 0.64, 1);
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* Destello verde de radar al acertar exacto */
+    @keyframes radarExactFlash {
+      0% { filter: drop-shadow(0 0 0px #10b981); transform: translate(-50%, -50%) scale(1); }
+      35% { filter: drop-shadow(0 0 24px #34d399) drop-shadow(0 0 12px #22d3ee); transform: translate(-50%, -50%) scale(1.14); }
+      100% { filter: drop-shadow(0 0 0px #10b981); transform: translate(-50%, -50%) scale(1); }
+    }
+    .anim-exact {
+      animation: radarExactFlash 1.1s ease-out;
+    }
+
+    /* Sacudida y alerta roja al cometer error */
+    @keyframes errorShake {
+      0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+      15% { transform: translate(calc(-50% - 9px), -50%) rotate(-7deg); filter: drop-shadow(0 0 18px #ef4444); }
+      30% { transform: translate(calc(-50% + 9px), -50%) rotate(7deg); filter: drop-shadow(0 0 18px #ef4444); }
+      45% { transform: translate(calc(-50% - 6px), -50%) rotate(-5deg); }
+      60% { transform: translate(calc(-50% + 6px), -50%) rotate(5deg); }
+      75% { transform: translate(calc(-50% - 3px), -50%) rotate(-2deg); }
+    }
+    .anim-error {
+      animation: errorShake 0.65s ease-in-out;
+    }
+
+    /* Botón brillante "¡LOCALIZAR SEÑAL!" */
+    @keyframes signalBtnPulse {
+      0%, 100% {
+        box-shadow: 0 0 14px rgba(34, 211, 238, 0.7), 0 0 30px rgba(245, 158, 11, 0.55);
+        transform: scale(1);
+      }
+      50% {
+        box-shadow: 0 0 26px rgba(52, 211, 153, 0.95), 0 0 46px rgba(251, 191, 36, 0.85);
+        transform: scale(1.025);
+      }
+    }
+    .locate-signal-btn {
+      background: linear-gradient(135deg, #fde047 0%, #f59e0b 48%, #10b981 100%);
+      color: #0b0a08;
+      animation: signalBtnPulse 1.5s ease-in-out infinite;
+    }
+
+    /* Animaciones de la pantalla final del cofre egipcio */
+    @keyframes glyphGlow {
+      0%, 100% { opacity: 0.65; filter: drop-shadow(0 0 5px #22d3ee); }
+      50% { opacity: 1; filter: drop-shadow(0 0 15px #fde047) drop-shadow(0 0 8px #22d3ee); }
+    }
+    .glyph-pulse {
+      animation: glyphGlow 2.1s ease-in-out infinite;
+    }
+
+    @keyframes chestFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+    .chest-float {
+      animation: chestFloat 3.3s ease-in-out infinite;
+    }
+
+    @keyframes gemSparkle {
+      0%, 100% { opacity: 0.86; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.09); filter: brightness(1.35); }
+    }
+    .gem-twinkle {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: gemSparkle 2s ease-in-out infinite;
+    }
+
+    @keyframes raySpin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+    .sun-rays {
+      position: absolute;
+      top: 48%;
+      left: 50%;
+      width: 960px;
+      height: 960px;
+      background: repeating-conic-gradient(
+        from 0deg,
+        rgba(253, 224, 71, 0.14) 0deg 10deg,
+        transparent 10deg 24deg
+      );
+      border-radius: 50%;
+      animation: raySpin 36s linear infinite;
+      pointer-events: none;
+    }
+
+    /* Quitar flechas nativas de inputs numéricos */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+
+    /* Scrollbar sutil */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #100e0d; }
+    ::-webkit-scrollbar-thumb { background: #44403c; border-radius: 999px; }
+  </style>
+</head>
+<body class="mine-radar-bg text-stone-100 select-none">
+
+  <!-- Canvas de fondo: cenizas y chispas ascendentes en la mina -->
+  <canvas id="mineParticlesCanvas" class="fixed inset-0 w-full h-full pointer-events-none z-0"></canvas>
+
+  <!-- ==================== VISTA PRINCIPAL: TABLERO DE OPERACIÓN RADAR ==================== -->
+  <div id="mainBoardView" class="relative z-10 min-h-screen xl:h-screen xl:overflow-hidden flex flex-col px-2.5 sm:px-4 py-2 max-w-[1920px] mx-auto">
+
+    <!-- Cabecera Superior Compacta -->
+    <header class="shrink-0 flex flex-wrap items-center justify-between gap-2.5 bg-stone-950/90 border border-cyan-900/50 rounded-2xl px-3.5 py-2 shadow-xl backdrop-blur-md mb-2.5">
+      <div class="flex items-center gap-3 min-w-0">
+        <!-- Mini Radar Geológico Animado -->
+        <div class="w-11 h-11 rounded-full bg-stone-950 border-2 border-emerald-500/70 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.35)] shrink-0 relative overflow-hidden">
+          <svg viewBox="0 0 44 44" class="w-full h-full">
+            <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(16,185,129,0.28)" stroke-width="1"/>
+            <circle cx="22" cy="22" r="11" fill="none" stroke="rgba(16,185,129,0.28)" stroke-width="1"/>
+            <line x1="22" y1="2" x2="22" y2="42" stroke="rgba(16,185,129,0.2)" stroke-width="1"/>
+            <line x1="2" y1="22" x2="42" y2="22" stroke="rgba(16,185,129,0.2)" stroke-width="1"/>
+            <!-- Brazo de barrido -->
+            <g class="radar-sweep-arm">
+              <path d="M22,22 L22,4 A18,18 0 0,1 38,14 Z" fill="rgba(52,211,153,0.38)"/>
+              <line x1="22" y1="22" x2="22" y2="4" stroke="#34d399" stroke-width="1.8"/>
+            </g>
+            <!-- Punto anómalo parpadeante -->
+            <circle cx="29" cy="29" r="2.6" fill="#fde047">
+              <animate attributeName="opacity" values="1;0.2;1" dur="1.2s" repeatCount="indefinite"/>
+            </circle>
+          </svg>
+        </div>
+
+        <div class="min-w-0">
+          <h1 class="font-epic text-lg sm:text-xl lg:text-2xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-200 via-emerald-300 to-amber-300 leading-tight truncate">
+            OPERACIÓN RADAR SUBTERRÁNEO: LA SEÑAL OCULTA
+          </h1>
+          <p class="text-[11px] sm:text-xs text-stone-400 font-medium truncate">
+            1.º ESO · Coordenadas de Números Enteros · 5 Tramos hacia la Señal Compacta
+          </p>
+        </div>
+      </div>
+
+      <!-- Indicador HUD de Señal + Controles rápidos -->
+      <div class="flex items-center gap-2 shrink-0">
+        <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-950/60 border border-emerald-500/50 shadow-[0_0_14px_rgba(16,185,129,0.2)]">
+          <span class="relative flex h-2.5 w-2.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
+          </span>
+          <span id="radarHudStatusText" class="font-hud text-xs font-extrabold tracking-wider text-emerald-300 uppercase">
+            SEÑAL COMPACTA DETECTADA
+          </span>
+        </div>
+
+        <button id="quickSoundBtn" type="button" title="Activar / Silenciar sonido"
+          class="w-10 h-10 rounded-xl bg-stone-900 hover:bg-stone-800 border border-stone-700 text-stone-200 hover:text-cyan-300 flex items-center justify-center transition active:scale-95">
+          <span id="quickSoundIcon" class="text-lg">🔊</span>
+        </button>
+
+        <button id="openTeacherBtn" type="button"
+          class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-stone-900 hover:bg-stone-800 border border-stone-700 hover:border-cyan-500/60 text-stone-200 text-sm font-bold transition shadow active:scale-95">
+          <span>⚙</span>
+          <span>Docente</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Notificación flotante (reemplaza alert) -->
+    <div id="toastBanner" class="hidden fixed top-16 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-2xl font-bold text-sm sm:text-base shadow-2xl border backdrop-blur-md transition-all"></div>
+
+    <!-- Área Principal: Regla lateral de profundidad + 4 Galerías -->
+    <main class="flex-1 flex gap-2.5 items-stretch min-h-0">
+
+      <!-- Regla Vertical de Profundidad (+15 m a -65 m) -->
+      <aside class="hidden lg:flex flex-col w-20 shrink-0 bg-stone-950/85 border border-stone-800 rounded-2xl overflow-hidden shadow-inner">
+        <!-- Encabezado alineado con cabecera de cuadrilla -->
+        <div class="h-[78px] shrink-0 flex flex-col items-center justify-center border-b border-stone-800 px-1 text-center bg-stone-950">
+          <span class="font-hud text-[10px] font-extrabold uppercase tracking-wider text-cyan-400">RADAR</span>
+          <span class="text-xs font-bold text-stone-400">Cota (m)</span>
+        </div>
+
+        <!-- Track de la regla alineado con el pozo -->
+        <div id="depthRulerTrack" class="relative flex-1 min-h-[240px] bg-gradient-to-b from-stone-900/70 via-stone-950/90 to-red-950/40">
+          <!-- Generado dinámicamente por JS -->
+        </div>
+
+        <!-- Pie alineado con el panel inferior de controles -->
+        <div class="h-[228px] shrink-0 border-t border-stone-800 bg-stone-950/95 flex flex-col items-center justify-center p-2 text-center gap-1">
+          <span class="text-xl">📡</span>
+          <span class="font-hud text-[9px] font-extrabold uppercase tracking-wider text-emerald-400 leading-tight">Escáner<br>Activo</span>
+          <div class="w-10 h-1 rounded-full bg-stone-800 overflow-hidden mt-1">
+            <div class="h-full w-2/3 bg-emerald-400 animate-pulse"></div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Grid de las 4 Cuadrillas -->
+      <section id="crewsGrid" class="flex-1 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-2.5 min-w-0 min-h-0">
+        <!-- Renderizado dinámicamente por JS -->
+      </section>
+    </main>
+  </div>
+
+  <!-- ==================== PANTALLA FINAL: EL COFRE SECRETO EGIPCIO ==================== -->
+  <div id="victoryScreen" class="hidden fixed inset-0 z-50 overflow-y-auto bg-[#090504]">
+    <!-- Canvas de llamas, chispas y polvo dorado -->
+    <canvas id="victoryFireCanvas" class="fixed inset-0 w-full h-full pointer-events-none z-0"></canvas>
+
+    <!-- Rayos de luz giratorios -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+      <div class="sun-rays"></div>
+    </div>
+
+    <div class="relative z-10 min-h-screen flex flex-col items-center justify-between px-4 py-4 max-w-6xl mx-auto">
+
+      <!-- Barra superior de controles de la pantalla final -->
+      <div class="w-full flex flex-wrap items-center justify-between gap-2">
+        <button id="backToBoardBtn" type="button"
+          class="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-stone-900/90 hover:bg-stone-800 border-2 border-amber-500/50 text-amber-200 font-bold text-sm sm:text-base shadow-xl transition active:scale-95">
+          <span>←</span>
+          <span>Volver al Panel</span>
+        </button>
+
+        <div class="flex items-center gap-2">
+          <button id="replayFanfareBtn" type="button"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/60 text-amber-200 font-bold text-sm sm:text-base transition active:scale-95">
+            <span>🎺</span>
+            <span>Repetir Fanfarria</span>
+          </button>
+          <button id="muteVictoryBtn" type="button"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-stone-900/90 hover:bg-stone-800 border border-stone-600 text-stone-200 font-bold text-sm sm:text-base transition active:scale-95">
+            <span id="victoryMuteIcon">🔊</span>
+            <span id="victoryMuteLabel">Silenciar</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Cabecera de Victoria -->
+      <div class="text-center mt-1">
+        <div class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/60 text-emerald-300 font-hud text-xs sm:text-sm font-extrabold uppercase tracking-widest mb-2">
+          <span>✦</span>
+          <span>ORIGEN DE LA SEÑAL LOCALIZADO</span>
+          <span>✦</span>
+        </div>
+        <h2 class="font-epic text-3xl sm:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-yellow-100 via-amber-400 to-orange-500 drop-shadow-[0_4px_24px_rgba(245,158,11,0.55)]">
+          ¡EL COFRE SECRETO!
+        </h2>
+        <div class="mt-2.5 inline-flex flex-col sm:flex-row items-center gap-2 sm:gap-4 px-6 py-2.5 rounded-2xl bg-stone-950/85 border-2 border-amber-400/80 shadow-[0_0_30px_rgba(245,158,11,0.38)]">
+          <span id="victoryCrewTitle" class="text-xl sm:text-3xl font-black text-amber-300">Cuadrilla Ganadora</span>
+          <span class="hidden sm:inline text-amber-600 font-bold">|</span>
+          <span id="victoryCrewSubtitle" class="px-3.5 py-1 rounded-xl text-xs sm:text-base font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
+            Coordenadas Exactas (0 errores)
+          </span>
+        </div>
+      </div>
+
+      <!-- Ilustración SVG detallada del Cofre Egipcio entre rocas, llamas y gemas -->
+      <div class="w-full max-w-4xl my-1 flex items-center justify-center">
+        <svg viewBox="0 0 900 460" class="w-full h-auto drop-shadow-[0_20px_50px_rgba(0,0,0,0.9)]" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="auraGold" cx="50%" cy="52%" r="48%">
+              <stop offset="0%" stop-color="#fef08a" stop-opacity="0.78"/>
+              <stop offset="35%" stop-color="#f59e0b" stop-opacity="0.36"/>
+              <stop offset="70%" stop-color="#ea580c" stop-opacity="0.14"/>
+              <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="goldMetal" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#fef08a"/>
+              <stop offset="30%" stop-color="#f59e0b"/>
+              <stop offset="65%" stop-color="#b45309"/>
+              <stop offset="100%" stop-color="#fde047"/>
+            </linearGradient>
+            <linearGradient id="goldDark" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#d97706"/>
+              <stop offset="50%" stop-color="#78350f"/>
+              <stop offset="100%" stop-color="#451a03"/>
+            </linearGradient>
+            <linearGradient id="obsidianChest" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#292524"/>
+              <stop offset="50%" stop-color="#1c1917"/>
+              <stop offset="100%" stop-color="#0c0a09"/>
+            </linearGradient>
+            <linearGradient id="lapisPanel" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#1e3a8a"/>
+              <stop offset="50%" stop-color="#172554"/>
+              <stop offset="100%" stop-color="#0f172a"/>
+            </linearGradient>
+            <linearGradient id="rockGrad1" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#3f3430"/>
+              <stop offset="45%" stop-color="#231b18"/>
+              <stop offset="100%" stop-color="#0e0a09"/>
+            </linearGradient>
+            <linearGradient id="rockGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#2c221e"/>
+              <stop offset="100%" stop-color="#120c0a"/>
+            </linearGradient>
+            <linearGradient id="flameGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+              <stop offset="0%" stop-color="#dc2626"/>
+              <stop offset="45%" stop-color="#f97316"/>
+              <stop offset="85%" stop-color="#fde047"/>
+              <stop offset="100%" stop-color="#ffffff"/>
+            </linearGradient>
+            <linearGradient id="innerTreasureGlow" x1="0%" y1="100%" x2="0%" y2="0%">
+              <stop offset="0%" stop-color="#fef08a" stop-opacity="0.95"/>
+              <stop offset="50%" stop-color="#fbbf24" stop-opacity="0.48"/>
+              <stop offset="100%" stop-color="#fbbf24" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Resplandor trasero -->
+          <ellipse cx="450" cy="235" rx="395" ry="198" fill="url(#auraGold)"/>
+
+          <!-- Rocas volcánicas traseras -->
+          <polygon points="35,415 110,185 215,240 272,125 340,255 310,415" fill="url(#rockGrad2)" stroke="#57392b" stroke-width="2"/>
+          <polygon points="865,415 795,170 695,235 618,118 555,250 580,415" fill="url(#rockGrad2)" stroke="#57392b" stroke-width="2"/>
+          <!-- Grietas de magma en rocas -->
+          <path d="M115,215 L145,270 L130,315 L165,360" stroke="#ff5500" stroke-width="3" fill="none" class="magma-crack"/>
+          <path d="M785,200 L748,263 L765,313 L730,355" stroke="#ff5500" stroke-width="3" fill="none" class="magma-crack"/>
+
+          <!-- Llamas animadas tras el cofre -->
+          <g opacity="0.9">
+            <path d="M175,375 C150,305 190,260 180,205 C208,240 225,210 220,165 C255,215 265,280 245,375 Z" fill="url(#flameGrad)">
+              <animate attributeName="d" dur="1.65s" repeatCount="indefinite"
+                values="M175,375 C150,305 190,260 180,205 C208,240 225,210 220,165 C255,215 265,280 245,375 Z;
+                        M175,375 C158,315 178,250 192,190 C215,235 232,200 226,152 C262,210 260,290 245,375 Z;
+                        M175,375 C150,305 190,260 180,205 C208,240 225,210 220,165 C255,215 265,280 245,375 Z"/>
+            </path>
+            <path d="M725,375 C750,305 710,260 720,200 C692,240 675,210 680,160 C645,215 635,280 655,375 Z" fill="url(#flameGrad)">
+              <animate attributeName="d" dur="1.5s" repeatCount="indefinite"
+                values="M725,375 C750,305 710,260 720,200 C692,240 675,210 680,160 C645,215 635,280 655,375 Z;
+                        M725,375 C742,315 722,245 708,187 C685,230 668,195 674,148 C638,210 640,290 655,375 Z;
+                        M725,375 C750,305 710,260 720,200 C692,240 675,210 680,160 C645,215 635,280 655,375 Z"/>
+            </path>
+          </g>
+
+          <!-- Pedestal de piedra tallada -->
+          <polygon points="160,410 225,350 675,350 740,410" fill="url(#rockGrad1)" stroke="#78350f" stroke-width="2.5"/>
+          <rect x="235" y="343" width="430" height="22" rx="4" fill="#292524" stroke="url(#goldMetal)" stroke-width="2"/>
+
+          <!-- COFRE SECRETO EGIPCIO -->
+          <g class="chest-float">
+            <!-- Haz de luz saliendo del cofre -->
+            <polygon points="300,205 225,48 675,48 600,205" fill="url(#innerTreasureGlow)"/>
+
+            <!-- Tapa arqueada egipcia -->
+            <path d="M275,200 L295,123 Q450,87 605,123 L625,200 Z" fill="url(#obsidianChest)" stroke="url(#goldMetal)" stroke-width="6"/>
+            <path d="M300,140 Q450,107 600,140" stroke="url(#goldMetal)" stroke-width="5" fill="none"/>
+            <path d="M286,177 Q450,147 614,177" stroke="url(#goldMetal)" stroke-width="4" fill="none"/>
+            <path d="M350,135 Q450,113 550,135 L558,171 Q450,151 342,171 Z" fill="url(#lapisPanel)" stroke="url(#goldMetal)" stroke-width="2.5"/>
+
+            <!-- Escarabajo alado dorado en la tapa -->
+            <g transform="translate(450, 147)">
+              <path d="M-14,0 C-38,-14 -68,-10 -86,6 C-62,10 -34,12 -14,6 Z" fill="url(#goldMetal)" stroke="#78350f" stroke-width="1.2"/>
+              <path d="M14,0 C38,-14 68,-10 86,6 C62,10 34,12 14,6 Z" fill="url(#goldMetal)" stroke="#78350f" stroke-width="1.2"/>
+              <circle cx="0" cy="-14" r="9" fill="#ef4444" stroke="#fde047" stroke-width="2"/>
+              <ellipse cx="0" cy="4" rx="13" ry="15" fill="url(#goldMetal)" stroke="#78350f" stroke-width="1.5"/>
+              <line x1="0" y1="-8" x2="0" y2="18" stroke="#78350f" stroke-width="1.5"/>
+            </g>
+
+            <!-- Rendija dorada de tesoro -->
+            <rect x="285" y="195" width="330" height="16" fill="#fef08a" filter="drop-shadow(0 0 12px #fbbf24)"/>
+
+            <!-- Cuerpo del cofre -->
+            <polygon points="282,211 618,211 600,347 300,347" fill="url(#obsidianChest)" stroke="url(#goldMetal)" stroke-width="7"/>
+
+            <!-- Pilares laterales -->
+            <rect x="292" y="215" width="32" height="128" fill="url(#goldDark)" stroke="url(#goldMetal)" stroke-width="2.5"/>
+            <rect x="576" y="215" width="32" height="128" fill="url(#goldDark)" stroke="url(#goldMetal)" stroke-width="2.5"/>
+
+            <!-- Panel frontal lapislázuli -->
+            <rect x="334" y="223" width="232" height="112" rx="6" fill="url(#lapisPanel)" stroke="url(#goldMetal)" stroke-width="3.5"/>
+
+            <!-- Jeroglíficos y grabados raros brillantes -->
+            <g class="glyph-pulse" stroke="#22d3ee" stroke-width="2.3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <!-- Columna izquierda -->
+              <circle cx="362" cy="247" r="7"/>
+              <line x1="362" y1="254" x2="362" y2="273"/>
+              <line x1="353" y1="261" x2="371" y2="261"/>
+              <polygon points="352,301 362,283 372,301"/>
+              <line x1="356" y1="295" x2="368" y2="295"/>
+              <path d="M349,317 L355,311 L361,317 L367,311 L373,317"/>
+              <!-- Columna derecha -->
+              <polygon points="538,240 548,252 538,264 528,252"/>
+              <circle cx="538" cy="252" r="3" fill="#fde047"/>
+              <path d="M528,283 L548,283 L528,303 L548,303 Z"/>
+              <path d="M527,317 L533,311 L539,317 L545,311 L551,317"/>
+            </g>
+
+            <!-- Ojo de Horus central -->
+            <g transform="translate(450, 277)">
+              <polygon points="0,-42 46,-20 46,24 0,44 -46,24 -46,-20" fill="url(#goldDark)" stroke="url(#goldMetal)" stroke-width="3.5"/>
+              <path d="M-32,-2 Q0,-24 32,-2 Q0,18 -32,-2 Z" fill="#fef9c3" stroke="#fde047" stroke-width="2"/>
+              <circle cx="0" cy="-2" r="9" fill="#0ea5e9" stroke="#1e3a8a" stroke-width="2"/>
+              <circle cx="0" cy="-2" r="4" fill="#0f172a"/>
+              <path d="M-28,-12 Q0,-28 30,-10" stroke="#fde047" stroke-width="2.5" fill="none"/>
+              <path d="M0,11 L-6,28 M12,9 C20,18 22,28 12,30 C6,31 5,25 9,23" stroke="#fde047" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            </g>
+
+            <!-- Esquinas doradas -->
+            <path d="M276,209 L318,209 L318,235 L292,235 L292,257 L276,257 Z" fill="url(#goldMetal)"/>
+            <path d="M624,209 L582,209 L582,235 L608,235 L608,257 L624,257 Z" fill="url(#goldMetal)"/>
+            <path d="M294,349 L336,349 L336,329 L312,329 L312,311 L294,311 Z" fill="url(#goldMetal)"/>
+            <path d="M606,349 L564,349 L564,329 L588,329 L588,311 L606,311 Z" fill="url(#goldMetal)"/>
+          </g>
+
+          <!-- Gemas preciosas resplandecientes y oro -->
+          <g>
+            <!-- Izquierda -->
+            <polygon points="215,370 240,343 268,360 258,391 220,393" fill="#e11d48" stroke="#fda4af" stroke-width="2" class="gem-twinkle"/>
+            <polygon points="262,383 286,355 314,365 306,399 270,401" fill="#10b981" stroke="#a7f3d0" stroke-width="2" class="gem-twinkle" style="animation-delay:0.4s"/>
+            <polygon points="172,390 196,363 220,377 212,407 178,407" fill="#9333ea" stroke="#e9d5ff" stroke-width="2" class="gem-twinkle" style="animation-delay:0.8s"/>
+            <polygon points="315,387 336,369 356,387 336,407" fill="#38bdf8" stroke="#e0f2fe" stroke-width="2" class="gem-twinkle" style="animation-delay:0.2s"/>
+            <ellipse cx="246" cy="403" rx="18" ry="7" fill="#fbbf24" stroke="#92400e" stroke-width="1.5"/>
+            <ellipse cx="268" cy="409" rx="18" ry="7" fill="#f59e0b" stroke="#92400e" stroke-width="1.5"/>
+            <!-- Derecha -->
+            <polygon points="622,363 652,343 680,369 668,397 630,395" fill="#2563eb" stroke="#bfdbfe" stroke-width="2" class="gem-twinkle" style="animation-delay:0.3s"/>
+            <polygon points="576,377 602,357 628,377 616,403 584,403" fill="#dc2626" stroke="#fecaca" stroke-width="2" class="gem-twinkle" style="animation-delay:0.7s"/>
+            <polygon points="680,381 706,361 732,383 718,409 686,409" fill="#059669" stroke="#6ee7b7" stroke-width="2" class="gem-twinkle" style="animation-delay:1.1s"/>
+            <polygon points="540,389 562,371 584,389 562,409" fill="#f59e0b" stroke="#fef08a" stroke-width="2" class="gem-twinkle" style="animation-delay:0.5s"/>
+            <ellipse cx="612" cy="409" rx="18" ry="7" fill="#fde047" stroke="#92400e" stroke-width="1.5"/>
+            <ellipse cx="645" cy="405" rx="18" ry="7" fill="#fbbf24" stroke="#92400e" stroke-width="1.5"/>
+            <!-- Centro -->
+            <polygon points="415,387 436,367 456,387 436,409" fill="#e11d48" stroke="#fecdd3" stroke-width="2" class="gem-twinkle" style="animation-delay:0.6s"/>
+            <polygon points="452,391 474,369 496,391 474,413" fill="#38bdf8" stroke="#e0f2fe" stroke-width="2" class="gem-twinkle" style="animation-delay:0.1s"/>
+            <polygon points="376,393 396,375 416,393 396,411" fill="#10b981" stroke="#a7f3d0" stroke-width="2" class="gem-twinkle" style="animation-delay:0.9s"/>
+            <polygon points="494,393 514,375 534,393 514,411" fill="#a855f7" stroke="#f3e8ff" stroke-width="2" class="gem-twinkle" style="animation-delay:1.2s"/>
+          </g>
+
+          <!-- Rocas primer plano -->
+          <polygon points="0,460 0,335 85,360 155,412 220,460" fill="url(#rockGrad1)" stroke="#443028" stroke-width="2"/>
+          <polygon points="900,460 900,330 815,357 745,410 680,460" fill="url(#rockGrad1)" stroke="#443028" stroke-width="2"/>
+          <polygon points="160,460 260,420 450,430 640,420 740,460" fill="#140d0b"/>
+
+          <!-- Llamas primer plano -->
+          <g opacity="0.92">
+            <path d="M75,448 C60,398 95,373 90,338 C115,368 130,353 128,318 C155,358 162,408 142,448 Z" fill="url(#flameGrad)">
+              <animate attributeName="d" dur="1.3s" repeatCount="indefinite"
+                values="M75,448 C60,398 95,373 90,338 C115,368 130,353 128,318 C155,358 162,408 142,448 Z;
+                        M75,448 C68,405 85,365 98,327 C122,361 134,341 135,308 C160,355 156,415 142,448 Z;
+                        M75,448 C60,398 95,373 90,338 C115,368 130,353 128,318 C155,358 162,408 142,448 Z"/>
+            </path>
+            <path d="M825,448 C840,398 805,373 810,338 C785,368 770,353 772,318 C745,358 738,408 758,448 Z" fill="url(#flameGrad)">
+              <animate attributeName="d" dur="1.4s" repeatCount="indefinite"
+                values="M825,448 C840,398 805,373 810,338 C785,368 770,353 772,318 C745,358 738,408 758,448 Z;
+                        M825,448 C832,405 815,365 802,327 C778,361 766,341 765,308 C740,355 744,415 758,448 Z;
+                        M825,448 C840,398 805,373 810,338 C785,368 770,353 772,318 C745,358 738,408 758,448 Z"/>
+            </path>
+          </g>
+        </svg>
+      </div>
+
+      <p class="text-center text-amber-200/85 text-sm sm:text-base font-medium pb-1 max-w-2xl">
+        ¡Misión cumplida! Habéis descifrado las coordenadas del radar geológico y descubierto el origen de la misteriosa señal subterránea.
+      </p>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL DEL DOCENTE ==================== -->
+  <div id="teacherModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div class="w-full max-w-2xl bg-stone-950 border-2 border-cyan-700/70 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      <div class="flex items-center justify-between px-6 py-4 bg-stone-900 border-b border-stone-800">
+        <div>
+          <h3 class="text-xl font-black text-cyan-300 flex items-center gap-2">
+            <span>⚙</span> Panel del Docente
+          </h3>
+          <p class="text-xs text-stone-400">Gestión de coordenadas, sonido y cierre de partida</p>
+        </div>
+        <button id="closeTeacherBtn" type="button"
+          class="w-10 h-10 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold text-lg flex items-center justify-center transition">
+          ✕
+        </button>
+      </div>
+
+      <div class="p-5 sm:p-6 overflow-y-auto space-y-4">
+
+        <!-- 1. Resolver con equipos terminados (útil si solo juegan 2 o 3 grupos) -->
+        <div class="p-4 rounded-2xl bg-emerald-950/35 border border-emerald-700/60">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p class="font-bold text-emerald-300">Resolver con equipos terminados</p>
+              <p class="text-xs text-stone-400">
+                Si solo juegan 2 o 3 cuadrillas y ninguna acertó todo, activa el botón del cofre para la más cercana entre las que ya completaron sus 5 tramos.
+              </p>
+            </div>
+            <button id="forceResolveBtn" type="button"
+              class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs sm:text-sm transition shadow active:scale-95">
+              📡 Resolver ahora
+            </button>
+          </div>
+          <p id="forceResolveStatus" class="hidden mt-2 text-xs font-bold text-amber-300"></p>
+        </div>
+
+        <!-- 2. Control de sonido -->
+        <div class="flex items-center justify-between p-4 rounded-2xl bg-stone-900/80 border border-stone-800">
+          <div>
+            <p class="font-bold text-stone-100">Efectos de radar y música triunfal</p>
+            <p class="text-xs text-stone-400">Activa o silencia todos los sonidos de la aplicación</p>
+          </div>
+          <button id="modalSoundBtn" type="button"
+            class="px-4 py-2 rounded-xl font-bold text-sm transition border">
+            Activado
+          </button>
+        </div>
+
+        <!-- 3. Editor de los 5 tramos correctos -->
+        <div class="p-4 rounded-2xl bg-stone-900/80 border border-stone-800">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p class="font-bold text-amber-300">Coordenadas correctas (5 tramos)</p>
+              <p class="text-xs text-stone-400">Ocultas por defecto para proteger la pantalla en clase.</p>
+            </div>
+            <button id="toggleAnswersBtn" type="button"
+              class="px-3.5 py-1.5 rounded-xl bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/50 text-amber-300 text-xs font-bold transition">
+              👁 Mostrar / Editar
+            </button>
+          </div>
+
+          <div id="answersEditorBox" class="hidden mt-4">
+            <div id="answersInputsGrid" class="grid grid-cols-5 gap-2">
+              <!-- Inputs generados dinámicamente -->
+            </div>
+            <div class="mt-4 flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-stone-800">
+              <span id="answersFinalPreview" class="font-hud text-xs font-bold text-cyan-300">Posición final exacta: -48 m</span>
+              <div class="flex gap-2">
+                <button id="restoreDefaultsBtn" type="button"
+                  class="px-3 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-bold transition">
+                  Restaurar originales
+                </button>
+                <button id="saveAnswersBtn" type="button"
+                  class="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition shadow">
+                  Guardar cambios
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Reiniciar partida (confirmación en 2 pasos, sin confirm()) -->
+        <div class="p-4 rounded-2xl bg-red-950/30 border border-red-900/60">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p class="font-bold text-red-300">Reiniciar toda la partida</p>
+              <p class="text-xs text-stone-400">Devuelve a las 4 cuadrillas a 0 m y borra todos los registros.</p>
+            </div>
+            <div id="resetActionZone"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL RENOMBRAR CUADRILLA ==================== -->
+  <div id="renameModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+    <div class="w-full max-w-md bg-stone-950 border-2 border-cyan-600/70 rounded-3xl p-6 shadow-2xl">
+      <h3 class="text-lg font-black text-cyan-300 mb-1">Editar nombre de la cuadrilla</h3>
+      <p class="text-xs text-stone-400 mb-4">Introduce el nombre del grupo para mostrarlo en la pizarra.</p>
+      <input id="renameInput" type="text" maxlength="26"
+        class="w-full px-4 py-3 rounded-xl bg-stone-900 border-2 border-stone-700 focus:border-cyan-400 text-white font-bold text-lg outline-none mb-4" />
+      <div class="flex justify-end gap-2">
+        <button id="cancelRenameBtn" type="button"
+          class="px-4 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold text-sm transition">
+          Cancelar
+        </button>
+        <button id="confirmRenameBtn" type="button"
+          class="px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-stone-950 font-black text-sm transition">
+          Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ============================================================================
+       OPERACIÓN RADAR SUBTERRÁNEO: LA SEÑAL OCULTA
+       Lógica de coordenadas, cálculo de errores, audio Web Audio API y animaciones
+       ============================================================================ */
+
+    const DEFAULT_ANSWERS = [-4, -5, 2, -18, -23]; // Posición final exacta: -48 m
+    const TOTAL_TRAMOS = 5;
+    const MAX_DEPTH_VISUAL = 15;   // +15 m (parte superior de la regla)
+    const MIN_DEPTH_VISUAL = -65;  // -65 m (parte inferior de la regla)
+
+    const state = {
+      correctAnswers: [...DEFAULT_ANSWERS],
+      soundEnabled: true,
+      forceResolved: false, // Activado por el docente si juegan menos de 4 grupos
+      editingCrewId: null,
+      crews: [
+        {
+          id: 0,
+          name: 'Cuadrilla 1',
+          accentHex: '#e11d48',
+          bgTint: 'rgba(225, 29, 72, 0.14)',
+          borderClass: 'border-rose-600/60',
+          badgeClass: 'bg-rose-600 text-white',
+          entries: [], // { value, expected, deviation, posAfter }
+          position: 0,
+          lastDeviation: null,
+          totalError: 0
+        },
+        {
+          id: 1,
+          name: 'Cuadrilla 2',
+          accentHex: '#2563eb',
+          bgTint: 'rgba(37, 99, 235, 0.14)',
+          borderClass: 'border-blue-500/60',
+          badgeClass: 'bg-blue-600 text-white',
+          entries: [],
+          position: 0,
+          lastDeviation: null,
+          totalError: 0
+        },
+        {
+          id: 2,
+          name: 'Cuadrilla 3',
+          accentHex: '#10b981',
+          bgTint: 'rgba(16, 185, 129, 0.14)',
+          borderClass: 'border-emerald-500/60',
+          badgeClass: 'bg-emerald-600 text-white',
+          entries: [],
+          position: 0,
+          lastDeviation: null,
+          totalError: 0
+        },
+        {
+          id: 3,
+          name: 'Cuadrilla 4',
+          accentHex: '#f59e0b',
+          bgTint: 'rgba(245, 158, 11, 0.14)',
+          borderClass: 'border-amber-500/60',
+          badgeClass: 'bg-amber-500 text-stone-950',
+          entries: [],
+          position: 0,
+          lastDeviation: null,
+          totalError: 0
+        }
+      ]
+    };
+
+    /* ============================================================================
+       MOTOR DE SONIDO SINTETIZADO (WEB AUDIO API)
+       ============================================================================ */
+    const SoundEngine = (() => {
+      let ctx = null;
+      let masterGain = null;
+      let victoryTimers = [];
+      let isVictoryPlaying = false;
+      let isVictoryMuted = false;
+
+      function ensureCtx() {
+        if (!ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (!AudioCtx) return null;
+          ctx = new AudioCtx();
+          masterGain = ctx.createGain();
+          masterGain.gain.value = 0.72;
+          masterGain.connect(ctx.destination);
+        }
+        if (ctx.state === 'suspended') {
+          ctx.resume();
+        }
+        return ctx;
+      }
+
+      function playTone(freq, startTime, duration, type = 'sine', volume = 0.18) {
+        const audio = ensureCtx();
+        if (!audio || !masterGain) return;
+        const osc = audio.createOscillator();
+        const gain = audio.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, startTime);
+
+        gain.gain.setValueAtTime(0.0001, startTime);
+        gain.gain.linearRampToValueAtTime(volume, startTime + 0.018);
+        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+        osc.connect(gain);
+        gain.connect(masterGain);
+        osc.start(startTime);
+        osc.stop(startTime + duration + 0.03);
+      }
+
+      // Ping de radar verde + acorde limpio al acertar exacto
+      function playExactRadar() {
+        if (!state.soundEnabled) return;
+        const audio = ensureCtx();
+        if (!audio) return;
+        const t = audio.currentTime;
+        playTone(880, t, 0.16, 'sine', 0.2);
+        playTone(1318.5, t + 0.09, 0.28, 'sine', 0.22);
+        playTone(1760, t + 0.18, 0.35, 'triangle', 0.14);
+      }
+
+      // Alerta grave de desvío
+      function playErrorAlert() {
+        if (!state.soundEnabled) return;
+        const audio = ensureCtx();
+        if (!audio) return;
+        const t = audio.currentTime;
+        playTone(175, t, 0.22, 'sawtooth', 0.14);
+        playTone(130.8, t + 0.12, 0.30, 'sawtooth', 0.15);
+      }
+
+      // Sonido suave de deshacer
+      function playUndo() {
+        if (!state.soundEnabled) return;
+        const audio = ensureCtx();
+        if (!audio) return;
+        const t = audio.currentTime;
+        playTone(440, t, 0.1, 'sine', 0.11);
+        playTone(330, t + 0.06, 0.14, 'sine', 0.10);
+      }
+
+      // Metales sintetizados para la fanfarria épica
+      function playBrass(freq, startTime, duration, volume = 0.14) {
+        const audio = ensureCtx();
+        if (!audio || !masterGain || isVictoryMuted) return;
+
+        const osc1 = audio.createOscillator();
+        const osc2 = audio.createOscillator();
+        const filter = audio.createBiquadFilter();
+        const gain = audio.createGain();
+
+        osc1.type = 'sawtooth';
+        osc2.type = 'triangle';
+        osc1.frequency.setValueAtTime(freq, startTime);
+        osc2.frequency.setValueAtTime(freq * 1.004, startTime);
+
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(600, startTime);
+        filter.frequency.exponentialRampToValueAtTime(2500, startTime + 0.08);
+        filter.frequency.exponentialRampToValueAtTime(1150, startTime + duration);
+
+        gain.gain.setValueAtTime(0.0001, startTime);
+        gain.gain.linearRampToValueAtTime(volume, startTime + 0.045);
+        gain.gain.setValueAtTime(volume * 0.85, startTime + Math.max(0.06, duration - 0.1));
+        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+        osc1.connect(filter);
+        osc2.connect(filter);
+        filter.connect(gain);
+        gain.connect(masterGain);
+
+        osc1.start(startTime);
+        osc2.start(startTime);
+        osc1.stop(startTime + duration + 0.05);
+        osc2.stop(startTime + duration + 0.05);
+      }
+
+      // Timbal épico
+      function playTimpani(freq, startTime, volume = 0.28) {
+        const audio = ensureCtx();
+        if (!audio || !masterGain || isVictoryMuted) return;
+        const osc = audio.createOscillator();
+        const gain = audio.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq * 1.38, startTime);
+        osc.frequency.exponentialRampToValueAtTime(freq, startTime + 0.08);
+
+        gain.gain.setValueAtTime(0.001, startTime);
+        gain.gain.linearRampToValueAtTime(volume, startTime + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.55);
+
+        osc.connect(gain);
+        gain.connect(masterGain);
+        osc.start(startTime);
+        osc.stop(startTime + 0.6);
+      }
+
+      // Destello de arpa / coro brillante
+      function playChoirSparkle(freq, startTime, volume = 0.1) {
+        const audio = ensureCtx();
+        if (!audio || !masterGain || isVictoryMuted) return;
+        playTone(freq, startTime, 0.55, 'sine', volume);
+        playTone(freq * 2, startTime, 0.28, 'triangle', volume * 0.35);
+      }
+
+      // Fanfarria triunfal con toque egipcio resolviendo a acorde mayor majestuoso
+      function playVictoryFanfare() {
+        stopVictoryMusic();
+        if (!state.soundEnabled) {
+          isVictoryMuted = true;
+          updateVictoryMuteUI();
+          return;
+        }
+        const audio = ensureCtx();
+        if (!audio) return;
+
+        isVictoryMuted = false;
+        isVictoryPlaying = true;
+        updateVictoryMuteUI();
+
+        const melody = [
+          { f: 293.66, t: 0.00, d: 0.26, v: 0.16 }, // D4
+          { f: 440.00, t: 0.28, d: 0.26, v: 0.17 }, // A4
+          { f: 466.16, t: 0.56, d: 0.22, v: 0.17 }, // Bb4 (matiz egipcio)
+          { f: 440.00, t: 0.80, d: 0.44, v: 0.18 }, // A4
+
+          { f: 369.99, t: 1.32, d: 0.24, v: 0.16 }, // F#4
+          { f: 392.00, t: 1.58, d: 0.24, v: 0.16 }, // G4
+          { f: 440.00, t: 1.84, d: 0.24, v: 0.18 }, // A4
+          { f: 587.33, t: 2.10, d: 0.65, v: 0.21 }, // D5
+
+          { f: 554.37, t: 2.82, d: 0.24, v: 0.17 }, // C#5
+          { f: 587.33, t: 3.08, d: 0.24, v: 0.18 }, // D5
+          { f: 659.25, t: 3.34, d: 0.30, v: 0.19 }, // E5
+          { f: 739.99, t: 3.68, d: 0.50, v: 0.21 }, // F#5
+
+          { f: 587.33, t: 4.26, d: 0.20, v: 0.18 }, // D5
+          { f: 739.99, t: 4.48, d: 0.20, v: 0.19 }, // F#5
+          { f: 880.00, t: 4.70, d: 0.85, v: 0.22 }, // A5
+          { f: 739.99, t: 5.62, d: 0.24, v: 0.18 }, // F#5
+          { f: 880.00, t: 5.88, d: 0.24, v: 0.19 }, // A5
+          { f: 1174.66, t: 6.16, d: 1.50, v: 0.22 } // D6
+        ];
+
+        const chords = [
+          { notes: [146.83, 220.00], t: 0.00, d: 1.25 },
+          { notes: [146.83, 185.00, 220.00], t: 1.32, d: 1.40 },
+          { notes: [196.00, 246.94, 293.66], t: 2.82, d: 1.35 },
+          { notes: [110.00, 220.00, 277.18], t: 4.26, d: 1.30 },
+          { notes: [146.83, 220.00, 293.66, 369.99], t: 5.62, d: 2.10 }
+        ];
+
+        const drums = [
+          { f: 73.42, t: 0.00 }, { f: 73.42, t: 0.28 }, { f: 110.0, t: 0.80 },
+          { f: 73.42, t: 1.32 }, { f: 110.0, t: 2.10 },
+          { f: 98.00, t: 2.82 }, { f: 110.0, t: 3.68 },
+          { f: 73.42, t: 4.26 }, { f: 110.0, t: 4.70 },
+          { f: 73.42, t: 5.62 }, { f: 73.42, t: 5.88 }, { f: 73.42, t: 6.16 }
+        ];
+
+        const harp = [587.33, 739.99, 880.00, 1174.66, 1479.98, 1760.00];
+
+        melody.forEach(n => {
+          victoryTimers.push(setTimeout(() => {
+            if (isVictoryPlaying && !isVictoryMuted) playBrass(n.f, audio.currentTime, n.d, n.v);
+          }, n.t * 1000));
+        });
+
+        chords.forEach(ch => {
+          victoryTimers.push(setTimeout(() => {
+            if (isVictoryPlaying && !isVictoryMuted) {
+              ch.notes.forEach(f => playBrass(f, audio.currentTime, ch.d, 0.075));
+            }
+          }, ch.t * 1000));
+        });
+
+        drums.forEach(d => {
+          victoryTimers.push(setTimeout(() => {
+            if (isVictoryPlaying && !isVictoryMuted) playTimpani(d.f, audio.currentTime, 0.25);
+          }, d.t * 1000));
+        });
+
+        [2.10, 4.70, 6.16].forEach(baseT => {
+          harp.forEach((f, idx) => {
+            victoryTimers.push(setTimeout(() => {
+              if (isVictoryPlaying && !isVictoryMuted) playChoirSparkle(f, audio.currentTime, 0.085);
+            }, (baseT + idx * 0.085) * 1000));
+          });
+        });
+
+        victoryTimers.push(setTimeout(() => {
+          isVictoryPlaying = false;
+        }, 8200));
+      }
+
+      function stopVictoryMusic() {
+        isVictoryPlaying = false;
+        victoryTimers.forEach(id => clearTimeout(id));
+        victoryTimers = [];
+      }
+
+      function toggleVictoryMute() {
+        isVictoryMuted = !isVictoryMuted;
+        if (isVictoryMuted) {
+          stopVictoryMusic();
+        } else {
+          state.soundEnabled = true;
+          updateSoundUI();
+          playVictoryFanfare();
+        }
+        updateVictoryMuteUI();
+      }
+
+      function updateVictoryMuteUI() {
+        const icon = document.getElementById('victoryMuteIcon');
+        const label = document.getElementById('victoryMuteLabel');
+        if (!icon || !label) return;
+        icon.textContent = isVictoryMuted ? '🔇' : '🔊';
+        label.textContent = isVictoryMuted ? 'Activar música' : 'Silenciar';
+      }
+
+      return {
+        playExactRadar,
+        playErrorAlert,
+        playUndo,
+        playVictoryFanfare,
+        stopVictoryMusic,
+        toggleVictoryMute
+      };
+    })();
+
+    /* ============================================================================
+       POSICIONAMIENTO VERTICAL Y SVG DEL MINERO
+       ============================================================================ */
+
+    // Convierte profundidad (+15 m a -65 m) a porcentaje vertical del pozo (8% a 88%)
+    function depthToPercent(depth) {
+      const clamped = Math.max(MIN_DEPTH_VISUAL, Math.min(MAX_DEPTH_VISUAL, depth));
+      const ratio = (MAX_DEPTH_VISUAL - clamped) / (MAX_DEPTH_VISUAL - MIN_DEPTH_VISUAL);
+      return 8 + ratio * 80;
+    }
+
+    // Genera el SVG del minero con casco, linterna frontal encendida, arnés y pico
+    function buildMinerSVG(crew) {
+      return `
+        <svg viewBox="0 0 110 92" class="w-24 h-20 drop-shadow-[0_6px_12px_rgba(0,0,0,0.92)]" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="beam-${crew.id}" x1="0%" y1="50%" x2="100%" y2="50%">
+              <stop offset="0%" stop-color="#fef08a" stop-opacity="0.88"/>
+              <stop offset="55%" stop-color="#fde047" stop-opacity="0.30"/>
+              <stop offset="100%" stop-color="#fde047" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Haz de luz de la linterna -->
+          <polygon points="56,22 108,3 108,42" fill="url(#beam-${crew.id})"/>
+
+          <!-- Cable de arnés -->
+          <line x1="42" y1="0" x2="42" y2="14" stroke="#a8a29e" stroke-width="2" stroke-dasharray="3,2"/>
+
+          <!-- Piernas y botas -->
+          <rect x="31" y="64" width="9" height="16" rx="3" fill="#292524"/>
+          <rect x="44" y="64" width="9" height="16" rx="3" fill="#292524"/>
+          <rect x="29" y="76" width="12" height="7" rx="3" fill="#0c0a09"/>
+          <rect x="43" y="76" width="12" height="7" rx="3" fill="#0c0a09"/>
+
+          <!-- Cuerpo / Chaleco del color de la cuadrilla -->
+          <rect x="27" y="42" width="30" height="25" rx="7" fill="${crew.accentHex}" stroke="#1c1917" stroke-width="2"/>
+          <!-- Arnés de seguridad cruzado -->
+          <line x1="30" y1="43" x2="54" y2="62" stroke="#1c1917" stroke-width="2.6"/>
+          <line x1="54" y1="43" x2="30" y2="62" stroke="#1c1917" stroke-width="2.6"/>
+          <rect x="39" y="50" width="6" height="6" rx="1" fill="#fde047" stroke="#1c1917" stroke-width="1"/>
+          <rect x="28" y="59" width="28" height="3.5" fill="#1c1917"/>
+
+          <!-- Brazo izquierdo y Pico minero -->
+          <g transform="translate(17, 46)">
+            <line x1="6" y1="14" x2="-8" y2="-16" stroke="#78350f" stroke-width="4" stroke-linecap="round"/>
+            <path d="M-18,-10 Q-7,-24 6,-15" stroke="#e7e5e4" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+            <circle cx="7" cy="12" r="5" fill="#44403c" stroke="#1c1917" stroke-width="1.5"/>
+          </g>
+
+          <!-- Brazo derecho -->
+          <path d="M56,47 L64,58" stroke="${crew.accentHex}" stroke-width="7" stroke-linecap="round"/>
+          <circle cx="65" cy="59" r="4.5" fill="#44403c" stroke="#1c1917" stroke-width="1.5"/>
+
+          <!-- Cabeza -->
+          <circle cx="42" cy="31" r="11" fill="#fed7aa" stroke="#1c1917" stroke-width="1.8"/>
+          <circle cx="39" cy="31" r="1.6" fill="#1c1917"/>
+          <circle cx="46" cy="31" r="1.6" fill="#1c1917"/>
+          <path d="M39,36 Q42.5,38 46,36" stroke="#7c2d12" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+
+          <!-- Casco de seguridad -->
+          <path d="M29,27 C29,15 55,15 55,27 Z" fill="#facc15" stroke="#854d0e" stroke-width="2"/>
+          <rect x="26" y="25" width="32" height="4.5" rx="2" fill="#eab308" stroke="#854d0e" stroke-width="1.5"/>
+          <path d="M38,17 L46,17 L47,25 L37,25 Z" fill="${crew.accentHex}"/>
+
+          <!-- Linterna frontal encendida -->
+          <rect x="50" y="18" width="8" height="7" rx="2" fill="#57534e" stroke="#1c1917" stroke-width="1.2"/>
+          <circle cx="58" cy="21.5" r="3.4" fill="#fef9c3"/>
+        </svg>
+      `;
+    }
+
+    /* ============================================================================
+       LÓGICA DE RESOLUCIÓN Y BOTÓN "¡LOCALIZAR SEÑAL!"
+       ============================================================================ */
+
+    function getSignalEligibility() {
+      const finishedCrews = state.crews.filter(c => c.entries.length === TOTAL_TRAMOS);
+      const allFourFinished = finishedCrews.length === state.crews.length;
+      const anyPerfect = finishedCrews.some(c => c.totalError === 0);
+
+      let minError = Infinity;
+      const canEvaluateClosest = !anyPerfect && (allFourFinished || (state.forceResolved && finishedCrews.length > 0));
+      if (canEvaluateClosest) {
+        minError = Math.min(...finishedCrews.map(c => c.totalError));
+      }
+
+      return { finishedCrews, allFourFinished, anyPerfect, canEvaluateClosest, minError };
+    }
+
+    /* ============================================================================
+       RENDERIZADO DE REGLA LATERAL Y 4 COLUMNAS DE CUADRILLAS
+       ============================================================================ */
+
+    function renderDepthRuler() {
+      const track = document.getElementById('depthRulerTrack');
+      if (!track) return;
+
+      const marks = [15, 10, 0, -10, -20, -30, -40, -50, -60, -65];
+      // Banda visual de zona anómala alrededor de las profundidades (-42 a -54 m) sin desvelar el número exacto
+      const zoneTop = depthToPercent(-42);
+      const zoneBottom = depthToPercent(-54);
+      const zoneHeight = zoneBottom - zoneTop;
+
+      const anomalyBandHtml = `
+        <div class="absolute left-0 right-0 bg-emerald-500/20 border-y border-cyan-400/50 flex items-center justify-center pointer-events-none"
+             style="top: ${zoneTop}%; height: ${zoneHeight}%;">
+          <span class="font-hud text-[8px] font-extrabold text-cyan-300 tracking-tighter uppercase animate-pulse">SEÑAL</span>
+        </div>
+      `;
+
+      const marksHtml = marks.map(m => {
+        const topPct = depthToPercent(m);
+        const isZero = m === 0;
+        return `
+          <div class="absolute left-0 right-0 flex items-center justify-between px-1.5 -translate-y-1/2" style="top: ${topPct}%">
+            <span class="font-hud text-[10px] font-extrabold ${isZero ? 'text-amber-300' : m > 0 ? 'text-sky-300' : 'text-stone-400'}">
+              ${m > 0 ? '+' + m : m}
+            </span>
+            <span class="h-[2px] ${isZero ? 'w-4 bg-amber-400' : 'w-2 bg-stone-600'}"></span>
+          </div>
+          ${isZero ? `<div class="absolute left-1.5 font-hud text-[7px] font-bold uppercase text-amber-400/90" style="top: calc(${topPct}% + 7px)">Superficie</div>` : ''}
+        `;
+      }).join('');
+
+      track.innerHTML = anomalyBandHtml + marksHtml;
+    }
+
+    function updateHeaderHud() {
+      const hudText = document.getElementById('radarHudStatusText');
+      if (!hudText) return;
+      const { finishedCrews, anyPerfect, canEvaluateClosest } = getSignalEligibility();
+
+      if (anyPerfect) {
+        hudText.textContent = '¡SEÑAL FIJADA CON PRECISIÓN EXACTA!';
+      } else if (canEvaluateClosest) {
+        hudText.textContent = 'SEÑAL LOCALIZADA · CUADRILLA MÁS CERCANA';
+      } else {
+        hudText.textContent = `SEÑAL COMPACTA DETECTADA · ${finishedCrews.length}/4 FIN`;
+      }
+    }
+
+    function renderCrews(animatedCrewId = null, animType = null) {
+      const grid = document.getElementById('crewsGrid');
+      if (!grid) return;
+
+      const { allFourFinished, anyPerfect, canEvaluateClosest, minError } = getSignalEligibility();
+      const depthLines = [15, 0, -15, -30, -45, -60];
+
+      // Zona anómala visual en los pozos (-42 a -54 m)
+      const zoneTop = depthToPercent(-42);
+      const zoneHeight = depthToPercent(-54) - zoneTop;
+
+      // Conservar lo que otros grupos puedan estar escribiendo
+      const savedInputs = {};
+      state.crews.forEach(c => {
+        const inp = document.getElementById(`input-crew-${c.id}`);
+        if (inp) savedInputs[c.id] = inp.value;
+      });
+
+      grid.innerHTML = state.crews.map(crew => {
+        const completed = crew.entries.length;
+        const isFinished = completed === TOTAL_TRAMOS;
+        const currentTramo = Math.min(completed + 1, TOTAL_TRAMOS);
+        const topPct = depthToPercent(crew.position);
+        const outOfRange = crew.position < MIN_DEPTH_VISUAL || crew.position > MAX_DEPTH_VISUAL;
+
+        // ¿Le aparece el botón "¡LOCALIZAR SEÑAL!"?
+        let showLocateBtn = false;
+        let winMode = 'perfect';
+        if (isFinished) {
+          if (crew.totalError === 0) {
+            showLocateBtn = true;
+            winMode = 'perfect';
+          } else if (canEvaluateClosest && crew.totalError === minError) {
+            showLocateBtn = true;
+            winMode = 'closest';
+          }
+        }
+
+        // Mini historial compacto de los 5 tramos (siempre visible, sin scroll)
+        const compactHistoryHtml = Array.from({ length: TOTAL_TRAMOS }, (_, i) => {
+          const entry = crew.entries[i];
+          if (entry) {
+            const ok = entry.deviation === 0;
+            return `
+              <div title="Tramo ${i + 1}: ${entry.value > 0 ? '+' + entry.value : entry.value} m → Pos ${entry.posAfter} m (Desvío ${entry.deviation})"
+                class="rounded-lg px-1 py-1 text-center border ${ok ? 'bg-emerald-950/60 border-emerald-500/50' : 'bg-rose-950/50 border-rose-500/50'}">
+                <div class="font-hud text-[9px] font-bold text-stone-400 leading-none">T${i + 1}</div>
+                <div class="font-hud text-xs font-black leading-tight mt-0.5 ${ok ? 'text-emerald-300' : 'text-rose-200'}">
+                  ${entry.value > 0 ? '+' + entry.value : entry.value}
+                </div>
+                <div class="font-hud text-[9px] font-bold leading-none ${ok ? 'text-emerald-400' : 'text-rose-400'}">
+                  ${ok ? '✓' : '±' + entry.deviation}
+                </div>
+              </div>
+            `;
+          }
+          const isCurrent = i === completed && !isFinished;
+          return `
+            <div class="rounded-lg px-1 py-1 text-center border ${isCurrent ? 'bg-cyan-950/40 border-cyan-500/60 animate-pulse' : 'bg-stone-900/60 border-stone-800'}">
+              <div class="font-hud text-[9px] font-bold ${isCurrent ? 'text-cyan-300' : 'text-stone-500'} leading-none">T${i + 1}</div>
+              <div class="font-hud text-xs font-bold text-stone-600 leading-tight mt-0.5">—</div>
+              <div class="font-hud text-[9px] text-stone-700 leading-none">·</div>
+            </div>
+          `;
+        }).join('');
+
+        // Animación del minero
+        const minerAnimClass = (animatedCrewId === crew.id && animType === 'exact')
+          ? 'anim-exact'
+          : (animatedCrewId === crew.id && animType === 'error')
+            ? 'anim-error'
+            : '';
+
+        // Desvío último tramo
+        const lastDevHtml = crew.lastDeviation === null
+          ? `<span class="text-stone-500">—</span>`
+          : crew.lastDeviation === 0
+            ? `<span class="text-emerald-400 font-black">0 ✓</span>`
+            : `<span class="text-rose-400 font-black">±${crew.lastDeviation}</span>`;
+
+        const totalErrColor = crew.totalError === 0
+          ? 'text-emerald-400'
+          : crew.totalError <= 10
+            ? 'text-amber-400'
+            : 'text-rose-400';
+
+        // Panel táctil inferior según estado
+        let actionHtml = '';
+        if (!isFinished) {
+          actionHtml = `
+            <div class="space-y-1.5">
+              <div class="flex items-center gap-1.5">
+                <button type="button" onclick="toggleSign(${crew.id})" title="Cambiar signo (+/-)"
+                  class="w-12 h-11 shrink-0 rounded-xl bg-stone-800 hover:bg-stone-700 border-2 border-stone-600 text-cyan-300 font-black text-lg flex items-center justify-center transition active:scale-90">
+                  +/−
+                </button>
+                <input id="input-crew-${crew.id}" type="number" inputmode="numeric" placeholder="Ej: -4"
+                  onkeydown="if(event.key==='Enter') applyTramo(${crew.id})"
+                  class="w-full min-w-0 h-11 px-2.5 rounded-xl bg-stone-900 border-2 border-stone-700 focus:border-cyan-400 text-center text-white font-black text-2xl outline-none" />
+              </div>
+              <div class="flex items-center gap-1.5">
+                <button type="button" onclick="applyTramo(${crew.id})"
+                  class="flex-1 h-10 rounded-xl font-black text-sm sm:text-base text-white shadow-lg transition active:scale-95 border border-white/15"
+                  style="background: linear-gradient(135deg, ${crew.accentHex}, #1c1917 175%);">
+                  Aplicar T${currentTramo}
+                </button>
+                <button type="button" onclick="undoTramo(${crew.id})" ${completed === 0 ? 'disabled' : ''}
+                  title="Deshacer último tramo"
+                  class="h-10 px-3 rounded-xl bg-stone-800 hover:bg-stone-700 disabled:opacity-35 disabled:pointer-events-none border border-stone-600 text-stone-200 font-bold text-xs transition active:scale-95">
+                  ↶ Deshacer
+                </button>
+              </div>
+            </div>
+          `;
+        } else if (showLocateBtn) {
+          actionHtml = `
+            <div class="space-y-1.5">
+              <button type="button" onclick="openVictoryScreen(${crew.id}, '${winMode}')"
+                class="w-full h-12 px-3 rounded-xl locate-signal-btn font-black text-sm sm:text-base tracking-wide uppercase flex items-center justify-center gap-2 transition active:scale-95 border-2 border-yellow-200">
+                <span class="text-lg">📡</span>
+                <span>¡LOCALIZAR SEÑAL!</span>
+              </button>
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-extrabold ${winMode === 'perfect' ? 'text-emerald-400' : 'text-amber-300'}">
+                  ${winMode === 'perfect' ? '✦ ¡5/5 exactos (0 errores)!' : '✦ Más cercana a la señal'}
+                </span>
+                <button type="button" onclick="undoTramo(${crew.id})"
+                  class="px-2.5 py-1 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 text-[11px] font-bold transition">
+                  ↶ Deshacer
+                </button>
+              </div>
+            </div>
+          `;
+        } else {
+          const waitMsg = (allFourFinished || state.forceResolved)
+            ? 'Ruta completada (otra cuadrilla quedó más cerca)'
+            : '5 tramos completados · Esperando al resto...';
+          actionHtml = `
+            <div class="space-y-1.5">
+              <div class="w-full py-2.5 px-2.5 rounded-xl bg-stone-900/90 border border-stone-700 text-center">
+                <p class="text-xs font-bold text-amber-200/90 leading-snug">${waitMsg}</p>
+              </div>
+              <div class="flex justify-end">
+                <button type="button" onclick="undoTramo(${crew.id})"
+                  class="px-2.5 py-1 rounded-lg bg-stone-800 hover:bg-stone-700 border border-stone-700 text-stone-300 text-[11px] font-bold transition">
+                  ↶ Deshacer último tramo
+                </button>
+              </div>
+            </div>
+          `;
+        }
+
+        return `
+          <article class="flex flex-col bg-stone-950/88 border-2 ${crew.borderClass} rounded-2xl overflow-hidden shadow-2xl backdrop-blur-sm min-w-0 min-h-0">
+
+            <!-- Cabecera de la Cuadrilla -->
+            <div class="h-[78px] shrink-0 px-3 py-1.5 border-b border-stone-800 flex flex-col justify-between"
+                 style="background: linear-gradient(180deg, ${crew.bgTint}, rgba(10,9,8,0.92));">
+              <div class="flex items-center justify-between gap-2">
+                <button type="button" onclick="openRenameModal(${crew.id})" title="Haz clic para editar el nombre"
+                  class="group flex items-center gap-1.5 text-left min-w-0 hover:opacity-90 transition">
+                  <span class="w-3 h-3 rounded-full shrink-0 border border-white/40" style="background-color: ${crew.accentHex}"></span>
+                  <h2 class="font-black text-base sm:text-lg text-white truncate group-hover:text-cyan-300 transition">${escapeHtml(crew.name)}</h2>
+                  <span class="text-xs text-stone-400 group-hover:text-cyan-300 shrink-0">✎</span>
+                </button>
+                <span class="font-hud px-2 py-0.5 rounded-lg text-xs font-black shrink-0 ${crew.badgeClass}">
+                  ${isFinished ? '5 / 5' : `Tramo ${currentTramo} / 5`}
+                </span>
+              </div>
+
+              <!-- Posición Actual Grande -->
+              <div class="flex items-baseline justify-between gap-2">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-stone-400">Posición actual:</span>
+                <span class="font-hud text-2xl sm:text-3xl font-black tracking-tight ${crew.position === 0 ? 'text-amber-300' : crew.position < 0 ? 'text-white' : 'text-sky-300'}">
+                  ${crew.position > 0 ? '+' + crew.position : crew.position} m
+                </span>
+              </div>
+            </div>
+
+            <!-- Galería Subterránea Vertical -->
+            <div class="shaft-container relative flex-1 min-h-[240px]">
+              <div class="shaft-beam-left"></div>
+              <div class="shaft-beam-right"></div>
+              <div class="radar-scanline" style="animation-delay: ${crew.id * 1.4}s"></div>
+
+              <!-- Estalactitas superiores -->
+              <svg class="absolute top-0 left-0 right-0 w-full h-6 z-[3] pointer-events-none" viewBox="0 0 240 24" preserveAspectRatio="none">
+                <polygon points="0,0 240,0 240,7 216,19 196,6 170,17 146,5 120,22 96,6 68,18 42,6 20,19 0,9" fill="#14100e" stroke="#2d221d" stroke-width="1"/>
+              </svg>
+
+              <!-- Grietas de magma -->
+              <svg class="magma-crack w-12 h-20 left-3 top-[36%]" viewBox="0 0 40 80">
+                <path d="M5,5 L18,26 L10,45 L24,72" stroke="#ff5500" stroke-width="2" fill="none"/>
+              </svg>
+              <svg class="magma-crack w-12 h-20 right-3 top-[60%]" viewBox="0 0 40 80" style="animation-delay: 1.5s">
+                <path d="M35,5 L20,30 L28,50 L14,75" stroke="#ea580c" stroke-width="2" fill="none"/>
+              </svg>
+
+              <!-- Zona de señal compacta anómala -->
+              <div class="anomaly-zone" style="top: ${zoneTop}%; height: ${zoneHeight}%;"></div>
+
+              <!-- Líneas de cota horizontales -->
+              ${depthLines.map(m => {
+                const lineTop = depthToPercent(m);
+                const isZero = m === 0;
+                return `
+                  <div class="absolute left-3 right-3 border-t ${isZero ? 'border-amber-400/55 border-dashed' : 'border-stone-700/35 border-dotted'} pointer-events-none z-[2]" style="top: ${lineTop}%">
+                    <span class="lg:hidden absolute right-1 -top-3.5 font-hud text-[9px] font-bold ${isZero ? 'text-amber-300' : 'text-stone-500'}">${m}m</span>
+                  </div>
+                `;
+              }).join('')}
+
+              <!-- Minero SVG animado -->
+              <div id="miner-${crew.id}" class="miner-wrapper ${minerAnimClass}" style="top: ${topPct}%">
+                <div class="relative flex flex-col items-center">
+                  ${buildMinerSVG(crew)}
+                  <span class="mt-[-6px] font-hud px-2 py-0.5 rounded-full text-[11px] font-black bg-stone-950/90 border border-stone-600 text-amber-200 shadow-lg">
+                    ${crew.position > 0 ? '+' + crew.position : crew.position} m ${outOfRange ? '⚠' : ''}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Lava inferior -->
+              <div class="lava-floor"></div>
+            </div>
+
+            <!-- Panel de Controles, Errores e Historial Compacto (altura fija armonizada) -->
+            <div class="h-[228px] shrink-0 p-2.5 bg-stone-950 border-t border-stone-800 flex flex-col justify-between gap-2">
+
+              <!-- Entrada táctil o botón "¡LOCALIZAR SEÑAL!" -->
+              ${actionHtml}
+
+              <!-- Indicadores de Error del último tramo y Error Acumulado -->
+              <div class="grid grid-cols-2 gap-1.5">
+                <div class="rounded-xl bg-stone-900/90 border border-stone-800 px-2 py-1.5 text-center">
+                  <p class="text-[9px] font-bold uppercase tracking-wider text-stone-400 leading-none">Error último tramo</p>
+                  <p class="font-hud text-lg font-black mt-0.5 leading-tight">${lastDevHtml}</p>
+                </div>
+                <div class="rounded-xl bg-stone-900/90 border border-stone-800 px-2 py-1.5 text-center">
+                  <p class="text-[9px] font-bold uppercase tracking-wider text-stone-400 leading-none">Error acumulado</p>
+                  <p class="font-hud text-lg font-black mt-0.5 leading-tight ${totalErrColor}">${crew.totalError}</p>
+                </div>
+              </div>
+
+              <!-- Historial compacto de los 5 tramos -->
+              <div class="grid grid-cols-5 gap-1">
+                ${compactHistoryHtml}
+              </div>
+
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      // Restaurar valores escritos en los demás inputs
+      state.crews.forEach(c => {
+        if (c.id !== animatedCrewId && savedInputs[c.id] !== undefined) {
+          const inp = document.getElementById(`input-crew-${c.id}`);
+          if (inp) inp.value = savedInputs[c.id];
+        }
+      });
+
+      updateHeaderHud();
+    }
+
+    /* ============================================================================
+       INTERACCIONES PRINCIPALES
+       ============================================================================ */
+
+    function showToast(msg, type = 'info') {
+      const toast = document.getElementById('toastBanner');
+      if (!toast) return;
+      const styles = {
+        info: 'bg-stone-900/95 border-cyan-500/60 text-cyan-200',
+        success: 'bg-emerald-950/95 border-emerald-400/75 text-emerald-200',
+        error: 'bg-rose-950/95 border-rose-400/75 text-rose-200'
+      };
+      toast.className = `fixed top-16 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-2xl font-bold text-sm sm:text-base shadow-2xl border backdrop-blur-md transition-all ${styles[type] || styles.info}`;
+      toast.textContent = msg;
+      toast.classList.remove('hidden');
+
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 2600);
+    }
+
+    // Botón rápido "+/-"
+    window.toggleSign = function (crewId) {
+      const inp = document.getElementById(`input-crew-${crewId}`);
+      if (!inp) return;
+      const raw = inp.value.trim();
+      if (raw === '' || raw === '-') {
+        inp.value = raw === '-' ? '' : '-';
+        inp.focus();
+        return;
+      }
+      const num = parseInt(raw, 10);
+      if (!isNaN(num)) {
+        inp.value = String(-num);
+      }
+      inp.focus();
+    };
+
+    // Aplicar desplazamiento de un tramo
+    window.applyTramo = function (crewId) {
+      const crew = state.crews[crewId];
+      if (!crew || crew.entries.length >= TOTAL_TRAMOS) return;
+
+      const inp = document.getElementById(`input-crew-${crewId}`);
+      if (!inp) return;
+      const raw = inp.value.trim();
+
+      if (raw === '' || isNaN(Number(raw)) || !Number.isInteger(Number(raw))) {
+        showToast('Introduce un número entero válido (positivo o negativo).', 'error');
+        inp.focus();
+        return;
+      }
+
+      const value = parseInt(raw, 10);
+      const tramoIdx = crew.entries.length;
+      const expected = state.correctAnswers[tramoIdx];
+      const deviation = Math.abs(value - expected);
+
+      crew.position += value;
+      crew.lastDeviation = deviation;
+      crew.totalError += deviation;
+      crew.entries.push({
+        value,
+        expected,
+        deviation,
+        posAfter: crew.position
+      });
+
+      const animType = deviation === 0 ? 'exact' : 'error';
+      if (deviation === 0) {
+        SoundEngine.playExactRadar();
+        showToast(`${crew.name}: ¡Tramo ${tramoIdx + 1} exacto! (Desvío 0)`, 'success');
+      } else {
+        SoundEngine.playErrorAlert();
+        showToast(`${crew.name}: Tramo ${tramoIdx + 1} con desvío de ±${deviation} m`, 'error');
+      }
+
+      renderCrews(crewId, animType);
+
+      const nextInp = document.getElementById(`input-crew-${crewId}`);
+      if (nextInp) nextInp.focus();
+    };
+
+    // Deshacer último tramo
+    window.undoTramo = function (crewId) {
+      const crew = state.crews[crewId];
+      if (!crew || crew.entries.length === 0) return;
+
+      crew.entries.pop();
+      recalculateCrew(crew);
+      // Si ya nadie queda terminado, resetear forceResolved
+      if (state.crews.every(c => c.entries.length < TOTAL_TRAMOS)) {
+        state.forceResolved = false;
+      }
+      SoundEngine.playUndo();
+      renderCrews();
+    };
+
+    function recalculateCrew(crew) {
+      let pos = 0;
+      let err = 0;
+      let lastDev = null;
+
+      crew.entries.forEach((entry, idx) => {
+        const expected = state.correctAnswers[idx];
+        const dev = Math.abs(entry.value - expected);
+        pos += entry.value;
+        err += dev;
+        lastDev = dev;
+        entry.expected = expected;
+        entry.deviation = dev;
+        entry.posAfter = pos;
+      });
+
+      crew.position = pos;
+      crew.totalError = err;
+      crew.lastDeviation = lastDev;
+    }
+
+    /* ============================================================================
+       PANTALLA FINAL DEL COFRE EGIPCIO
+       ============================================================================ */
+
+    window.openVictoryScreen = function (crewId, winMode) {
+      const clickedCrew = state.crews[crewId];
+      if (!clickedCrew) return;
+
+      const { finishedCrews, minError } = getSignalEligibility();
+
+      let titleText = clickedCrew.name;
+      let subText = '★ Coordenadas Exactas (0 errores)';
+      let subClass = 'px-4 py-1 rounded-xl text-xs sm:text-base font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-400/60';
+
+      if (winMode === 'closest') {
+        // Comprobar si hay empate en el menor error
+        const tied = finishedCrews.filter(c => c.totalError === minError);
+        if (tied.length > 1) {
+          titleText = tied.map(c => c.name).join(' & ');
+        }
+        subText = `✦ Señal localizada por aproximación (Error acumulado: ${clickedCrew.totalError})`;
+        subClass = 'px-4 py-1 rounded-xl text-xs sm:text-base font-extrabold bg-amber-500/20 text-amber-200 border border-amber-400/60';
+      }
+
+      document.getElementById('victoryCrewTitle').textContent = titleText;
+      const subEl = document.getElementById('victoryCrewSubtitle');
+      subEl.textContent = subText;
+      subEl.className = subClass;
+
+      document.getElementById('victoryScreen').classList.remove('hidden');
+      VictoryFireCanvas.start();
+      SoundEngine.playVictoryFanfare();
+    };
+
+    function closeVictoryScreen() {
+      SoundEngine.stopVictoryMusic();
+      VictoryFireCanvas.stop();
+      document.getElementById('victoryScreen').classList.add('hidden');
+    }
+
+    /* ============================================================================
+       MODALES (DOCENTE Y RENOMBRAR)
+       ============================================================================ */
+
+    window.openRenameModal = function (crewId) {
+      const crew = state.crews[crewId];
+      if (!crew) return;
+      state.editingCrewId = crewId;
+      const modal = document.getElementById('renameModal');
+      const input = document.getElementById('renameInput');
+      input.value = crew.name;
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        input.focus();
+        input.select();
+      }, 40);
+    };
+
+    function closeRenameModal() {
+      document.getElementById('renameModal').classList.add('hidden');
+      state.editingCrewId = null;
+    }
+
+    function confirmRename() {
+      if (state.editingCrewId === null) return;
+      const val = document.getElementById('renameInput').value.trim();
+      if (val) {
+        state.crews[state.editingCrewId].name = val;
+        renderCrews();
+      }
+      closeRenameModal();
+    }
+
+    function updateSoundUI() {
+      const quickIcon = document.getElementById('quickSoundIcon');
+      const modalBtn = document.getElementById('modalSoundBtn');
+      if (quickIcon) quickIcon.textContent = state.soundEnabled ? '🔊' : '🔇';
+      if (modalBtn) {
+        modalBtn.textContent = state.soundEnabled ? '🔊 Activado' : '🔇 Silenciado';
+        modalBtn.className = state.soundEnabled
+          ? 'px-4 py-2 rounded-xl font-bold text-sm transition border bg-emerald-600/20 border-emerald-500/60 text-emerald-300'
+          : 'px-4 py-2 rounded-xl font-bold text-sm transition border bg-stone-800 border-stone-600 text-stone-400';
+      }
+    }
+
+    function renderAnswersEditor() {
+      const grid = document.getElementById('answersInputsGrid');
+      if (!grid) return;
+      grid.innerHTML = state.correctAnswers.map((val, idx) => `
+        <div class="bg-stone-950 border border-stone-700 rounded-xl p-2 text-center">
+          <label for="ans-t-${idx}" class="block text-[11px] font-bold text-stone-400 mb-1">Tramo ${idx + 1}</label>
+          <input id="ans-t-${idx}" type="number" value="${val}"
+            class="w-full py-1.5 px-1 rounded-lg bg-stone-900 border border-stone-700 focus:border-cyan-400 text-center text-white font-black text-base outline-none" />
+        </div>
+      `).join('');
+
+      const sum = state.correctAnswers.reduce((a, b) => a + b, 0);
+      document.getElementById('answersFinalPreview').textContent = `Posición final exacta: ${sum > 0 ? '+' + sum : sum} m`;
+    }
+
+    function renderResetButton() {
+      const zone = document.getElementById('resetActionZone');
+      if (!zone) return;
+      zone.innerHTML = `
+        <button id="askResetBtn" type="button"
+          class="px-4 py-2 rounded-xl bg-red-700 hover:bg-red-600 text-white font-bold text-xs sm:text-sm transition active:scale-95">
+          Reiniciar partida
+        </button>
+      `;
+      document.getElementById('askResetBtn').addEventListener('click', () => {
+        zone.innerHTML = `
+          <div class="flex items-center gap-2">
+            <button id="cancelResetBtn" type="button"
+              class="px-3 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold text-xs transition">
+              Cancelar
+            </button>
+            <button id="confirmResetBtn" type="button"
+              class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs transition shadow-lg">
+              Sí, reiniciar todo
+            </button>
+          </div>
+        `;
+        document.getElementById('cancelResetBtn').addEventListener('click', renderResetButton);
+        document.getElementById('confirmResetBtn').addEventListener('click', () => {
+          state.forceResolved = false;
+          state.crews.forEach(c => {
+            c.entries = [];
+            c.position = 0;
+            c.lastDeviation = null;
+            c.totalError = 0;
+          });
+          renderCrews();
+          renderResetButton();
+          document.getElementById('teacherModal').classList.add('hidden');
+          showToast('Partida reiniciada. Todas las cuadrillas vuelven a 0 m.', 'info');
+        });
+      });
+    }
+
+    /* ============================================================================
+       CANVAS DE PARTÍCULAS (MINA Y FUEGO DEL COFRE)
+       ============================================================================ */
+
+    function initMineParticles() {
+      const canvas = document.getElementById('mineParticlesCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let w = 0, h = 0;
+      const particles = [];
+
+      function resize() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      for (let i = 0; i < 40; i++) {
+        particles.push({
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+          r: Math.random() * 2.2 + 0.8,
+          vy: -(Math.random() * 0.6 + 0.2),
+          vx: (Math.random() - 0.5) * 0.35,
+          alpha: Math.random() * 0.55 + 0.2,
+          kind: Math.random() > 0.35 ? 'ember' : (Math.random() > 0.5 ? 'radar' : 'ash')
+        });
+      }
+
+      function tick() {
+        ctx.clearRect(0, 0, w, h);
+        for (const p of particles) {
+          p.y += p.vy;
+          p.x += p.vx + Math.sin(p.y * 0.015) * 0.18;
+          if (p.y < -10) {
+            p.y = h + 10;
+            p.x = Math.random() * w;
+          }
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          if (p.kind === 'ember') {
+            ctx.fillStyle = `rgba(255, 135, 30, ${p.alpha})`;
+          } else if (p.kind === 'radar') {
+            ctx.fillStyle = `rgba(34, 211, 238, ${p.alpha * 0.55})`;
+          } else {
+            ctx.fillStyle = `rgba(180, 170, 160, ${p.alpha * 0.4})`;
+          }
+          ctx.fill();
+        }
+        requestAnimationFrame(tick);
+      }
+      tick();
+    }
+
+    const VictoryFireCanvas = (() => {
+      let animId = null;
+      let particles = [];
+
+      function createSpark(w, h, randomY) {
+        const isGold = Math.random() > 0.42;
+        const colors = isGold
+          ? ['#fef08a', '#fde047', '#fbbf24', '#ffffff']
+          : ['#f97316', '#ef4444', '#fb923c'];
+        return {
+          x: Math.random() * w,
+          y: randomY ? Math.random() * h : h + Math.random() * 40,
+          vx: (Math.random() - 0.5) * 1.1,
+          vy: -(Math.random() * 2.4 + 0.9),
+          size: Math.random() * 3.4 + 1.2,
+          alpha: Math.random() * 0.75 + 0.25,
+          decay: Math.random() * 0.005 + 0.0025,
+          life: Math.random() * 100,
+          isGold,
+          color: colors[Math.floor(Math.random() * colors.length)]
+        };
+      }
+
+      function start() {
+        const canvas = document.getElementById('victoryFireCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+
+        function resize() {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        particles = Array.from({ length: 95 }, () => createSpark(canvas.width, canvas.height, true));
+
+        function loop() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          const grad = ctx.createLinearGradient(0, canvas.height, 0, canvas.height * 0.55);
+          grad.addColorStop(0, 'rgba(234, 88, 12, 0.38)');
+          grad.addColorStop(0.5, 'rgba(180, 83, 9, 0.12)');
+          grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, canvas.height * 0.55, canvas.width, canvas.height * 0.45);
+
+          for (let i = 0; i < particles.length; i++) {
+            const p = particles[i];
+            p.x += p.vx + Math.sin(p.life * 0.05) * 0.6;
+            p.y += p.vy;
+            p.life++;
+            p.alpha -= p.decay;
+
+            if (p.alpha <= 0 || p.y < -20) {
+              particles[i] = createSpark(canvas.width, canvas.height, false);
+              continue;
+            }
+
+            ctx.save();
+            ctx.globalAlpha = Math.max(0, p.alpha);
+            ctx.fillStyle = p.color;
+            ctx.shadowBlur = p.isGold ? 12 : 8;
+            ctx.shadowColor = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          }
+
+          animId = requestAnimationFrame(loop);
+        }
+
+        if (animId) cancelAnimationFrame(animId);
+        loop();
+      }
+
+      function stop() {
+        if (animId) {
+          cancelAnimationFrame(animId);
+          animId = null;
+        }
+      }
+
+      return { start, stop };
+    })();
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[m]));
+    }
+
+    /* ============================================================================
+       INICIALIZACIÓN Y EVENTOS
+       ============================================================================ */
+    window.addEventListener('DOMContentLoaded', () => {
+      renderDepthRuler();
+      renderCrews();
+      updateSoundUI();
+      initMineParticles();
+
+      // Sonido rápido
+      document.getElementById('quickSoundBtn').addEventListener('click', () => {
+        state.soundEnabled = !state.soundEnabled;
+        updateSoundUI();
+        showToast(state.soundEnabled ? 'Sonido activado' : 'Sonido silenciado', 'info');
+      });
+
+      // Modal Docente
+      const teacherModal = document.getElementById('teacherModal');
+      document.getElementById('openTeacherBtn').addEventListener('click', () => {
+        renderAnswersEditor();
+        renderResetButton();
+        document.getElementById('answersEditorBox').classList.add('hidden');
+        document.getElementById('forceResolveStatus').classList.add('hidden');
+        teacherModal.classList.remove('hidden');
+      });
+
+      document.getElementById('closeTeacherBtn').addEventListener('click', () => {
+        teacherModal.classList.add('hidden');
+      });
+
+      teacherModal.addEventListener('click', (e) => {
+        if (e.target === teacherModal) teacherModal.classList.add('hidden');
+      });
+
+      // Botón "Resolver con equipos terminados"
+      document.getElementById('forceResolveBtn').addEventListener('click', () => {
+        const finished = state.crews.filter(c => c.entries.length === TOTAL_TRAMOS);
+        const statusEl = document.getElementById('forceResolveStatus');
+        if (finished.length === 0) {
+          statusEl.textContent = 'Todavía ninguna cuadrilla ha completado los 5 tramos.';
+          statusEl.classList.remove('hidden');
+          return;
+        }
+        state.forceResolved = true;
+        renderCrews();
+        teacherModal.classList.add('hidden');
+        showToast('Resolución activada: el botón del cofre aparece en la cuadrilla más cercana.', 'success');
+      });
+
+      // Sonido desde el modal
+      document.getElementById('modalSoundBtn').addEventListener('click', () => {
+        state.soundEnabled = !state.soundEnabled;
+        updateSoundUI();
+      });
+
+      // Mostrar / ocultar soluciones
+      document.getElementById('toggleAnswersBtn').addEventListener('click', () => {
+        document.getElementById('answersEditorBox').classList.toggle('hidden');
+      });
+
+      // Restaurar soluciones originales
+      document.getElementById('restoreDefaultsBtn').addEventListener('click', () => {
+        state.correctAnswers = [...DEFAULT_ANSWERS];
+        state.crews.forEach(recalculateCrew);
+        renderAnswersEditor();
+        renderCrews();
+        showToast('Se han restaurado las 5 coordenadas originales.', 'info');
+      });
+
+      // Guardar soluciones editadas
+      document.getElementById('saveAnswersBtn').addEventListener('click', () => {
+        const updated = [];
+        for (let i = 0; i < TOTAL_TRAMOS; i++) {
+          const inp = document.getElementById(`ans-t-${i}`);
+          const val = parseInt(inp.value, 10);
+          if (isNaN(val)) {
+            showToast(`El Tramo ${i + 1} debe ser un número entero válido.`, 'error');
+            return;
+          }
+          updated.push(val);
+        }
+        state.correctAnswers = updated;
+        state.crews.forEach(recalculateCrew);
+        renderAnswersEditor();
+        renderCrews();
+        showToast('Coordenadas actualizadas y errores recalculados.', 'success');
+      });
+
+      // Modal Renombrar
+      document.getElementById('cancelRenameBtn').addEventListener('click', closeRenameModal);
+      document.getElementById('confirmRenameBtn').addEventListener('click', confirmRename);
+      document.getElementById('renameInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') confirmRename();
+        if (e.key === 'Escape') closeRenameModal();
+      });
+
+      // Controles pantalla final del cofre
+      document.getElementById('backToBoardBtn').addEventListener('click', closeVictoryScreen);
+      document.getElementById('replayFanfareBtn').addEventListener('click', () => {
+        state.soundEnabled = true;
+        updateSoundUI();
+        SoundEngine.playVictoryFanfare();
+      });
+      document.getElementById('muteVictoryBtn').addEventListener('click', () => {
+        SoundEngine.toggleVictoryMute();
+      });
+    });
+  </script>
+</body>
+</html>
