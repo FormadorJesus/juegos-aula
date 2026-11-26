@@ -1,0 +1,7 @@
+{
+  "titulo": "HeroMath: La Mazmorra de los Enteros",
+  "curso": "1º ESO · Números Enteros",
+  "descripcion": "Aventura por equipos estilo HeroQuest con duelos (10 s), puertas y cofres (20 s).",
+  "icono": "🏰",
+  "entrada": "index.html"
+}

@@ -1,0 +1,3079 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HeroMath: La Mazmorra de los Enteros (1º ESO)</title>
+  <style>
+/* css/styles.css - Tema HeroQuest optimizado para pizarra digital de aula */
+:root {
+  --bg-dark: #14121d;
+  --panel-bg: #1e1b2e;
+  --panel-border: #3a3357;
+  --gold: #f1c40f;
+  --gold-dark: #b7950b;
+  --text-main: #f4f1ea;
+  --text-muted: #b5aec9;
+  --wall-bg: #262236;
+  --corridor-bg: #3b354f;
+  --room-bg: #4b4263;
+  --danger: #e74c3c;
+  --ok: #2ecc71;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: radial-gradient(circle at top, #231e36 0%, var(--bg-dark) 75%);
+  color: var(--text-main);
+  min-height: 100vh;
+  overflow-x: hidden;
+  user-select: none;
+}
+
+.hidden { display: none !important; }
+.screen { min-height: 100vh; display: flex; flex-direction: column; }
+
+/* ================= PANTALLA DE CONFIGURACIÓN ================= */
+.setup-header {
+  text-align: center;
+  padding: 20px 16px 10px;
+}
+.setup-header h1 {
+  font-size: clamp(1.7rem, 3vw, 2.5rem);
+  color: var(--gold);
+  text-shadow: 0 3px 12px rgba(0,0,0,0.6);
+}
+.setup-header p { color: var(--text-muted); margin-top: 6px; font-size: 1.05rem; }
+
+.setup-options-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 18px;
+  padding: 12px 20px;
+}
+.opt-group {
+  background: var(--panel-bg);
+  border: 2px solid var(--panel-border);
+  border-radius: 14px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.opt-title { font-weight: 700; color: var(--gold); font-size: 0.98rem; }
+.btn-row { display: flex; gap: 6px; }
+
+.pill-btn {
+  background: #2b2640;
+  color: var(--text-main);
+  border: 2px solid #453d66;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.15s;
+}
+.pill-btn:hover { background: #3b3457; }
+.pill-btn.active {
+  background: var(--gold);
+  color: #1a1526;
+  border-color: #fff3b0;
+}
+
+.teams-setup-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  max-width: 1240px;
+  width: 100%;
+  margin: 8px auto;
+  padding: 0 20px;
+}
+
+.team-setup-card {
+  background: var(--panel-bg);
+  border: 3px solid var(--panel-border);
+  border-radius: 16px;
+  overflow: hidden;
+  padding-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.setup-card-header {
+  width: 100%;
+  padding: 8px 14px;
+  display: flex;
+  justify-content: space-between;
+  font-weight: 800;
+  font-size: 1rem;
+}
+.setup-avatar-box { width: 92px; height: 92px; }
+.sprite-svg { width: 100%; height: 100%; display: block; }
+
+.team-name-input {
+  width: 88%;
+  background: #13101d;
+  color: #fff;
+  border: 2px solid #4a416b;
+  border-radius: 10px;
+  padding: 8px 10px;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 700;
+}
+.setup-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); margin-top: 2px; }
+
+.clase-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  width: 90%;
+}
+.mini-btn {
+  background: #2b2640;
+  color: var(--text-main);
+  border: 1px solid #4c4370;
+  border-radius: 8px;
+  padding: 6px 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.mini-btn.active { background: var(--gold); color: #161322; font-weight: 800; }
+
+.color-row, .emblem-row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; width: 90%; }
+.color-dot {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 3px solid transparent; cursor: pointer;
+}
+.color-dot.active { border-color: #fff; transform: scale(1.15); }
+
+.emblem-btn {
+  background: #2b2640; border: 2px solid transparent;
+  border-radius: 8px; width: 32px; height: 32px; font-size: 1rem; cursor: pointer;
+}
+.emblem-btn.active { border-color: var(--gold); background: #3e365c; }
+
+.setup-footer { text-align: center; padding: 18px; }
+.btn-primary-xl {
+  background: linear-gradient(135deg, #f1c40f, #e67e22);
+  color: #1a1526;
+  border: none;
+  border-radius: 14px;
+  padding: 15px 34px;
+  font-size: 1.25rem;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(241, 196, 15, 0.35);
+  transition: transform 0.12s;
+}
+.btn-primary-xl:hover { transform: scale(1.03); }
+
+/* ================= PANTALLA DE JUEGO ================= */
+.top-bar {
+  background: #171424;
+  border-bottom: 2px solid var(--panel-border);
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.top-left, .top-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.brand { font-size: 1.2rem; font-weight: 900; color: var(--gold); }
+.badge-gold {
+  background: #362e14; color: var(--gold);
+  border: 1px solid var(--gold-dark); border-radius: 8px;
+  padding: 4px 10px; font-weight: 800; font-size: 0.9rem;
+}
+.turn-banner {
+  background: #28233d; padding: 5px 12px; border-radius: 10px;
+  font-size: 1rem; display: flex; align-items: center; gap: 8px;
+}
+.turn-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+
+.top-btn {
+  background: #2b2640; color: var(--text-main);
+  border: 1px solid #4c4370; border-radius: 10px;
+  padding: 7px 12px; font-size: 0.9rem; font-weight: 700; cursor: pointer;
+}
+.top-btn:hover { background: #3d3659; }
+
+.game-layout {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 270px 1fr 230px;
+  gap: 12px;
+  padding: 12px;
+  min-height: 0;
+}
+
+.sidebar-left, .sidebar-right {
+  background: var(--panel-bg);
+  border: 2px solid var(--panel-border);
+  border-radius: 14px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+.panel-title { font-size: 0.95rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Tarjetas de jugadores */
+.players-list { display: flex; flex-direction: column; gap: 8px; }
+.player-card {
+  background: #262238;
+  border-radius: 12px;
+  border: 2px solid #393354;
+  border-left-width: 6px;
+  padding: 8px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.player-card.active-turn {
+  border-color: var(--gold);
+  box-shadow: 0 0 14px rgba(241, 196, 15, 0.3);
+  background: #2f2947;
+}
+.player-card.dead-player { opacity: 0.45; filter: grayscale(0.9); }
+.pc-avatar { width: 46px; height: 46px; flex-shrink: 0; }
+.pc-info { flex: 1; min-width: 0; }
+.pc-top { display: flex; justify-content: space-between; font-weight: 800; font-size: 0.9rem; margin-bottom: 4px; }
+.pc-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pc-gold { color: var(--gold); }
+
+.hp-bar-bg {
+  position: relative;
+  height: 18px;
+  background: #14111f;
+  border-radius: 9px;
+  overflow: hidden;
+  border: 1px solid #3f385c;
+}
+.hp-bar-fill { height: 100%; transition: width 0.25s; }
+.hp-text {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem; font-weight: 800; text-shadow: 0 1px 2px #000;
+}
+.pc-tags { display: flex; gap: 6px; margin-top: 4px; font-size: 0.75rem; color: var(--text-muted); }
+.tag-shield { color: #5dade2; font-weight: 700; }
+
+/* Diario */
+.battle-log {
+  flex: 1;
+  min-height: 120px;
+  max-height: 240px;
+  overflow-y: auto;
+  background: #14111f;
+  border-radius: 10px;
+  padding: 8px;
+  font-size: 0.82rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.log-entry { border-bottom: 1px solid #262138; padding-bottom: 5px; line-height: 1.3; }
+
+/* ================= TABLERO HEROQUEST ================= */
+.board-stage {
+  position: relative;
+  background: #12101a;
+  border: 3px solid var(--panel-border);
+  border-radius: 16px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.enemy-banner {
+  position: absolute;
+  top: 16px; left: 50%; transform: translateX(-50%);
+  z-index: 30;
+  background: linear-gradient(90deg, #922b21, #c0392b, #922b21);
+  color: #fff;
+  padding: 10px 26px;
+  border-radius: 14px;
+  font-weight: 900;
+  font-size: 1.25rem;
+  border: 2px solid #f1c40f;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.6);
+}
+
+.dungeon-board {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  height: 100%;
+  max-height: calc(100vh - 105px);
+  aspect-ratio: 13 / 9;
+}
+
+.cell {
+  position: relative;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: transform 0.1s, box-shadow 0.15s;
+}
+.cell-wall {
+  background: linear-gradient(145deg, #2b263d, #191626);
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.7);
+}
+.cell-corridor {
+  background: linear-gradient(145deg, #433c59, #352f47);
+  border: 1px solid #564e70;
+}
+.cell-room {
+  background: linear-gradient(145deg, #564a6e, #443a59);
+  border: 1px solid #6b5d87;
+}
+.cell-fog {
+  background: repeating-linear-gradient(45deg, #1b1829, #1b1829 6px, #221e33 6px, #221e33 12px);
+  border: 1px dashed #423a5e;
+}
+.fog-icon { color: #675e8a; font-weight: 900; font-size: 1.2rem; }
+
+.cell-door.door-closed {
+  background: #6e3b17;
+  border: 2px solid #d4ac0d;
+}
+.cell-door.door-open {
+  background: #4e4263;
+  border: 1px dashed #a67c52;
+}
+.door-icon { font-size: 1.4rem; }
+.start-badge { position: absolute; top: 2px; left: 3px; font-size: 0.85rem; opacity: 0.85; }
+
+.zoc-cell { box-shadow: inset 0 0 0 2px rgba(231, 76, 60, 0.55); }
+
+.step-reachable {
+  cursor: pointer;
+  box-shadow: inset 0 0 0 3px #2ecc71, 0 0 10px rgba(46, 204, 113, 0.5);
+  background: rgba(46, 204, 113, 0.28) !important;
+}
+.interact-door {
+  cursor: pointer;
+  box-shadow: 0 0 12px #f39c12, inset 0 0 0 3px #f1c40f;
+}
+.interact-chest {
+  cursor: pointer;
+  box-shadow: 0 0 14px #f1c40f, inset 0 0 0 3px #f1c40f;
+}
+.interact-enemy {
+  cursor: pointer;
+  box-shadow: 0 0 14px #e74c3c, inset 0 0 0 3px #ff5252;
+}
+
+.chest-icon { font-size: 1.55rem; filter: drop-shadow(0 2px 4px #000); }
+.grand-chest { font-size: 1.8rem; animation: pulse 1.4s infinite; }
+.chest-opened-icon { font-size: 1.1rem; opacity: 0.55; }
+
+.enemy-token {
+  width: 88%; height: 88%;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+.boss-token { filter: drop-shadow(0 0 6px #f1c40f); }
+.mini-hp {
+  position: absolute; bottom: 1px; left: 8%; right: 8%;
+  height: 6px; background: #111; border-radius: 3px; overflow: hidden;
+}
+.mini-hp-fill.enemy-hp { height: 100%; background: #e74c3c; }
+
+.tokens-wrap {
+  position: absolute; inset: 2px;
+  display: flex; align-items: center; justify-content: center;
+  flex-wrap: wrap; gap: 2px;
+  pointer-events: none;
+}
+.hero-token {
+  width: 82%; height: 82%;
+  border-radius: 50%;
+  background: rgba(20, 17, 31, 0.85);
+  border: 3px solid #fff;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+.tokens-wrap.count-2 .hero-token,
+.tokens-wrap.count-3 .hero-token,
+.tokens-wrap.count-4 .hero-token { width: 47%; height: 47%; border-width: 2px; }
+.hero-token.current-hero { box-shadow: 0 0 12px var(--gold); transform: scale(1.06); z-index: 5; }
+.tok-emblem { position: absolute; bottom: -2px; right: -2px; font-size: 0.65rem; }
+.tomb-icon { font-size: 1.1rem; }
+
+.float-text {
+  position: absolute; z-index: 40;
+  font-weight: 900; font-size: 0.95rem;
+  text-shadow: 0 2px 4px #000;
+  animation: floatUp 1.15s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes floatUp {
+  0% { transform: translateY(4px); opacity: 1; }
+  100% { transform: translateY(-28px); opacity: 0; }
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+
+/* ================= PANEL DERECHO: DADO Y CRUCETA ================= */
+.dice-box {
+  background: #262238;
+  border-radius: 14px;
+  padding: 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.dice-face {
+  width: 68px; height: 68px;
+  border-radius: 16px;
+  background: #14111f;
+  border: 3px solid var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.2rem; font-weight: 900; color: var(--gold);
+}
+.steps-badge { font-weight: 800; color: #a9dfbf; font-size: 1rem; }
+
+.btn-roll {
+  width: 100%;
+  background: linear-gradient(135deg, #f1c40f, #d4ac0d);
+  color: #161322;
+  border: none; border-radius: 12px;
+  padding: 12px; font-size: 1.05rem; font-weight: 900; cursor: pointer;
+}
+.btn-roll:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.dpad-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; margin: 4px 0; }
+.dpad-row { display: flex; gap: 6px; align-items: center; }
+.dpad-btn {
+  width: 56px; height: 56px;
+  border-radius: 14px;
+  background: #2f2947;
+  color: #fff;
+  border: 2px solid #594f82;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+.dpad-btn:hover:not(:disabled) { background: #463d69; border-color: var(--gold); }
+.dpad-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.dpad-center { width: 56px; text-align: center; font-size: 1.5rem; }
+
+.quick-actions { display: flex; flex-direction: column; gap: 8px; }
+.btn-action-danger, .btn-action-amber, .btn-action-gold {
+  width: 100%; border: none; border-radius: 12px;
+  padding: 11px 10px; font-weight: 800; font-size: 0.95rem; cursor: pointer; color: #fff;
+}
+.btn-action-danger { background: #c0392b; }
+.btn-action-amber { background: #d35400; }
+.btn-action-gold { background: #b7950b; color: #161322; }
+
+.btn-end-turn {
+  margin-top: auto;
+  background: #36304f;
+  color: #fff;
+  border: 2px solid #554c7a;
+  border-radius: 12px;
+  padding: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.btn-end-turn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ================= MODALES (DUELO 10s & PROBLEMAS 20s) ================= */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(10, 8, 18, 0.84);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+}
+.modal-card {
+  background: #1d192e;
+  border: 3px solid var(--gold);
+  border-radius: 20px;
+  padding: 22px 26px;
+  width: 100%;
+  max-width: 780px;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.75);
+  text-align: center;
+}
+.modal-title { font-size: 1.6rem; color: var(--gold); margin-bottom: 6px; }
+.modal-subtitle { color: var(--text-muted); margin-bottom: 16px; font-size: 1.02rem; }
+
+/* Arena de Duelo */
+.duel-arena {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  background: #131020;
+  border: 2px solid #352e52;
+  border-radius: 16px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+}
+.duel-fighter { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.fighter-sprite { width: 124px; height: 124px; }
+.fighter-name { font-weight: 900; font-size: 1.1rem; }
+.big-hp { width: 100%; height: 22px; }
+.duel-vs {
+  font-size: 2.2rem; font-weight: 900; color: #e74c3c;
+  text-shadow: 0 0 14px rgba(231, 76, 60, 0.6);
+}
+
+.ready-area { padding: 14px 8px; }
+.ready-hint { color: var(--text-muted); margin-bottom: 14px; font-size: 1rem; }
+
+/* Temporizador */
+.timer-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.timer-bar-bg { flex: 1; height: 18px; background: #110e1c; border-radius: 10px; overflow: hidden; border: 1px solid #443c66; }
+.timer-bar-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #2ecc71, #f1c40f); transition: width 0.1s linear; }
+.timer-bar-fill.timer-danger { background: #e74c3c; }
+.timer-text { font-size: 1.3rem; font-weight: 900; color: var(--gold); min-width: 54px; text-align: right; }
+
+.operation-box {
+  background: #131020;
+  border: 2px solid #564b80;
+  border-radius: 14px;
+  padding: 18px;
+  font-size: clamp(1.8rem, 3.2vw, 2.5rem);
+  font-weight: 900;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+
+.duel-options-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+.duel-opt-btn {
+  background: #2b2542;
+  color: #fff;
+  border: 3px solid #564c80;
+  border-radius: 14px;
+  padding: 18px 12px;
+  font-size: 1.7rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.12s;
+}
+.duel-opt-btn:hover:not(:disabled) { background: #3e3661; border-color: var(--gold); transform: translateY(-2px); }
+.duel-opt-btn.opt-correct { background: #1e8449 !important; border-color: #2ecc71 !important; }
+.duel-opt-btn.opt-wrong { background: #922b21 !important; border-color: #e74c3c !important; }
+
+/* Problemas Puertas y Cofres */
+.problem-card { max-width: 660px; }
+.prob-header { display: flex; align-items: center; gap: 14px; text-align: left; margin-bottom: 10px; }
+.prob-big-icon { font-size: 3rem; }
+.prob-tema-tag {
+  display: inline-block;
+  background: #2d2647; color: var(--gold);
+  padding: 4px 12px; border-radius: 20px; font-weight: 800; font-size: 0.9rem; margin-bottom: 10px;
+}
+.prob-enunciado {
+  background: #131020;
+  border: 2px solid #4c4273;
+  border-radius: 14px;
+  padding: 16px 18px;
+  font-size: 1.25rem;
+  line-height: 1.45;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+.prob-input-row {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  font-size: 1.15rem; font-weight: 800; margin-bottom: 12px;
+}
+.answer-display {
+  min-width: 120px;
+  background: #100d1a;
+  border: 3px solid var(--gold);
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-size: 1.7rem;
+  font-weight: 900;
+  color: var(--gold);
+}
+
+.keypad-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  max-width: 440px;
+  margin: 0 auto;
+}
+.kpad-btn {
+  background: #2b2542; color: #fff;
+  border: 2px solid #52487a; border-radius: 12px;
+  padding: 14px 8px; font-size: 1.35rem; font-weight: 800; cursor: pointer;
+}
+.kpad-btn:hover:not(:disabled) { background: #3f3761; border-color: var(--gold); }
+.kpad-sign { background: #4a235a; }
+.kpad-util { background: #34495e; }
+.kpad-zero { grid-column: span 2; }
+.kpad-submit { grid-column: span 2; background: #1e8449; border-color: #2ecc71; }
+
+/* Feedback */
+.duel-feedback {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 2px solid transparent;
+}
+.duel-feedback.ok { background: rgba(46, 204, 113, 0.16); border-color: #2ecc71; }
+.duel-feedback.fail { background: rgba(231, 76, 60, 0.16); border-color: #e74c3c; }
+.fb-title { font-size: 1.25rem; font-weight: 900; margin-bottom: 6px; }
+.fb-exp { font-size: 1rem; color: #f4f1ea; margin-bottom: 12px; }
+.btn-continue {
+  background: var(--gold); color: #161322;
+  border: none; border-radius: 10px;
+  padding: 10px 26px; font-size: 1.05rem; font-weight: 900; cursor: pointer;
+}
+
+/* Reglas & Fin de partida */
+.rules-list { text-align: left; display: flex; flex-direction: column; gap: 10px; margin: 14px 0 20px 18px; line-height: 1.45; }
+.end-big-icon { font-size: 4rem; margin-bottom: 6px; }
+.podium-box { display: flex; flex-direction: column; gap: 8px; margin: 14px 0 20px; }
+.podium-row {
+  background: #131020; border: 1px solid #3c345e; border-radius: 10px;
+  padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;
+  font-weight: 800; font-size: 1.05rem;
+}
+.podium-rank { color: var(--gold); font-size: 1.2rem; }
+.end-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+.big-alt { padding: 14px 22px; font-size: 1.05rem; }
+
+@media (max-width: 1020px) {
+  .game-layout { grid-template-columns: 1fr; }
+  .dungeon-board { max-height: 62vh; }
+}
+
+</style>
+</head>
+<body>
+  <!-- ================= PANTALLA DE CONFIGURACIÓN ================= -->
+  <section id="setup-screen" class="screen">
+    <header class="setup-header">
+      <h1>🏰 HeroMath: La Mazmorra de los Enteros</h1>
+      <p>Actividad interactiva de 1º de la ESO · Tablero estilo HeroQuest para pizarra digital</p>
+    </header>
+
+    <div class="setup-options-bar">
+      <div class="opt-group">
+        <span class="opt-title">👥 Equipos</span>
+        <div class="btn-row">
+          <button type="button" class="pill-btn team-count-btn" data-count="2">2</button>
+          <button type="button" class="pill-btn team-count-btn active" data-count="3">3</button>
+          <button type="button" class="pill-btn team-count-btn" data-count="4">4</button>
+        </div>
+      </div>
+
+      <div class="opt-group">
+        <span class="opt-title">🗺️ Tamaño del Mapa</span>
+        <div class="btn-row">
+          <button type="button" class="pill-btn map-size-btn" data-size="pequeno">Pequeño</button>
+          <button type="button" class="pill-btn map-size-btn active" data-size="mediano">Mediano</button>
+          <button type="button" class="pill-btn map-size-btn" data-size="grande">Grande</button>
+        </div>
+      </div>
+
+      <div class="opt-group">
+        <span class="opt-title">➗ Nivel de Enteros</span>
+        <div class="btn-row">
+          <button type="button" class="pill-btn diff-btn" data-diff="basico">Básico</button>
+          <button type="button" class="pill-btn diff-btn active" data-diff="intermedio">Intermedio</button>
+          <button type="button" class="pill-btn diff-btn" data-diff="completo">Completo</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="teams-setup-grid" class="teams-setup-grid"></div>
+
+    <div class="setup-footer">
+      <button type="button" id="btn-start-game" class="btn-primary-xl">⚔️ ¡ENTRAR EN LA MAZMORRA!</button>
+    </div>
+  </section>
+
+  <!-- ================= PANTALLA DE JUEGO ================= -->
+  <section id="game-screen" class="screen hidden">
+    <header class="top-bar">
+      <div class="top-left">
+        <span class="brand">🏰 HeroMath</span>
+        <span id="round-badge" class="badge-gold">Ronda 1</span>
+        <span id="active-turn-banner" class="turn-banner"></span>
+      </div>
+      <div class="top-right">
+        <button type="button" id="btn-rules" class="top-btn">📜 Reglas</button>
+        <button type="button" id="btn-new-map" class="top-btn">🗺️ Nuevo Mapa</button>
+        <button type="button" id="btn-sound" class="top-btn">🔊 Sonido</button>
+        <button type="button" id="btn-fullscreen" class="top-btn">⛶ Pantalla</button>
+        <button type="button" id="btn-back-setup" class="top-btn">⚙️ Equipos</button>
+      </div>
+    </header>
+
+    <main class="game-layout">
+      <!-- Panel Izquierdo: Equipos y Registro -->
+      <aside class="sidebar-left">
+        <h2 class="panel-title">🛡️ Equipos</h2>
+        <div id="players-list" class="players-list"></div>
+        <h2 class="panel-title">📜 Diario de Mazmorra</h2>
+        <div id="battle-log" class="battle-log"></div>
+      </aside>
+
+      <!-- Centro: Tablero HeroQuest -->
+      <div class="board-stage">
+        <div id="enemy-turn-banner" class="enemy-banner hidden">⚔️ TURNO DE LOS ENEMIGOS 👹</div>
+        <div id="dungeon-board" class="dungeon-board"></div>
+      </div>
+
+      <!-- Panel Derecho: Dado, Cruceta Táctil y Acciones -->
+      <aside class="sidebar-right">
+        <h2 class="panel-title">🎲 Control de Turno</h2>
+        <div class="dice-box">
+          <div id="dice-value" class="dice-face">🎲</div>
+          <div id="steps-badge" class="steps-badge">Tira el dado</div>
+          <button type="button" id="btn-roll-dice" class="btn-roll">🎲 TIRAR DADO</button>
+        </div>
+
+        <div class="dpad-wrap">
+          <div class="dpad-row">
+            <button type="button" id="dpad-up" class="dpad-btn" aria-label="Arriba">▲</button>
+          </div>
+          <div class="dpad-row">
+            <button type="button" id="dpad-left" class="dpad-btn" aria-label="Izquierda">◀</button>
+            <span class="dpad-center">🧭</span>
+            <button type="button" id="dpad-right" class="dpad-btn" aria-label="Derecha">▶</button>
+          </div>
+          <div class="dpad-row">
+            <button type="button" id="dpad-down" class="dpad-btn" aria-label="Abajo">▼</button>
+          </div>
+        </div>
+
+        <div id="quick-actions" class="quick-actions"></div>
+
+        <button type="button" id="btn-end-turn" class="btn-end-turn">⏭️ Terminar Turno</button>
+      </aside>
+    </main>
+  </section>
+
+  <!-- ================= POPUP DE DUELO (10 SEGUNDOS, 4 OPCIONES) ================= -->
+  <div id="duel-modal" class="modal-overlay hidden">
+    <div class="modal-card duel-card">
+      <h2 id="duel-title" class="modal-title">⚔️ ¡DUELO EN LA MAZMORRA!</h2>
+      <p id="duel-subtitle" class="modal-subtitle"></p>
+
+      <div class="duel-arena">
+        <div class="duel-fighter hero-side">
+          <div id="duel-hero-sprite" class="fighter-sprite"></div>
+          <div id="duel-hero-name" class="fighter-name"></div>
+          <div class="hp-bar-bg big-hp">
+            <div id="duel-hero-bar" class="hp-bar-fill" style="background:#2ecc71"></div>
+            <span id="duel-hero-hp" class="hp-text"></span>
+          </div>
+        </div>
+
+        <div class="duel-vs">VS</div>
+
+        <div class="duel-fighter enemy-side">
+          <div id="duel-enemy-sprite" class="fighter-sprite"></div>
+          <div id="duel-enemy-name" class="fighter-name"></div>
+          <div class="hp-bar-bg big-hp">
+            <div id="duel-enemy-bar" class="hp-bar-fill" style="background:#e74c3c"></div>
+            <span id="duel-enemy-hp" class="hp-text"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botón para iniciar el temporizador de 10 s -->
+      <div id="duel-ready-area" class="ready-area">
+        <p class="ready-hint">Cuando el equipo esté listo frente a la pizarra, pulsa el botón para ver la operación.</p>
+        <button type="button" id="duel-start-btn" class="btn-primary-xl">⚔️ INICIAR COMBATE (10 s)</button>
+      </div>
+
+      <!-- Zona activa de operación y 4 opciones -->
+      <div id="duel-question-area" class="hidden">
+        <div class="timer-wrap">
+          <div class="timer-bar-bg"><div id="duel-timer-fill" class="timer-bar-fill"></div></div>
+          <span id="duel-timer-text" class="timer-text">10 s</span>
+        </div>
+        <div id="duel-operation" class="operation-box"></div>
+        <div id="duel-options" class="duel-options-grid"></div>
+      </div>
+
+      <!-- Resultado -->
+      <div id="duel-feedback-area" class="duel-feedback hidden">
+        <div id="duel-fb-title" class="fb-title"></div>
+        <div id="duel-fb-exp" class="fb-exp"></div>
+        <button type="button" id="duel-continue-btn" class="btn-continue">Continuar ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= POPUP DE PUERTAS Y COFRES (20 SEGUNDOS, PROBLEMA SENCILLO) ================= -->
+  <div id="problem-modal" class="modal-overlay hidden">
+    <div class="modal-card problem-card">
+      <div class="prob-header">
+        <span id="prob-icon" class="prob-big-icon">🚪</span>
+        <div>
+          <h2 id="prob-title" class="modal-title">Puerta Cerrada</h2>
+          <p id="prob-team" class="modal-subtitle"></p>
+        </div>
+      </div>
+
+      <div id="prob-ready-area" class="ready-area">
+        <p class="ready-hint">Dispondréis de <b>20 segundos</b> para leer y resolver un problema sencillo de números enteros.</p>
+        <button type="button" id="prob-start-btn" class="btn-primary-xl">🔑 INICIAR PRUEBA (20 s)</button>
+      </div>
+
+      <div id="prob-active-area" class="hidden">
+        <div class="timer-wrap">
+          <div class="timer-bar-bg"><div id="prob-timer-fill" class="timer-bar-fill"></div></div>
+          <span id="prob-timer-text" class="timer-text">20 s</span>
+        </div>
+
+        <div id="prob-tema" class="prob-tema-tag"></div>
+        <div id="prob-enunciado" class="prob-enunciado"></div>
+        <div id="prob-options" class="duel-options-grid"></div>
+      </div>
+
+      <div id="prob-feedback-area" class="duel-feedback hidden">
+        <div id="prob-fb-title" class="fb-title"></div>
+        <div id="prob-fb-exp" class="fb-exp"></div>
+        <button type="button" id="prob-continue-btn" class="btn-continue">Continuar ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL DE REGLAS ================= -->
+  <div id="rules-modal" class="modal-overlay hidden">
+    <div class="modal-card rules-card">
+      <h2 class="modal-title">📜 Reglas de HeroMath</h2>
+      <ul class="rules-list">
+        <li><b>Exploración estilo HeroQuest:</b> Tira el dado (1–6) y muévete en horizontal o vertical. Las habitaciones permanecen ocultas hasta abrir su puerta.</li>
+        <li><b>Puertas y Cofres (20 s):</b> Al intentar abrir una puerta o un cofre, resuelves un <b>problema sencillo de números enteros en 20 segundos</b>. Si fallas o se acaba el tiempo, <b>pierdes el turno</b>.</li>
+        <li><b>Zona de Control y Combates (10 s):</b> No puedes pasar junto a un enemigo vivo sin combatir. Los combates se juegan en un popup de duelo con <b>operaciones aritméticas de enteros, 4 opciones y 10 segundos</b> tras pulsar Iniciar.</li>
+        <li><b>Vida, Daño y Oro:</b> Jugadores <b>100 HP</b>, Enemigos <b>50 HP</b>. Cada acierto hace <b>25 de daño</b>. Vencer a un enemigo otorga <b>+25 🪙</b>. Si un equipo llega a 0 HP, queda eliminado.</li>
+        <li><b>Turno de Enemigos y Esquiva:</b> Al acabar la ronda, cada enemigo descubierto avanza <b>1 casilla</b> hacia el héroe más cercano. Si ataca, el héroe puede <b>esquivar el golpe</b> ganando un duelo de 10 segundos.</li>
+        <li><b>Meta:</b> Quien abra el <b>Gran Cofre Real (👑)</b> gana la expedición (+150 🪙).</li>
+      </ul>
+      <button type="button" id="btn-close-rules" class="btn-primary-xl">Entendido</button>
+    </div>
+  </div>
+
+  <!-- ================= MODAL DE FIN DE PARTIDA ================= -->
+  <div id="end-modal" class="modal-overlay hidden">
+    <div class="modal-card end-card">
+      <div id="end-icon" class="end-big-icon">👑</div>
+      <h2 id="end-title" class="modal-title"></h2>
+      <p id="end-subtitle" class="modal-subtitle"></p>
+      <div id="end-podium" class="podium-box"></div>
+      <div class="end-actions">
+        <button type="button" id="btn-play-again" class="btn-primary-xl">🗺️ Jugar Nuevo Mapa</button>
+        <button type="button" id="btn-end-setup" class="top-btn big-alt">⚙️ Cambiar Equipos</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts modulares (compatibles con doble clic local sin servidor) -->
+  <script>
+/* === data/personajes.js === */
+/**
+ * data/personajes.js
+ * Catálogo de clases de héroes, colores, emblemas y sprites SVG detallados.
+ * Puedes añadir nuevas clases o modificar colores fácilmente aquí.
+ */
+window.HeroMath = window.HeroMath || {};
+
+window.HeroMath.COLORES = [
+  { id: 'rojo',     nombre: 'Carmesí',   hex: '#e74c3c', oscuro: '#96281b' },
+  { id: 'azul',     nombre: 'Zafiro',    hex: '#3498db', oscuro: '#1f618d' },
+  { id: 'verde',    nombre: 'Esmeralda', hex: '#2ecc71', oscuro: '#1e8449' },
+  { id: 'morado',   nombre: 'Amatista',  hex: '#9b59b6', oscuro: '#6c3483' },
+  { id: 'dorado',   nombre: 'Ámbar',     hex: '#f39c12', oscuro: '#b9770e' },
+  { id: 'turquesa', nombre: 'Turquesa',  hex: '#1abc9c', oscuro: '#117864' }
+];
+
+window.HeroMath.EMBLEMAS = ['⚔️', '🔥', '🛡️', '⚡', '🐉', '🌟', '🏹', '💎'];
+
+window.HeroMath.CLASES = [
+  { id: 'guerrero', nombre: 'Guerrero', desc: 'Maestro de la espada y el escudo' },
+  { id: 'mago',     nombre: 'Mago',     desc: 'Domina la magia de los números' },
+  { id: 'ladron',   nombre: 'Ladrón',   desc: 'Ágil explorador de mazmorras' },
+  { id: 'arquero',  nombre: 'Arquero',  desc: 'Puntería letal en los pasillos' },
+  { id: 'clerigo',  nombre: 'Clérigo',  desc: 'Protector de luz y sabiduría' },
+  { id: 'paladin',  nombre: 'Paladín',  desc: 'Caballero de armadura dorada' }
+];
+
+window.HeroMath.getHeroSVG = function(claseId, colorHex, colorOscuro) {
+  const c = colorHex || '#3498db';
+  const d = colorOscuro || '#1f618d';
+  let body = '';
+
+  switch (claseId) {
+    case 'mago':
+      body = `
+        <!-- Túnica -->
+        <path d="M24 94 L32 54 L68 54 L76 94 Z" fill="${c}" stroke="#1a1a2e" stroke-width="2.5"/>
+        <path d="M44 54 L56 54 L53 94 L47 94 Z" fill="#f1c40f" opacity="0.85"/>
+        <!-- Capa y hombros -->
+        <ellipse cx="50" cy="56" rx="22" ry="7" fill="${d}" stroke="#1a1a2e" stroke-width="2"/>
+        <!-- Cabeza y barba -->
+        <circle cx="50" cy="40" r="14" fill="#f5cba7" stroke="#1a1a2e" stroke-width="2.2"/>
+        <path d="M38 46 Q50 62 62 46 Q58 55 50 57 Q42 55 38 46 Z" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="1.2"/>
+        <circle cx="45" cy="39" r="2.2" fill="#1a1a2e"/><circle cx="55" cy="39" r="2.2" fill="#1a1a2e"/>
+        <!-- Sombrero puntiagudo -->
+        <path d="M22 33 Q50 24 78 33 Q50 38 22 33 Z" fill="${d}" stroke="#1a1a2e" stroke-width="2"/>
+        <path d="M33 31 L50 4 L67 31 Z" fill="${c}" stroke="#1a1a2e" stroke-width="2.2"/>
+        <circle cx="50" cy="20" r="3.5" fill="#f1c40f"/>
+        <!-- Bastón mágico -->
+        <line x1="82" y1="26" x2="82" y2="94" stroke="#784212" stroke-width="4.5" stroke-linecap="round"/>
+        <circle cx="82" cy="22" r="7.5" fill="#5dade2" stroke="#f1c40f" stroke-width="2.5"/>
+        <circle cx="80" cy="20" r="2.5" fill="#ffffff" opacity="0.8"/>
+      `;
+      break;
+
+    case 'ladron':
+      body = `
+        <!-- Capa oscura -->
+        <path d="M25 94 L30 52 L70 52 L75 94 Z" fill="${d}" stroke="#1a1a2e" stroke-width="2.5"/>
+        <path d="M35 54 L65 54 L62 94 L38 94 Z" fill="${c}" stroke="#1a1a2e" stroke-width="2"/>
+        <!-- Cinturón -->
+        <rect x="34" y="72" width="32" height="6" rx="2" fill="#5d4037" stroke="#1a1a2e" stroke-width="1.5"/>
+        <rect x="46" y="71" width="8" height="8" rx="1.5" fill="#f1c40f"/>
+        <!-- Capucha -->
+        <path d="M29 48 C29 18 71 18 71 48 L64 56 L36 56 Z" fill="${c}" stroke="#1a1a2e" stroke-width="2.5"/>
+        <!-- Rostro con antifaz -->
+        <circle cx="50" cy="40" r="12" fill="#f5cba7"/>
+        <rect x="38" y="34" width="24" height="8" rx="4" fill="#1a1a2e"/>
+        <circle cx="44.5" cy="38" r="2" fill="#ffffff"/><circle cx="55.5" cy="38" r="2" fill="#ffffff"/>
+        <!-- Dagas gemelas -->
+        <path d="M18 52 L24 68 L14 68 Z" fill="#d5d8dc" stroke="#1a1a2e" stroke-width="1.8"/>
+        <rect x="17" y="68" width="4" height="8" fill="#5d4037"/>
+        <path d="M82 52 L86 68 L76 68 Z" fill="#d5d8dc" stroke="#1a1a2e" stroke-width="1.8"/>
+        <rect x="79" y="68" width="4" height="8" fill="#5d4037"/>
+      `;
+      break;
+
+    case 'arquero':
+      body = `
+        <!-- Túnica de explorador -->
+        <path d="M28 94 L34 54 L66 54 L72 94 Z" fill="${c}" stroke="#1a1a2e" stroke-width="2.5"/>
+        <line x1="36" y1="54" x2="64" y2="86" stroke="#6e2c00" stroke-width="4"/>
+        <!-- Cabeza -->
+        <circle cx="50" cy="40" r="14" fill="#f5cba7" stroke="#1a1a2e" stroke-width="2.2"/>
+        <circle cx="45" cy="40" r="2.2" fill="#1a1a2e"/><circle cx="55" cy="40" r="2.2" fill="#1a1a2e"/>
+        <path d="M46 46 Q50 49 54 46" fill="none" stroke="#1a1a2e" stroke-width="1.8" stroke-linecap="round"/>
+        <!-- Gorro con pluma -->
+        <path d="M32 34 Q50 18 68 34 L64 26 Q50 16 36 26 Z" fill="${d}" stroke="#1a1a2e" stroke-width="2"/>
+        <path d="M62 24 Q76 10 72 28 Z" fill="#e74c3c" stroke="#1a1a2e" stroke-width="1.5"/>
+        <!-- Arco -->
+        <path d="M80 22 Q96 54 80 86" fill="none" stroke="#873600" stroke-width="4.5" stroke-linecap="round"/>
+        <line x1="80" y1="22" x2="80" y2="86" stroke="#ecf0f1" stroke-width="1.5"/>
+        <!-- Flecha -->
+        <line x1="68" y1="54" x2="92" y2="54" stroke="#d5d8dc" stroke-width="2.5"/>
+        <polygon points="95,54 88,50 88,58" fill="#f1c40f"/>
+      `;
+      break;
+
+    case 'clerigo':
+      body = `
+        <!-- Vestidura sagrada -->
+        <path d="M26 94 L32 52 L68 52 L74 94 Z" fill="#ecf0f1" stroke="#1a1a2e" stroke-width="2.5"/>
+        <path d="M44 52 L56 52 L56 94 L44 94 Z" fill="${c}"/>
+        <rect x="36" y="64" width="28" height="7" fill="${c}" opacity="0.9"/>
+        <!-- Cabeza con halo -->
+        <circle cx="50" cy="24" r="14" fill="none" stroke="#f1c40f" stroke-width="3" opacity="0.85"/>
+        <circle cx="50" cy="40" r="14" fill="#f5cba7" stroke="#1a1a2e" stroke-width="2.2"/>
+        <path d="M36 36 Q50 22 64 36" fill="${d}" stroke="#1a1a2e" stroke-width="2"/>
+        <circle cx="45" cy="41" r="2.2" fill="#1a1a2e"/><circle cx="55" cy="41" r="2.2" fill="#1a1a2e"/>
+        <!-- Maza dorada -->
+        <line x1="82" y1="36" x2="82" y2="92" stroke="#6e2c00" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="82" cy="30" r="9" fill="#f1c40f" stroke="#1a1a2e" stroke-width="2"/>
+        <circle cx="82" cy="30" r="3" fill="#ffffff"/>
+      `;
+      break;
+
+    case 'paladin':
+      body = `
+        <!-- Armadura dorada y capa -->
+        <path d="M20 94 L28 50 L72 50 L80 94 Z" fill="${c}" stroke="#1a1a2e" stroke-width="2.5"/>
+        <rect x="34" y="54" width="32" height="38" rx="6" fill="#f4d03f" stroke="#1a1a2e" stroke-width="2.2"/>
+        <path d="M46 60 L54 60 L54 84 L46 84 Z" fill="${c}"/>
+        <path d="M39 68 L61 68 L61 75 L39 75 Z" fill="${c}"/>
+        <!-- Yelmo alado -->
+        <rect x="36" y="24" width="28" height="28" rx="10" fill="#f7dc6f" stroke="#1a1a2e" stroke-width="2.2"/>
+        <rect x="41" y="35" width="18" height="5" rx="2" fill="#1a1a2e"/>
+        <path d="M36 32 L24 22 L32 38 Z" fill="#ecf0f1" stroke="#1a1a2e" stroke-width="1.5"/>
+        <path d="M64 32 L76 22 L68 38 Z" fill="#ecf0f1" stroke="#1a1a2e" stroke-width="1.5"/>
+        <!-- Escudo -->
+        <path d="M12 56 L30 56 L30 74 Q21 86 12 74 Z" fill="${d}" stroke="#f1c40f" stroke-width="2.5"/>
+        <!-- Espada -->
+        <rect x="80" y="24" width="6" height="44" rx="2" fill="#ecf0f1" stroke="#1a1a2e" stroke-width="1.8"/>
+        <rect x="74" y="66" width="18" height="5" rx="2" fill="#f1c40f" stroke="#1a1a2e" stroke-width="1.5"/>
+        <rect x="81" y="71" width="4" height="12" fill="#6e2c00"/>
+      `;
+      break;
+
+    case 'guerrero':
+    default:
+      body = `
+        <!-- Armadura -->
+        <path d="M26 94 L32 52 L68 52 L74 94 Z" fill="#95a5a6" stroke="#1a1a2e" stroke-width="2.5"/>
+        <path d="M34 54 L66 54 L62 88 L38 88 Z" fill="${c}" stroke="#1a1a2e" stroke-width="2"/>
+        <!-- Hombreras -->
+        <circle cx="30" cy="56" r="8" fill="#bdc3c7" stroke="#1a1a2e" stroke-width="2"/>
+        <circle cx="70" cy="56" r="8" fill="#bdc3c7" stroke="#1a1a2e" stroke-width="2"/>
+        <!-- Yelmo con penacho -->
+        <path d="M44 10 Q54 6 62 18 L48 22 Z" fill="${c}" stroke="#1a1a2e" stroke-width="1.8"/>
+        <rect x="35" y="22" width="30" height="28" rx="11" fill="#bdc3c7" stroke="#1a1a2e" stroke-width="2.2"/>
+        <rect x="40" y="34" width="20" height="6" rx="2" fill="#1a1a2e"/>
+        <circle cx="46" cy="37" r="1.8" fill="#f1c40f"/><circle cx="54" cy="37" r="1.8" fill="#f1c40f"/>
+        <!-- Escudo -->
+        <path d="M12 56 L30 56 L30 75 Q21 86 12 75 Z" fill="${d}" stroke="#bdc3c7" stroke-width="2.5"/>
+        <circle cx="21" cy="68" r="4" fill="#f1c40f"/>
+        <!-- Espada ancha -->
+        <polygon points="83,16 88,26 86,66 80,66 78,26" fill="#ecf0f1" stroke="#1a1a2e" stroke-width="1.8"/>
+        <rect x="74" y="65" width="18" height="5" rx="2" fill="#f1c40f" stroke="#1a1a2e" stroke-width="1.5"/>
+        <rect x="81" y="70" width="4" height="12" fill="#6e2c00"/>
+      `;
+      break;
+  }
+
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="sprite-svg">${body}</svg>`;
+};
+
+/* === data/enemigos.js === */
+/**
+ * data/enemigos.js
+ * Catálogo de enemigos con sprites SVG detallados, vida (50 HP), daño (25 HP) y recompensa (25 oro).
+ * Puedes añadir nuevos monstruos al array ENEMIGOS y aparecerán automáticamente en la mazmorra.
+ */
+window.HeroMath = window.HeroMath || {};
+
+window.HeroMath.ENEMIGOS = [
+  {
+    id: 'goblin',
+    nombre: 'Goblin Saqueador',
+    maxHp: 50,
+    danio: 25,
+    oro: 25,
+    esJefe: false,
+    frase: '¡Tus monedas serán mías si fallas el cálculo!'
+  },
+  {
+    id: 'esqueleto',
+    nombre: 'Esqueleto Guerrero',
+    maxHp: 50,
+    danio: 25,
+    oro: 25,
+    esJefe: false,
+    frase: '¡Ningún alumno pasará por este pasillo!'
+  },
+  {
+    id: 'orco',
+    nombre: 'Orco de la Cripta',
+    maxHp: 50,
+    danio: 25,
+    oro: 25,
+    esJefe: false,
+    frase: '¡Aplastaré tu puntuación con mi hacha!'
+  },
+  {
+    id: 'arana',
+    nombre: 'Araña Abisal',
+    maxHp: 50,
+    danio: 25,
+    oro: 25,
+    esJefe: false,
+    frase: '¡Te quedarás atrapado en mi red de signos!'
+  },
+  {
+    id: 'momia',
+    nombre: 'Momia Maldita',
+    maxHp: 50,
+    danio: 25,
+    oro: 25,
+    esJefe: false,
+    frase: '¡Resuelve los enteros o sufre la maldición!'
+  },
+  {
+    id: 'gargola',
+    nombre: 'Gárgola Guardiana',
+    maxHp: 50,
+    danio: 25,
+    oro: 25,
+    esJefe: true,
+    frase: '¡Solo los maestros de los enteros abrirán el Gran Cofre!'
+  }
+];
+
+window.HeroMath.getEnemySVG = function(enemyId) {
+  let body = '';
+  switch (enemyId) {
+    case 'goblin':
+      body = `
+        <!-- Orejas puntiagudas -->
+        <polygon points="16,38 36,34 32,48" fill="#58b947" stroke="#1a1a2e" stroke-width="2.2"/>
+        <polygon points="84,38 64,34 68,48" fill="#58b947" stroke="#1a1a2e" stroke-width="2.2"/>
+        <!-- Cuerpo y chaleco -->
+        <path d="M30 92 L35 56 L65 56 L70 92 Z" fill="#6e2c00" stroke="#1a1a2e" stroke-width="2.5"/>
+        <rect x="42" y="64" width="16" height="18" rx="3" fill="#a04000"/>
+        <!-- Cabeza -->
+        <ellipse cx="50" cy="40" rx="18" ry="16" fill="#58b947" stroke="#1a1a2e" stroke-width="2.5"/>
+        <!-- Ojos rojos furiosos -->
+        <polygon points="38,34 48,38 38,42" fill="#f1c40f" stroke="#1a1a2e" stroke-width="1.5"/>
+        <polygon points="62,34 52,38 62,42" fill="#f1c40f" stroke="#1a1a2e" stroke-width="1.5"/>
+        <circle cx="43" cy="38" r="2" fill="#c0392b"/><circle cx="57" cy="38" r="2" fill="#c0392b"/>
+        <!-- Boca con colmillos -->
+        <path d="M40 48 Q50 54 60 48" fill="#1a1a2e"/>
+        <polygon points="43,48 46,53 48,48" fill="#fff"/><polygon points="52,48 54,53 57,48" fill="#fff"/>
+        <!-- Daga dentada -->
+        <path d="M78 36 L88 52 L76 62 L74 44 Z" fill="#bdc3c7" stroke="#1a1a2e" stroke-width="2"/>
+        <rect x="76" y="62" width="6" height="12" fill="#4a235a"/>
+      `;
+      break;
+
+    case 'esqueleto':
+      body = `
+        <!-- Costillas y capa hecha jirones -->
+        <path d="M26 94 L34 54 L66 54 L74 94 Z" fill="#2c3e50" stroke="#1a1a2e" stroke-width="2.5"/>
+        <line x1="50" y1="54" x2="50" y2="88" stroke="#ecf0f1" stroke-width="5"/>
+        <line x1="38" y1="62" x2="62" y2="62" stroke="#ecf0f1" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="39" y1="70" x2="61" y2="70" stroke="#ecf0f1" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="41" y1="78" x2="59" y2="78" stroke="#ecf0f1" stroke-width="3.5" stroke-linecap="round"/>
+        <!-- Cráneo -->
+        <ellipse cx="50" cy="34" rx="17" ry="16" fill="#f8f9f9" stroke="#1a1a2e" stroke-width="2.5"/>
+        <rect x="40" y="45" width="20" height="10" rx="3" fill="#f8f9f9" stroke="#1a1a2e" stroke-width="2.2"/>
+        <!-- Cuencas -->
+        <circle cx="43" cy="34" r="5" fill="#1a1a2e"/><circle cx="57" cy="34" r="5" fill="#1a1a2e"/>
+        <circle cx="43" cy="34" r="2" fill="#00e5ff"/><circle cx="57" cy="34" r="2" fill="#00e5ff"/>
+        <polygon points="50,39 47,44 53,44" fill="#1a1a2e"/>
+        <!-- Dientes -->
+        <line x1="45" y1="47" x2="45" y2="54" stroke="#1a1a2e" stroke-width="1.5"/>
+        <line x1="50" y1="47" x2="50" y2="54" stroke="#1a1a2e" stroke-width="1.5"/>
+        <line x1="55" y1="47" x2="55" y2="54" stroke="#1a1a2e" stroke-width="1.5"/>
+        <!-- Espada oxidada -->
+        <path d="M78 20 L84 26 L82 68 L76 68 Z" fill="#95a5a6" stroke="#1a1a2e" stroke-width="2"/>
+        <rect x="72" y="66" width="14" height="4" fill="#5d4037"/>
+      `;
+      break;
+
+    case 'orco':
+      body = `
+        <!-- Torso ancho -->
+        <path d="M18 94 L26 50 L74 50 L82 94 Z" fill="#3d6b35" stroke="#1a1a2e" stroke-width="2.5"/>
+        <path d="M28 54 L72 54 L66 86 L34 86 Z" fill="#5d4037" stroke="#1a1a2e" stroke-width="2"/>
+        <circle cx="24" cy="56" r="10" fill="#7f8c8d" stroke="#1a1a2e" stroke-width="2"/>
+        <!-- Cabeza -->
+        <rect x="33" y="20" width="34" height="32" rx="12" fill="#4a8040" stroke="#1a1a2e" stroke-width="2.5"/>
+        <!-- Cejas y ojos -->
+        <line x1="38" y1="30" x2="48" y2="34" stroke="#1a1a2e" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="62" y1="30" x2="52" y2="34" stroke="#1a1a2e" stroke-width="3.5" stroke-linecap="round"/>
+        <circle cx="43" cy="36" r="2.8" fill="#e74c3c"/><circle cx="57" cy="36" r="2.8" fill="#e74c3c"/>
+        <!-- Colmillos inferiores -->
+        <path d="M38 46 Q50 42 62 46" fill="none" stroke="#1a1a2e" stroke-width="2.5"/>
+        <polygon points="40,46 43,39 46,46" fill="#fef9e7" stroke="#1a1a2e" stroke-width="1.2"/>
+        <polygon points="54,46 57,39 60,46" fill="#fef9e7" stroke="#1a1a2e" stroke-width="1.2"/>
+        <!-- Gran Hacha -->
+        <line x1="84" y1="18" x2="84" y2="90" stroke="#6e2c00" stroke-width="5" stroke-linecap="round"/>
+        <path d="M84 22 C98 20 98 48 84 46 Z" fill="#bdc3c7" stroke="#1a1a2e" stroke-width="2.2"/>
+        <path d="M84 26 C74 26 74 42 84 42 Z" fill="#95a5a6" stroke="#1a1a2e" stroke-width="2"/>
+      `;
+      break;
+
+    case 'arana':
+      body = `
+        <!-- Patas -->
+        <path d="M34 52 L14 34 L8 54" fill="none" stroke="#1a1a2e" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M32 60 L10 56 L8 78" fill="none" stroke="#1a1a2e" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M34 68 L16 78 L18 92" fill="none" stroke="#1a1a2e" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M66 52 L86 34 L92 54" fill="none" stroke="#1a1a2e" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M68 60 L90 56 L92 78" fill="none" stroke="#1a1a2e" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M66 68 L84 78 L82 92" fill="none" stroke="#1a1a2e" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Abdomen -->
+        <ellipse cx="50" cy="40" rx="22" ry="20" fill="#2c2038" stroke="#1a1a2e" stroke-width="2.5"/>
+        <polygon points="50,28 56,40 50,50 44,40" fill="#e74c3c"/>
+        <!-- Cabeza -->
+        <circle cx="50" cy="64" r="15" fill="#3d2b4f" stroke="#1a1a2e" stroke-width="2.5"/>
+        <!-- Ojos múltiples -->
+        <circle cx="43" cy="62" r="3.5" fill="#ff3b3b"/><circle cx="57" cy="62" r="3.5" fill="#ff3b3b"/>
+        <circle cx="48" cy="57" r="2" fill="#ff9f43"/><circle cx="52" cy="57" r="2" fill="#ff9f43"/>
+        <!-- Quelíceros -->
+        <path d="M43 74 L46 84 L50 76" fill="#ecf0f1" stroke="#1a1a2e" stroke-width="1.5"/>
+        <path d="M57 74 L54 84 L50 76" fill="#ecf0f1" stroke="#1a1a2e" stroke-width="1.5"/>
+      `;
+      break;
+
+    case 'momia':
+      body = `
+        <!-- Cuerpo vendado -->
+        <path d="M28 94 L33 52 L67 52 L72 94 Z" fill="#e5d9b6" stroke="#1a1a2e" stroke-width="2.5"/>
+        <line x1="32" y1="62" x2="68" y2="58" stroke="#a89972" stroke-width="3"/>
+        <line x1="30" y1="74" x2="70" y2="70" stroke="#a89972" stroke-width="3"/>
+        <line x1="29" y1="84" x2="71" y2="86" stroke="#a89972" stroke-width="3"/>
+        <!-- Brazos extendidos -->
+        <rect x="14" y="54" width="20" height="10" rx="4" fill="#e5d9b6" stroke="#1a1a2e" stroke-width="2"/>
+        <rect x="66" y="54" width="20" height="10" rx="4" fill="#e5d9b6" stroke="#1a1a2e" stroke-width="2"/>
+        <!-- Cabeza vendada -->
+        <ellipse cx="50" cy="34" rx="16" ry="18" fill="#e5d9b6" stroke="#1a1a2e" stroke-width="2.5"/>
+        <path d="M35 28 L65 24" stroke="#a89972" stroke-width="3"/>
+        <path d="M35 42 L65 46" stroke="#a89972" stroke-width="3"/>
+        <!-- Ranura de ojos brillantes -->
+        <rect x="37" y="31" width="26" height="8" rx="3" fill="#1a1a2e"/>
+        <circle cx="44" cy="35" r="2.8" fill="#2ecc71"/><circle cx="56" cy="35" r="2.8" fill="#2ecc71"/>
+        <!-- Amuleto dorado -->
+        <polygon points="50,58 55,66 50,74 45,66" fill="#f1c40f" stroke="#1a1a2e" stroke-width="1.5"/>
+      `;
+      break;
+
+    case 'gargola':
+    default:
+      body = `
+        <!-- Alas de piedra -->
+        <path d="M40 50 L6 16 L12 56 L26 62 Z" fill="#566573" stroke="#1a1a2e" stroke-width="2.5"/>
+        <path d="M60 50 L94 16 L88 56 L74 62 Z" fill="#566573" stroke="#1a1a2e" stroke-width="2.5"/>
+        <!-- Cuerpo musculoso de piedra -->
+        <path d="M28 94 L32 48 L68 48 L72 94 Z" fill="#707b7c" stroke="#1a1a2e" stroke-width="2.5"/>
+        <path d="M38 56 L62 56 L58 76 L42 76 Z" fill="#566573"/>
+        <!-- Cuernos -->
+        <path d="M38 26 Q28 10 34 8 Q42 14 44 24 Z" fill="#2c3e50" stroke="#1a1a2e" stroke-width="2"/>
+        <path d="M62 26 Q72 10 66 8 Q58 14 56 24 Z" fill="#2c3e50" stroke="#1a1a2e" stroke-width="2"/>
+        <!-- Cabeza -->
+        <ellipse cx="50" cy="36" rx="16" ry="15" fill="#7f8c8d" stroke="#1a1a2e" stroke-width="2.5"/>
+        <!-- Ojos ardientes -->
+        <polygon points="38,32 47,36 39,38" fill="#ff5722"/>
+        <polygon points="62,32 53,36 61,38" fill="#ff5722"/>
+        <!-- Colmillos -->
+        <path d="M40 44 L60 44" stroke="#1a1a2e" stroke-width="2.5"/>
+        <polygon points="43,44 45,49 47,44" fill="#fff"/>
+        <polygon points="53,44 55,49 57,44" fill="#fff"/>
+        <!-- Corona de jefe -->
+        <polygon points="42,20 46,12 50,18 54,12 58,20" fill="#f1c40f" stroke="#1a1a2e" stroke-width="1.5"/>
+      `;
+      break;
+  }
+
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="sprite-svg">${body}</svg>`;
+};
+
+/* === data/preguntas.js === */
+/**
+ * data/preguntas.js
+ * - Combates y esquivas (10 s): SOLO operaciones aritméticas de enteros con 4 opciones (1 correcta, 3 distractores).
+ * - Puertas y cofres (20 s): Problemas sencillos de números enteros de 1º de la ESO.
+ */
+window.HeroMath = window.HeroMath || {};
+
+(function() {
+  function randInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function nonZero(min, max) {
+    let n = 0;
+    while (n === 0) n = randInt(min, max);
+    return n;
+  }
+
+  function fmt(n) {
+    return n < 0 ? `(${n})` : `${n}`;
+  }
+
+  function fmtSigned(n) {
+    return n < 0 ? `−${Math.abs(n)}` : `+${n}`;
+  }
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function buildChoices(correct, candidates) {
+    const set = new Set([correct]);
+    for (const c of candidates) {
+      if (Number.isInteger(c) && !set.has(c)) set.add(c);
+      if (set.size === 4) break;
+    }
+    let spread = 1;
+    while (set.size < 4) {
+      const delta = randInt(1, 4 + spread) * (Math.random() < 0.5 ? 1 : -1);
+      set.add(correct + delta);
+      spread++;
+    }
+    return shuffle(Array.from(set));
+  }
+
+  /**
+   * Genera una operación aritmética de números enteros con 4 opciones para combates (10 s).
+   * @param {'basico'|'intermedio'|'completo'} nivel
+   */
+  window.HeroMath.generarOperacionCombate = function(nivel) {
+    const tipoMax = nivel === 'basico' ? 2 : (nivel === 'intermedio' ? 5 : 7);
+    const tipo = randInt(1, tipoMax);
+
+    let enunciado = '';
+    let respuesta = 0;
+    let explicacion = '';
+    let distractores = [];
+
+    if (tipo === 1) {
+      // Suma o resta directa: -7 + 12  o  4 - 11
+      const a = nonZero(-12, 12);
+      const b = nonZero(-12, 12);
+      const op = Math.random() < 0.5 ? '+' : '-';
+      respuesta = op === '+' ? a + b : a - b;
+      const bStr = b < 0 ? `(${b})` : `${b}`;
+      enunciado = `${a} ${op === '-' ? '−' : '+'} ${bStr}`;
+      explicacion = op === '+'
+        ? `Al sumar ${a} y ${b}, obtenemos ${respuesta}.`
+        : `Restar ${b} equivale a sumar su opuesto (${-b}): ${a} + (${-b}) = ${respuesta}.`;
+      distractores = [-respuesta, op === '+' ? a - b : a + b, respuesta + 2, respuesta - 2];
+    } else if (tipo === 2) {
+      // Suma/resta sin paréntesis de tres enteros cortos
+      const a = nonZero(-9, 9);
+      const b = nonZero(-9, 9);
+      const c = nonZero(-8, 8);
+      respuesta = a + b + c;
+      enunciado = `${a} ${b >= 0 ? '+ ' + b : '− ' + Math.abs(b)} ${c >= 0 ? '+ ' + c : '− ' + Math.abs(c)}`;
+      explicacion = `Agrupamos positivos y negativos paso a paso: (${a + b}) ${c >= 0 ? '+ ' + c : '− ' + Math.abs(c)} = ${respuesta}.`;
+      distractores = [-respuesta, a + b - c, a - b + c, respuesta + 1];
+    } else if (tipo === 3) {
+      // Multiplicación de enteros
+      const a = nonZero(-9, 9);
+      const b = nonZero(-9, 9);
+      // Asegurar al menos un negativo para practicar regla de signos
+      const a2 = (a > 0 && b > 0) ? -a : a;
+      respuesta = a2 * b;
+      enunciado = `${fmt(a2)} · ${fmt(b)}`;
+      explicacion = `Regla de signos: ${a2 < 0 ? '−' : '+'} por ${b < 0 ? '−' : '+'} es ${respuesta < 0 ? '−' : '+'}. Valor: ${Math.abs(a2)} · ${Math.abs(b)} = ${Math.abs(respuesta)} → ${respuesta}.`;
+      distractores = [-respuesta, a2 + b, respuesta + Math.abs(b), respuesta - Math.abs(a2)];
+    } else if (tipo === 4) {
+      // División exacta de enteros
+      const b = nonZero(-8, 8);
+      const q = nonZero(-9, 9);
+      const b2 = (b > 0 && q > 0) ? -b : b;
+      const a = b2 * q;
+      respuesta = q;
+      enunciado = `${fmt(a)} : ${fmt(b2)}`;
+      explicacion = `Regla de signos: ${a < 0 ? '−' : '+'} entre ${b2 < 0 ? '−' : '+'} es ${q < 0 ? '−' : '+'}. Cociente: ${Math.abs(a)} : ${Math.abs(b2)} = ${Math.abs(q)} → ${q}.`;
+      distractores = [-q, q + 1, q - 1, q + 2];
+    } else if (tipo === 5) {
+      // Operación combinada: a + b · c
+      const a = nonZero(-10, 10);
+      const b = nonZero(-6, 6);
+      const c = nonZero(-5, 5);
+      respuesta = a + b * c;
+      enunciado = `${a} + ${fmt(b)} · ${fmt(c)}`;
+      explicacion = `Primero la multiplicación: ${fmt(b)} · ${fmt(c)} = ${b * c}. Luego: ${a} + (${b * c}) = ${respuesta}.`;
+      distractores = [(a + b) * c, a - b * c, -respuesta, respuesta + 2];
+    } else if (tipo === 6) {
+      // Operación con paréntesis: a · (b + c)
+      const a = nonZero(-6, 6);
+      const b = nonZero(-8, 8);
+      const c = nonZero(-8, 8);
+      respuesta = a * (b + c);
+      enunciado = `${fmt(a)} · (${b} ${c >= 0 ? '+ ' + c : '− ' + Math.abs(c)})`;
+      explicacion = `Primero el paréntesis: ${b} ${c >= 0 ? '+ ' + c : '− ' + Math.abs(c)} = ${b + c}. Después: ${fmt(a)} · ${fmt(b + c)} = ${respuesta}.`;
+      distractores = [a * b + c, -respuesta, a * (b - c), respuesta + a];
+    } else {
+      // Operación combinada con resta y multiplicación: a - b · c
+      const a = nonZero(-10, 10);
+      const b = nonZero(-5, 5);
+      const c = nonZero(-5, 5);
+      respuesta = a - b * c;
+      enunciado = `${a} − ${fmt(b)} · ${fmt(c)}`;
+      explicacion = `Primero el producto: ${fmt(b)} · ${fmt(c)} = ${b * c}. Luego restamos: ${a} − (${b * c}) = ${respuesta}.`;
+      distractores = [a + b * c, (a - b) * c, -respuesta, respuesta - 2];
+    }
+
+    return {
+      enunciado: enunciado + ' = ?',
+      respuesta,
+      opciones: buildChoices(respuesta, distractores),
+      explicacion
+    };
+  };
+
+  /**
+   * Genera un problema sencillo de números enteros para puertas y cofres (20 s).
+   * @param {'basico'|'intermedio'|'completo'} nivel
+   */
+  window.HeroMath.generarProblemaPuertaCofre = function(nivel) {
+    const plantillas = [
+      () => {
+        const inicio = randInt(-3, 6);
+        const baja = randInt(4, 10);
+        const res = inicio - baja;
+        return {
+          tema: '🛗 Ascensor',
+          enunciado: `Un ascensor está en la planta ${inicio} y baja ${baja} plantas. ¿En qué planta termina?`,
+          respuesta: res,
+          explicacion: `${inicio} − ${baja} = ${res}. Termina en la planta ${res}.`
+        };
+      },
+      () => {
+        const inicio = randInt(-6, -1);
+        const sube = randInt(4, 12);
+        const res = inicio + sube;
+        return {
+          tema: '🛗 Ascensor',
+          enunciado: `Desde el sótano ${inicio}, subes ${sube} pisos en ascensor. ¿A qué piso llegas?`,
+          respuesta: res,
+          explicacion: `${inicio} + ${sube} = ${res}. Llegas al piso ${res}.`
+        };
+      },
+      () => {
+        const temp = randInt(-8, 4);
+        const sube = randInt(5, 14);
+        const res = temp + sube;
+        return {
+          tema: '🌡️ Temperatura',
+          enunciado: `Al amanecer hace ${temp} °C. Al mediodía la temperatura sube ${sube} °C. ¿Qué temperatura hace ahora?`,
+          respuesta: res,
+          explicacion: `${temp} + ${sube} = ${res} °C.`
+        };
+      },
+      () => {
+        const temp = randInt(1, 9);
+        const baja = randInt(6, 15);
+        const res = temp - baja;
+        return {
+          tema: '🌡️ Temperatura',
+          enunciado: `Por la tarde el termómetro marca ${temp} °C y por la noche baja ${baja} °C. ¿Qué temperatura marca por la noche?`,
+          respuesta: res,
+          explicacion: `${temp} − ${baja} = ${res} °C.`
+        };
+      },
+      () => {
+        const prof = -randInt(15, 45);
+        const baja = randInt(10, 25);
+        const res = prof - baja;
+        return {
+          tema: '🌊 Submarino',
+          enunciado: `Un submarino está a ${prof} m de profundidad y desciende ${baja} m más. ¿A qué cota (en metros) se encuentra?`,
+          respuesta: res,
+          explicacion: `${prof} − ${baja} = ${res} m.`
+        };
+      },
+      () => {
+        const prof = -randInt(25, 60);
+        const sube = randInt(10, 22);
+        const res = prof + sube;
+        return {
+          tema: '🌊 Submarino',
+          enunciado: `Un buzo se encuentra a ${prof} m bajo el nivel del mar y asciende ${sube} m. ¿A qué profundidad está ahora?`,
+          respuesta: res,
+          explicacion: `${prof} + ${sube} = ${res} m.`
+        };
+      },
+      () => {
+        const saldo = randInt(10, 35);
+        const gasto = saldo + randInt(5, 25);
+        const res = saldo - gasto;
+        return {
+          tema: '🪙 Tesoro y deudas',
+          enunciado: `Tienes ${saldo} monedas en tu bolsa y debes pagar una cuenta de ${gasto} monedas. ¿Cuál es tu saldo final?`,
+          respuesta: res,
+          explicacion: `${saldo} − ${gasto} = ${res} monedas (saldo negativo / deuda).`
+        };
+      },
+      () => {
+        const deuda = -randInt(12, 30);
+        const gana = randInt(15, 45);
+        const res = deuda + gana;
+        return {
+          tema: '🪙 Tesoro y deudas',
+          enunciado: `Tu equipo tiene un saldo de ${deuda} monedas y encuentra un saco con ${gana} monedas. ¿Cuál es vuestro nuevo saldo?`,
+          respuesta: res,
+          explicacion: `${deuda} + ${gana} = ${res} monedas.`
+        };
+      },
+      () => {
+        const t1 = randInt(4, 14);
+        const t2 = -randInt(2, 9);
+        const res = t1 - t2;
+        return {
+          tema: '❄️ Diferencia térmica',
+          enunciado: `En la mazmorra hay ${t1} °C en la entrada y ${t2} °C en la cripta helada. ¿Cuántos grados de diferencia hay?`,
+          respuesta: res,
+          explicacion: `Diferencia = ${t1} − (${t2}) = ${t1} + ${Math.abs(t2)} = ${res} °C.`
+        };
+      },
+      () => {
+        const nacio = -randInt(40, 80);
+        const vivio = randInt(45, 75);
+        const res = nacio + vivio;
+        return {
+          tema: '📜 Historia',
+          enunciado: `Un sabio nació en el año ${Math.abs(nacio)} a. C. (${nacio}) y vivió ${vivio} años. ¿En qué año murió?`,
+          respuesta: res,
+          explicacion: `${nacio} + ${vivio} = ${res} (${res >= 0 ? res + ' d. C.' : Math.abs(res) + ' a. C.'}).`
+        };
+      },
+      () => {
+        const bajaPorHora = randInt(2, 4);
+        const horas = randInt(3, 5);
+        const inicio = randInt(2, 8);
+        const res = inicio - bajaPorHora * horas;
+        return {
+          tema: '❄️ Cámara frigorífica',
+          enunciado: `Una sala está a ${inicio} °C y su temperatura baja ${bajaPorHora} °C cada hora durante ${horas} horas. ¿Qué temperatura alcanza?`,
+          respuesta: res,
+          explicacion: `${inicio} − (${bajaPorHora} · ${horas}) = ${inicio} − ${bajaPorHora * horas} = ${res} °C.`
+        };
+      },
+      () => {
+        const pisos = randInt(2, 4);
+        const metros = randInt(3, 4);
+        const res = -(pisos * metros);
+        return {
+          tema: '🏰 Mazmorra subterránea',
+          enunciado: `Cada nivel subterráneo de la mazmorra mide ${metros} m de altura. Si bajas ${pisos} niveles desde el suelo (0 m), ¿a qué cota estás?`,
+          respuesta: res,
+          explicacion: `${pisos} · (−${metros}) = ${res} m.`
+        };
+      }
+    ];
+
+    const limite = nivel === 'basico' ? 8 : plantillas.length;
+    const idx = randInt(0, limite - 1);
+    const prob = plantillas[idx]();
+    const distractores = [
+      -prob.respuesta,
+      prob.respuesta + randInt(2, 5),
+      prob.respuesta - randInt(2, 5),
+      prob.respuesta + (prob.respuesta >= 0 ? -10 : 10)
+    ];
+    prob.opciones = buildChoices(prob.respuesta, distractores);
+    return prob;
+  };
+})();
+
+/* === js/audio.js === */
+/**
+ * js/audio.js
+ * Sintetizador de efectos de sonido con Web Audio API (100% offline, sin archivos MP3).
+ */
+window.HeroMath = window.HeroMath || {};
+
+window.HeroMath.Audio = (function() {
+  let ctx = null;
+  let enabled = true;
+
+  function getCtx() {
+    if (!ctx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) ctx = new AudioCtx();
+    }
+    if (ctx && ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+
+  function tone(freq, duration, type = 'sine', vol = 0.14, delay = 0) {
+    if (!enabled) return;
+    const c = getCtx();
+    if (!c) return;
+    const now = c.currentTime + delay;
+    const osc = c.createOscillator();
+    const gain = c.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, now);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(vol, now + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    osc.connect(gain);
+    gain.connect(c.destination);
+    osc.start(now);
+    osc.stop(now + duration + 0.02);
+  }
+
+  return {
+    toggle() { enabled = !enabled; return enabled; },
+    isEnabled() { return enabled; },
+    dice() {
+      for (let i = 0; i < 5; i++) tone(240 + Math.random() * 260, 0.05, 'triangle', 0.1, i * 0.055);
+    },
+    step() { tone(190, 0.06, 'triangle', 0.1); },
+    door() {
+      tone(140, 0.16, 'sawtooth', 0.09, 0);
+      tone(195, 0.2, 'triangle', 0.1, 0.1);
+    },
+    hit() {
+      tone(130, 0.14, 'sawtooth', 0.18, 0);
+      tone(85, 0.18, 'square', 0.14, 0.06);
+    },
+    shield() {
+      tone(520, 0.1, 'triangle', 0.14, 0);
+      tone(780, 0.16, 'sine', 0.14, 0.08);
+    },
+    coin() {
+      tone(880, 0.09, 'sine', 0.14, 0);
+      tone(1320, 0.18, 'sine', 0.14, 0.08);
+    },
+    fail() {
+      tone(220, 0.18, 'sawtooth', 0.14, 0);
+      tone(155, 0.28, 'sawtooth', 0.14, 0.15);
+    },
+    tick() { tone(660, 0.04, 'square', 0.06); },
+    victory() {
+      const notes = [523, 659, 784, 1046];
+      notes.forEach((n, i) => tone(n, 0.24, 'triangle', 0.16, i * 0.12));
+    }
+  };
+})();
+
+/* === js/tablero.js === */
+/**
+ * js/tablero.js
+ * Generador aleatorio de mazmorras estilo HeroQuest:
+ * - Habitaciones rectangulares de tamaños variables
+ * - Pasillos conectores
+ * - Puertas cerradas que ocultan el contenido (niebla de guerra) hasta abrirse
+ * - Cofres con oro, enemigos variados (50 HP) y Gran Cofre Real custodiado por la Gárgola
+ */
+window.HeroMath = window.HeroMath || {};
+
+window.HeroMath.Tablero = (function() {
+  const ROOM_NAMES = [
+    'Sala de Armas', 'Cripta Antigua', 'Biblioteca Oscura', 'Almacén Real',
+    'Sala del Caldero', 'Capilla Olvidada', 'Cámara de los Ecos', 'Bóveda de Piedra',
+    'Galería de Sombras', 'Tesorería Secreta'
+  ];
+
+  function randInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function generar(tamano) {
+    const dims = {
+      pequeno: { cols: 11, rows: 7,  targetRooms: 5 },
+      mediano: { cols: 13, rows: 9,  targetRooms: 7 },
+      grande:  { cols: 15, rows: 9,  targetRooms: 8 }
+    }[tamano] || { cols: 13, rows: 9, targetRooms: 7 };
+
+    for (let attempt = 0; attempt < 30; attempt++) {
+      const mapa = intentarGenerar(dims.cols, dims.rows, dims.targetRooms);
+      if (mapa) return mapa;
+    }
+    return intentarGenerar(dims.cols, dims.rows, 4, true);
+  }
+
+  function intentarGenerar(cols, rows, targetRooms, fallback = false) {
+    // Tipos de celda: 'wall', 'corridor', 'room', 'door'
+    const grid = [];
+    for (let r = 0; r < rows; r++) {
+      const row = [];
+      for (let c = 0; c < cols; c++) {
+        row.push({
+          r, c,
+          type: 'wall',
+          roomId: null,
+          revealed: false,
+          doorOpen: false,
+          doorRooms: [],
+          start: false,
+          chest: null, // { id, oro, isGrand, opened, hasShield }
+          enemyId: null
+        });
+      }
+      grid.push(row);
+    }
+
+    // 1. Crear pasillo principal horizontal y un par de pasillos verticales estilo HeroQuest
+    const midR = Math.floor(rows / 2);
+    for (let c = 1; c < cols - 1; c++) {
+      grid[midR][c].type = 'corridor';
+      grid[midR][c].revealed = true;
+    }
+
+    // Pasillos verticales secundarios
+    const vCols = cols >= 13 ? [Math.floor(cols / 3), Math.floor((cols * 2) / 3)] : [Math.floor(cols / 2)];
+    vCols.forEach(vc => {
+      for (let r = 1; r < rows - 1; r++) {
+        grid[r][vc].type = 'corridor';
+        grid[r][vc].revealed = true;
+      }
+    });
+
+    // 2. Colocar habitaciones rectangulares de tamaños variables sin solaparse ni cortar pasillos principales
+    const rooms = [];
+    let nextRoomId = 1;
+    const roomSizes = [
+      [3, 3], [4, 3], [3, 2], [4, 2], [2, 3], [2, 2]
+    ];
+
+    for (let tries = 0; tries < 220 && rooms.length < targetRooms; tries++) {
+      const [rw, rh] = roomSizes[randInt(0, roomSizes.length - 1)];
+      const r0 = randInt(0, rows - rh);
+      const c0 = randInt(0, cols - rw);
+
+      // Verificar que no toque pasillos directamente por dentro ni se solape con otra habitación (dejando al menos 1 casilla de muro/pasillo)
+      let ok = true;
+      for (let r = r0 - 1; r <= r0 + rh; r++) {
+        for (let c = c0 - 1; c <= c0 + rw; c++) {
+          if (r < 0 || r >= rows || c < 0 || c >= cols) continue;
+          const inside = r >= r0 && r < r0 + rh && c >= c0 && c < c0 + rw;
+          if (inside) {
+            if (grid[r][c].type !== 'wall') { ok = false; break; }
+          } else {
+            // No pegar dos habitaciones directamente sin pared
+            if (grid[r][c].type === 'room') { ok = false; break; }
+          }
+        }
+        if (!ok) break;
+      }
+      if (!ok) continue;
+
+      // Buscar al menos una casilla de muro adyacente que toque un pasillo para poner la puerta
+      const doorCandidates = [];
+      for (let r = r0; r < r0 + rh; r++) {
+        for (let c = c0; c < c0 + rw; c++) {
+          const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+          for (const [dr, dc] of dirs) {
+            const mr = r + dr, mc = c + dc;
+            const cr = r + dr * 2, cc = c + dc * 2;
+            if (mr >= 0 && mr < rows && mc >= 0 && mc < cols &&
+                cr >= 0 && cr < rows && cc >= 0 && cc < cols) {
+              if (grid[mr][mc].type === 'wall' && grid[cr][cc].type === 'corridor') {
+                doorCandidates.push({ r: mr, c: mc });
+              }
+            }
+          }
+        }
+      }
+      if (doorCandidates.length === 0) continue;
+
+      const roomId = nextRoomId++;
+      const roomCells = [];
+      for (let r = r0; r < r0 + rh; r++) {
+        for (let c = c0; c < c0 + rw; c++) {
+          grid[r][c].type = 'room';
+          grid[r][c].roomId = roomId;
+          grid[r][c].revealed = false; // Oculta bajo niebla hasta abrir la puerta
+          roomCells.push({ r, c });
+        }
+      }
+
+      // Colocar 1 puerta cerrada conectando la habitación al pasillo
+      const doorPos = doorCandidates[randInt(0, doorCandidates.length - 1)];
+      grid[doorPos.r][doorPos.c].type = 'door';
+      grid[doorPos.r][doorPos.c].doorOpen = false;
+      grid[doorPos.r][doorPos.c].revealed = true;
+      grid[doorPos.r][doorPos.c].doorRooms.push(roomId);
+
+      rooms.push({
+        id: roomId,
+        nombre: ROOM_NAMES[(roomId - 1) % ROOM_NAMES.length],
+        r0, c0, rw, rh,
+        cells: roomCells,
+        door: doorPos,
+        revealed: false
+      });
+    }
+
+    if (rooms.length < 3 && !fallback) return null;
+
+    // 3. Punto de entrada (escaleras) en el extremo izquierdo del pasillo central
+    const startPos = { r: midR, c: 1 };
+    grid[startPos.r][startPos.c].start = true;
+
+    // 4. Elegir la habitación más lejana a la entrada como Cámara del Gran Tesoro
+    rooms.sort((a, b) => {
+      const da = Math.abs(a.r0 - startPos.r) + Math.abs(a.c0 - startPos.c);
+      const db = Math.abs(b.r0 - startPos.r) + Math.abs(b.c0 - startPos.c);
+      return db - da;
+    });
+    const bossRoom = rooms[0];
+    bossRoom.nombre = 'Cámara del Gran Tesoro';
+
+    // 5. Colocar Gran Cofre Real y Gárgola Guardiana en bossRoom
+    const enemies = [];
+    let nextEnemyUid = 1;
+    const baseEnemies = window.HeroMath.ENEMIGOS.filter(e => !e.esJefe);
+    const bossTemplate = window.HeroMath.ENEMIGOS.find(e => e.esJefe) || window.HeroMath.ENEMIGOS[0];
+
+    const bossCells = shuffle(bossRoom.cells);
+    const grandChestCell = bossCells[0];
+    grid[grandChestCell.r][grandChestCell.c].chest = {
+      id: 'grand_chest',
+      oro: 150,
+      isGrand: true,
+      opened: false,
+      hasShield: false
+    };
+
+    if (bossCells.length > 1) {
+      const gCell = bossCells[1];
+      const bossObj = {
+        uid: nextEnemyUid++,
+        templateId: bossTemplate.id,
+        nombre: bossTemplate.nombre,
+        hp: bossTemplate.maxHp,
+        maxHp: bossTemplate.maxHp,
+        danio: bossTemplate.danio,
+        oro: bossTemplate.oro,
+        esJefe: true,
+        frase: bossTemplate.frase,
+        r: gCell.r,
+        c: gCell.c,
+        roomId: bossRoom.id,
+        alive: true
+      };
+      enemies.push(bossObj);
+      grid[gCell.r][gCell.c].enemyId = bossObj.uid;
+    }
+
+    // 6. Poblar el resto de habitaciones con cofres de oro y enemigos (ocultos hasta abrir puerta)
+    let chestCounter = 1;
+    for (let i = 1; i < rooms.length; i++) {
+      const room = rooms[i];
+      const cells = shuffle(room.cells);
+
+      // Cofre en ~75% de las habitaciones
+      if (cells.length >= 1 && (i <= 2 || Math.random() < 0.75)) {
+        const cCell = cells.shift();
+        grid[cCell.r][cCell.c].chest = {
+          id: 'chest_' + (chestCounter++),
+          oro: randInt(3, 8) * 10,
+          isGrand: false,
+          opened: false,
+          hasShield: Math.random() < 0.35
+        };
+      }
+
+      // Enemigo en casi todas las habitaciones
+      if (cells.length >= 1 && Math.random() < 0.85) {
+        const eCell = cells.shift();
+        const tpl = baseEnemies[randInt(0, baseEnemies.length - 1)];
+        const enemyObj = {
+          uid: nextEnemyUid++,
+          templateId: tpl.id,
+          nombre: tpl.nombre,
+          hp: tpl.maxHp,
+          maxHp: tpl.maxHp,
+          danio: tpl.danio,
+          oro: tpl.oro,
+          esJefe: false,
+          frase: tpl.frase,
+          r: eCell.r,
+          c: eCell.c,
+          roomId: room.id,
+          alive: true
+        };
+        enemies.push(enemyObj);
+        grid[eCell.r][eCell.c].enemyId = enemyObj.uid;
+      }
+    }
+
+    // 7. Añadir 1 o 2 enemigos patrullando los pasillos (lejos de la entrada)
+    const corridorCells = [];
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (grid[r][c].type === 'corridor' && !grid[r][c].start) {
+          const dist = Math.abs(r - startPos.r) + Math.abs(c - startPos.c);
+          if (dist >= 4) corridorCells.push({ r, c });
+        }
+      }
+    }
+    const patrolCount = cols >= 13 ? 2 : 1;
+    const chosenCorridor = shuffle(corridorCells).slice(0, patrolCount);
+    chosenCorridor.forEach(pos => {
+      const tpl = baseEnemies[randInt(0, baseEnemies.length - 1)];
+      const enemyObj = {
+        uid: nextEnemyUid++,
+        templateId: tpl.id,
+        nombre: tpl.nombre,
+        hp: tpl.maxHp,
+        maxHp: tpl.maxHp,
+        danio: tpl.danio,
+        oro: tpl.oro,
+        esJefe: false,
+        frase: tpl.frase,
+        r: pos.r,
+        c: pos.c,
+        roomId: null,
+        alive: true
+      };
+      enemies.push(enemyObj);
+      grid[pos.r][pos.c].enemyId = enemyObj.uid;
+    });
+
+    // 8. Verificar accesibilidad total mediante BFS (atravesando puertas)
+    if (!verificarConectividad(grid, rows, cols, startPos, grandChestCell)) {
+      return null;
+    }
+
+    return { cols, rows, grid, rooms, enemies, startPos, grandChestCell };
+  }
+
+  function verificarConectividad(grid, rows, cols, start, target) {
+    const visited = Array.from({ length: rows }, () => Array(cols).fill(false));
+    const q = [start];
+    visited[start.r][start.c] = true;
+    const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+    while (q.length) {
+      const cur = q.shift();
+      if (cur.r === target.r && cur.c === target.c) return true;
+      for (const [dr, dc] of dirs) {
+        const nr = cur.r + dr, nc = cur.c + dc;
+        if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && !visited[nr][nc]) {
+          if (grid[nr][nc].type !== 'wall') {
+            visited[nr][nc] = true;
+            q.push({ r: nr, c: nc });
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  return { generar };
+})();
+
+/* === js/juego.js === */
+/**
+ * js/juego.js
+ * Motor principal de HeroMath: La Mazmorra de los Enteros
+ * - Personalización de 2 a 4 equipos
+ * - Movimiento ortogonal con dado (1-6) y Zona de Control estricta
+ * - Popup de Duelo (10 s, 4 opciones, solo aritmética de enteros, botón Iniciar)
+ * - Popup de Puertas y Cofres (20 s, problema sencillo, teclado táctil, botón Iniciar)
+ * - Turno automático de enemigos (BFS 1 casilla + ataque con esquiva matemática)
+ */
+window.HeroMath = window.HeroMath || {};
+
+(function() {
+  const HM = window.HeroMath;
+  const DIRS = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+
+  const state = {
+    numEquipos: 3,
+    tamanoMapa: 'mediano',
+    dificultad: 'intermedio',
+    equiposConfig: [],
+    jugadores: [],
+    mapa: null,
+    turnoIdx: 0,
+    ronda: 1,
+    fase: 'setup', // 'setup' | 'roll' | 'move' | 'modal' | 'enemyTurn' | 'gameover'
+    stepsLeft: 0,
+    lastDice: null,
+    timerId: null
+  };
+
+  // --- Inicialización de configuración por defecto ---
+  function initConfig() {
+    const nombres = ['Los Dragones', 'Magos del Norte', 'Halcones', 'Centinelas'];
+    const clases = ['guerrero', 'mago', 'ladron', 'arquero'];
+    state.equiposConfig = [];
+    for (let i = 0; i < 4; i++) {
+      state.equiposConfig.push({
+        nombre: nombres[i],
+        clase: clases[i],
+        colorIdx: i,
+        emblemaIdx: i
+      });
+    }
+  }
+
+  // --- Utilidades DOM ---
+  const $ = id => document.getElementById(id);
+  const sleep = ms => new Promise(res => setTimeout(res, ms));
+
+  function logMsg(html) {
+    const log = $('battle-log');
+    if (!log) return;
+    const item = document.createElement('div');
+    item.className = 'log-entry';
+    item.innerHTML = html;
+    log.prepend(item);
+    while (log.children.length > 18) log.removeChild(log.lastChild);
+  }
+
+  function showFloatText(r, c, text, color = '#f1c40f') {
+    const cellEl = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+    if (!cellEl) return;
+    const fx = document.createElement('div');
+    fx.className = 'float-text';
+    fx.style.color = color;
+    fx.textContent = text;
+    cellEl.appendChild(fx);
+    setTimeout(() => fx.remove(), 1200);
+  }
+
+  // ================= PANTALLA DE SETUP =================
+  function renderSetup() {
+    document.querySelectorAll('.team-count-btn').forEach(btn => {
+      btn.classList.toggle('active', Number(btn.dataset.count) === state.numEquipos);
+    });
+    document.querySelectorAll('.map-size-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.size === state.tamanoMapa);
+    });
+    document.querySelectorAll('.diff-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.diff === state.dificultad);
+    });
+
+    const container = $('teams-setup-grid');
+    container.innerHTML = '';
+
+    for (let i = 0; i < state.numEquipos; i++) {
+      const cfg = state.equiposConfig[i];
+      const col = HM.COLORES[cfg.colorIdx];
+      const card = document.createElement('div');
+      card.className = 'team-setup-card';
+      card.style.borderColor = col.hex;
+
+      card.innerHTML = `
+        <div class="setup-card-header" style="background:${col.oscuro}">
+          <span>Equipo ${i + 1}</span>
+          <span class="setup-emblem-preview">${HM.EMBLEMAS[cfg.emblemaIdx]}</span>
+        </div>
+        <div class="setup-avatar-box">
+          ${HM.getHeroSVG(cfg.clase, col.hex, col.oscuro)}
+        </div>
+        <input type="text" class="team-name-input" data-idx="${i}" value="${cfg.nombre}" maxlength="18" placeholder="Nombre del equipo"/>
+        <div class="setup-label">Clase</div>
+        <div class="clase-grid">
+          ${HM.CLASES.map(cl => `
+            <button type="button" class="mini-btn clase-pick ${cfg.clase === cl.id ? 'active' : ''}" data-idx="${i}" data-clase="${cl.id}">
+              ${cl.nombre}
+            </button>
+          `).join('')}
+        </div>
+        <div class="setup-label">Color de armadura</div>
+        <div class="color-row">
+          ${HM.COLORES.map((cObj, cIdx) => `
+            <button type="button" class="color-dot ${cfg.colorIdx === cIdx ? 'active' : ''}" data-idx="${i}" data-cidx="${cIdx}" style="background:${cObj.hex}" title="${cObj.nombre}"></button>
+          `).join('')}
+        </div>
+        <div class="setup-label">Emblema</div>
+        <div class="emblem-row">
+          ${HM.EMBLEMAS.map((emb, eIdx) => `
+            <button type="button" class="emblem-btn ${cfg.emblemaIdx === eIdx ? 'active' : ''}" data-idx="${i}" data-eidx="${eIdx}">${emb}</button>
+          `).join('')}
+        </div>
+      `;
+      container.appendChild(card);
+    }
+
+    container.querySelectorAll('.team-name-input').forEach(inp => {
+      inp.addEventListener('input', e => {
+        state.equiposConfig[Number(e.target.dataset.idx)].nombre = e.target.value;
+      });
+    });
+    container.querySelectorAll('.clase-pick').forEach(btn => {
+      btn.addEventListener('click', e => {
+        const idx = Number(e.currentTarget.dataset.idx);
+        state.equiposConfig[idx].clase = e.currentTarget.dataset.clase;
+        renderSetup();
+      });
+    });
+    container.querySelectorAll('.color-dot').forEach(btn => {
+      btn.addEventListener('click', e => {
+        const idx = Number(e.currentTarget.dataset.idx);
+        state.equiposConfig[idx].colorIdx = Number(e.currentTarget.dataset.cidx);
+        renderSetup();
+      });
+    });
+    container.querySelectorAll('.emblem-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        const idx = Number(e.currentTarget.dataset.idx);
+        state.equiposConfig[idx].emblemaIdx = Number(e.currentTarget.dataset.eidx);
+        renderSetup();
+      });
+    });
+  }
+
+  // ================= INICIO DE PARTIDA =================
+  function iniciarPartida() {
+    state.mapa = HM.Tablero.generar(state.tamanoMapa);
+    state.jugadores = [];
+    for (let i = 0; i < state.numEquipos; i++) {
+      const cfg = state.equiposConfig[i];
+      const col = HM.COLORES[cfg.colorIdx];
+      state.jugadores.push({
+        id: i,
+        nombre: (cfg.nombre || `Equipo ${i + 1}`).trim(),
+        clase: cfg.clase,
+        color: col.hex,
+        colorOscuro: col.oscuro,
+        emblema: HM.EMBLEMAS[cfg.emblemaIdx],
+        hp: 100,
+        maxHp: 100,
+        oro: 0,
+        escudo: false,
+        aciertos: 0,
+        errores: 0,
+        enemigosVencidos: 0,
+        alive: true,
+        r: state.mapa.startPos.r,
+        c: state.mapa.startPos.c
+      });
+    }
+
+    state.turnoIdx = 0;
+    state.ronda = 1;
+    state.fase = 'roll';
+    state.stepsLeft = 0;
+    state.lastDice = null;
+
+    $('setup-screen').classList.add('hidden');
+    $('game-screen').classList.remove('hidden');
+    $('end-modal').classList.add('hidden');
+    $('battle-log').innerHTML = '';
+
+    logMsg(`🏰 <b>¡Comienza la expedición!</b> Encuentra el Gran Cofre Real en la cámara oculta.`);
+    renderAll();
+  }
+
+  // ================= UTILIDADES DE TABLERO Y REGLAS =================
+  function getCurrentPlayer() {
+    return state.jugadores[state.turnoIdx];
+  }
+
+  function getEnemyById(uid) {
+    return state.mapa.enemies.find(e => e.uid === uid && e.alive) || null;
+  }
+
+  function getEnemyAt(r, c) {
+    const cell = state.mapa.grid[r]?.[c];
+    if (!cell || !cell.enemyId) return null;
+    return getEnemyById(cell.enemyId);
+  }
+
+  function isCellRevealed(r, c) {
+    const cell = state.mapa.grid[r]?.[c];
+    return !!(cell && cell.revealed);
+  }
+
+  function getAdjacentEnemies(r, c) {
+    const found = [];
+    for (const [dr, dc] of DIRS) {
+      const nr = r + dr, nc = c + dc;
+      if (nr < 0 || nr >= state.mapa.rows || nc < 0 || nc >= state.mapa.cols) continue;
+      if (!isCellRevealed(nr, nc)) continue;
+      const en = getEnemyAt(nr, nc);
+      if (en) found.push(en);
+    }
+    return found;
+  }
+
+  function isInZoneOfControl(r, c) {
+    return getAdjacentEnemies(r, c).length > 0;
+  }
+
+  function getAdjacentClosedDoors(r, c) {
+    const found = [];
+    for (const [dr, dc] of DIRS) {
+      const nr = r + dr, nc = c + dc;
+      const cell = state.mapa.grid[nr]?.[nc];
+      if (cell && cell.type === 'door' && !cell.doorOpen) found.push(cell);
+    }
+    return found;
+  }
+
+  function getAdjacentChests(r, c) {
+    const found = [];
+    for (const [dr, dc] of DIRS) {
+      const nr = r + dr, nc = c + dc;
+      const cell = state.mapa.grid[nr]?.[nc];
+      if (cell && cell.revealed && cell.chest && !cell.chest.opened) found.push(cell);
+    }
+    return found;
+  }
+
+  function canStepInto(r, c) {
+    const cell = state.mapa.grid[r]?.[c];
+    if (!cell) return false;
+    if (cell.type === 'wall') return false;
+    if (cell.type === 'door' && !cell.doorOpen) return false;
+    if (!cell.revealed) return false;
+    if (getEnemyAt(r, c)) return false;
+    return true;
+  }
+
+  // ================= RENDERIZADO DEL TABLERO Y HUD =================
+  function renderAll() {
+    renderSidebar();
+    renderBoard();
+    renderControls();
+  }
+
+  function renderSidebar() {
+    const p = getCurrentPlayer();
+    $('round-badge').textContent = `Ronda ${state.ronda}`;
+    $('active-turn-banner').innerHTML = p && p.alive
+      ? `<span class="turn-dot" style="background:${p.color}"></span> Turno de <b>${p.emblema} ${p.nombre}</b>`
+      : 'Turno de los Enemigos';
+
+    const list = $('players-list');
+    list.innerHTML = state.jugadores.map((j, idx) => {
+      const active = idx === state.turnoIdx && state.fase !== 'enemyTurn' && j.alive;
+      const hpPct = Math.max(0, Math.round((j.hp / j.maxHp) * 100));
+      const hpColor = hpPct > 50 ? '#2ecc71' : (hpPct > 25 ? '#f39c12' : '#e74c3c');
+      return `
+        <div class="player-card ${active ? 'active-turn' : ''} ${!j.alive ? 'dead-player' : ''}" style="border-left-color:${j.color}">
+          <div class="pc-avatar">${HM.getHeroSVG(j.clase, j.color, j.colorOscuro)}</div>
+          <div class="pc-info">
+            <div class="pc-top">
+              <span class="pc-name">${j.emblema} ${j.nombre}</span>
+              <span class="pc-gold">🪙 ${j.oro}</span>
+            </div>
+            <div class="hp-bar-bg">
+              <div class="hp-bar-fill" style="width:${hpPct}%; background:${hpColor}"></div>
+              <span class="hp-text">${j.alive ? `❤️ ${j.hp}/${j.maxHp}` : '💀 ELIMINADO'}</span>
+            </div>
+            <div class="pc-tags">
+              ${j.escudo ? '<span class="tag-shield">🛡️ Escudo</span>' : ''}
+              <span class="tag-stat">✅ ${j.aciertos}</span>
+              <span class="tag-stat">⚔️ ${j.enemigosVencidos}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderControls() {
+    const p = getCurrentPlayer();
+    const rollBtn = $('btn-roll-dice');
+    const endBtn = $('btn-end-turn');
+    const diceVal = $('dice-value');
+    const stepsBadge = $('steps-badge');
+    const dpadBtns = document.querySelectorAll('.dpad-btn');
+
+    diceVal.textContent = state.lastDice ?? '🎲';
+    stepsBadge.textContent = state.fase === 'move' ? `Pasos: ${state.stepsLeft}` : (state.fase === 'enemyTurn' ? 'Enemigos...' : 'Tira el dado');
+
+    rollBtn.disabled = state.fase !== 'roll';
+    endBtn.disabled = state.fase !== 'move';
+
+    const canMove = state.fase === 'move' && state.stepsLeft > 0;
+    dpadBtns.forEach(b => b.disabled = !canMove);
+
+    // Acción rápida contextual si el jugador está junto a enemigo, puerta o cofre
+    const quickBox = $('quick-actions');
+    quickBox.innerHTML = '';
+    if (p && p.alive && (state.fase === 'move' || state.fase === 'roll')) {
+      const adjEnemies = getAdjacentEnemies(p.r, p.c);
+      if (adjEnemies.length > 0 && state.fase === 'move') {
+        adjEnemies.forEach(en => {
+          const btn = document.createElement('button');
+          btn.className = 'btn-action-danger';
+          btn.innerHTML = `⚔️ Combatir: ${en.nombre}`;
+          btn.onclick = () => iniciarCombateJugador(p, en);
+          quickBox.appendChild(btn);
+        });
+      }
+      if (state.fase === 'move') {
+        const adjDoors = getAdjacentClosedDoors(p.r, p.c);
+        adjDoors.forEach(dCell => {
+          const btn = document.createElement('button');
+          btn.className = 'btn-action-amber';
+          btn.innerHTML = `🚪 Abrir Puerta (20s)`;
+          btn.onclick = () => intentarAbrirPuerta(p, dCell);
+          quickBox.appendChild(btn);
+        });
+        const adjChests = getAdjacentChests(p.r, p.c);
+        adjChests.forEach(cCell => {
+          const btn = document.createElement('button');
+          btn.className = 'btn-action-gold';
+          btn.innerHTML = cCell.chest.isGrand ? `👑 Abrir Gran Cofre (20s)` : `🧰 Abrir Cofre (20s)`;
+          btn.onclick = () => intentarAbrirCofre(p, cCell);
+          quickBox.appendChild(btn);
+        });
+      }
+    }
+  }
+
+  function renderBoard() {
+    const boardEl = $('dungeon-board');
+    const { cols, rows, grid } = state.mapa;
+    boardEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    boardEl.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+    boardEl.innerHTML = '';
+
+    const activeP = getCurrentPlayer();
+    const isMovePhase = state.fase === 'move' && activeP && activeP.alive;
+    const activeAdjEnemies = isMovePhase ? getAdjacentEnemies(activeP.r, activeP.c) : [];
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const cell = grid[r][c];
+        const el = document.createElement('div');
+        el.className = `cell cell-${cell.type}`;
+        el.dataset.r = r;
+        el.dataset.c = c;
+
+        if (cell.type === 'room' && !cell.revealed) {
+          el.classList.add('cell-fog');
+          el.innerHTML = '<span class="fog-icon">?</span>';
+          boardEl.appendChild(el);
+          continue;
+        }
+
+        if (cell.type === 'door') {
+          el.classList.add(cell.doorOpen ? 'door-open' : 'door-closed');
+          if (!cell.doorOpen) {
+            el.innerHTML = '<span class="door-icon">🚪</span>';
+          }
+        }
+
+        if (cell.start) {
+          el.innerHTML += '<span class="start-badge" title="Entrada">🪜</span>';
+        }
+
+        // Zona de control visual alrededor de enemigos vivos revelados
+        if (cell.type !== 'wall' && cell.revealed && !getEnemyAt(r, c) && isInZoneOfControl(r, c)) {
+          el.classList.add('zoc-cell');
+        }
+
+        // Cofre revelado
+        if (cell.revealed && cell.chest) {
+          if (cell.chest.opened) {
+            el.innerHTML += '<span class="chest-opened-icon" title="Cofre abierto">📭</span>';
+          } else {
+            el.innerHTML += `<span class="chest-icon ${cell.chest.isGrand ? 'grand-chest' : ''}" title="${cell.chest.isGrand ? 'Gran Cofre Real' : 'Cofre de Tesoro'}">${cell.chest.isGrand ? '👑' : '🧰'}</span>`;
+          }
+        }
+
+        // Enemigo vivo revelado
+        const enemy = cell.revealed ? getEnemyAt(r, c) : null;
+        if (enemy) {
+          const hpPct = Math.round((enemy.hp / enemy.maxHp) * 100);
+          el.innerHTML += `
+            <div class="enemy-token ${enemy.esJefe ? 'boss-token' : ''}" title="${enemy.nombre} (${enemy.hp}/${enemy.maxHp} HP)">
+              ${HM.getEnemySVG(enemy.templateId)}
+              <div class="mini-hp"><div class="mini-hp-fill enemy-hp" style="width:${hpPct}%"></div></div>
+            </div>
+          `;
+        }
+
+        // Jugadores en esta casilla
+        const playersHere = state.jugadores.filter(j => j.r === r && j.c === c);
+        if (playersHere.length > 0) {
+          const wrap = document.createElement('div');
+          wrap.className = `tokens-wrap count-${playersHere.length}`;
+          playersHere.forEach(j => {
+            const tok = document.createElement('div');
+            tok.className = `hero-token ${j.id === state.turnoIdx && state.fase !== 'enemyTurn' ? 'current-hero' : ''} ${!j.alive ? 'dead-token' : ''}`;
+            tok.style.borderColor = j.color;
+            tok.innerHTML = j.alive
+              ? `${HM.getHeroSVG(j.clase, j.color, j.colorOscuro)}<span class="tok-emblem">${j.emblema}</span>`
+              : '<span class="tomb-icon">🪦</span>';
+            wrap.appendChild(tok);
+          });
+          el.appendChild(wrap);
+        }
+
+        // Interacción táctil si estamos en fase de movimiento
+        if (isMovePhase) {
+          const dist = Math.abs(r - activeP.r) + Math.abs(c - activeP.c);
+          if (dist === 1) {
+            if (enemy) {
+              el.classList.add('interact-enemy');
+              el.onclick = () => iniciarCombateJugador(activeP, enemy);
+            } else if (cell.type === 'door' && !cell.doorOpen) {
+              el.classList.add('interact-door');
+              el.onclick = () => intentarAbrirPuerta(activeP, cell);
+            } else if (cell.revealed && cell.chest && !cell.chest.opened) {
+              el.classList.add('interact-chest');
+              el.onclick = () => intentarAbrirCofre(activeP, cell);
+            } else if (state.stepsLeft > 0 && canStepInto(r, c)) {
+              // Regla estricta de Zona de Control: si ya estás adyacente a un enemigo vivo, no puedes pasar de largo sin combatir
+              if (activeAdjEnemies.length === 0) {
+                el.classList.add('step-reachable');
+                el.onclick = () => moverJugadorUnPaso(r, c);
+              }
+            }
+          }
+        }
+
+        boardEl.appendChild(el);
+      }
+    }
+  }
+
+  // ================= ACCIONES DE TURNO DEL JUGADOR =================
+  function tirarDado() {
+    if (state.fase !== 'roll') return;
+    const p = getCurrentPlayer();
+    HM.Audio.dice();
+    const val = Math.floor(Math.random() * 6) + 1;
+    state.lastDice = val;
+    state.stepsLeft = val;
+    state.fase = 'move';
+    logMsg(`🎲 <b>${p.nombre}</b> saca un <b>${val}</b>.`);
+
+    // Si el jugador empieza el turno ya pegado a un enemigo vivo, avisar que debe combatir
+    const adj = getAdjacentEnemies(p.r, p.c);
+    if (adj.length > 0) {
+      logMsg(`⚔️ <b>${p.nombre}</b> está en zona de combate con <b>${adj[0].nombre}</b>: ¡debe luchar antes de avanzar!`);
+    }
+    renderAll();
+  }
+
+  function moverDireccion(dr, dc) {
+    if (state.fase !== 'move' || state.stepsLeft <= 0) return;
+    const p = getCurrentPlayer();
+    const nr = p.r + dr, nc = p.c + dc;
+    const cell = state.mapa.grid[nr]?.[nc];
+    if (!cell) return;
+
+    const enemy = cell.revealed ? getEnemyAt(nr, nc) : null;
+    if (enemy) {
+      iniciarCombateJugador(p, enemy);
+      return;
+    }
+    if (cell.type === 'door' && !cell.doorOpen) {
+      intentarAbrirPuerta(p, cell);
+      return;
+    }
+    if (cell.revealed && cell.chest && !cell.chest.opened) {
+      intentarAbrirCofre(p, cell);
+      return;
+    }
+    if (getAdjacentEnemies(p.r, p.c).length > 0) {
+      showFloatText(p.r, p.c, '⚔️ ¡Combate primero!', '#e74c3c');
+      return;
+    }
+    if (canStepInto(nr, nc)) {
+      moverJugadorUnPaso(nr, nc);
+    }
+  }
+
+  function moverJugadorUnPaso(nr, nc) {
+    const p = getCurrentPlayer();
+    if (state.fase !== 'move' || state.stepsLeft <= 0) return;
+    if (getAdjacentEnemies(p.r, p.c).length > 0) {
+      showFloatText(p.r, p.c, '⚔️ ¡Combate obligatorio!', '#e74c3c');
+      return;
+    }
+
+    p.r = nr;
+    p.c = nc;
+    state.stepsLeft--;
+    HM.Audio.step();
+
+    // Comprobar si entró en Zona de Control de un enemigo vivo -> combate obligatorio inmediato
+    const adjEnemies = getAdjacentEnemies(p.r, p.c);
+    if (adjEnemies.length > 0) {
+      state.stepsLeft = 0;
+      renderAll();
+      logMsg(`⚔️ <b>${p.nombre}</b> se topa con <b>${adjEnemies[0].nombre}</b> ¡Empieza el combate!`);
+      setTimeout(() => iniciarCombateJugador(p, adjEnemies[0]), 260);
+      return;
+    }
+
+    // Comprobar si pisó un cofre sin abrir
+    const cell = state.mapa.grid[nr][nc];
+    if (cell.chest && !cell.chest.opened) {
+      renderAll();
+      setTimeout(() => intentarAbrirCofre(p, cell), 200);
+      return;
+    }
+
+    renderAll();
+    if (state.stepsLeft === 0) {
+      // Si no tiene puertas ni cofres adyacentes, termina automáticamente tras breve pausa
+      if (getAdjacentClosedDoors(p.r, p.c).length === 0 && getAdjacentChests(p.r, p.c).length === 0) {
+        setTimeout(() => terminarTurnoJugador(), 420);
+      }
+    }
+  }
+
+  function terminarTurnoJugador() {
+    if (state.fase === 'gameover') return;
+    state.stepsLeft = 0;
+
+    // Buscar el siguiente jugador vivo en la ronda
+    let next = state.turnoIdx + 1;
+    while (next < state.jugadores.length && !state.jugadores[next].alive) {
+      next++;
+    }
+
+    if (next < state.jugadores.length) {
+      state.turnoIdx = next;
+      state.fase = 'roll';
+      renderAll();
+    } else {
+      // Fin de la ronda de jugadores -> Turno de los Enemigos
+      ejecutarTurnoEnemigos();
+    }
+  }
+
+  // ================= POPUP DE DUELO (10 SEGUNDOS, 4 OPCIONES, BOTÓN INICIAR) =================
+  function abrirModalDuelo({ modo, jugador, enemigo }) {
+    return new Promise(resolve => {
+      state.fase = 'modal';
+      const modal = $('duel-modal');
+      modal.classList.remove('hidden');
+
+      const esEsquiva = modo === 'esquiva';
+      $('duel-title').textContent = esEsquiva ? '🛡️ ¡ESQUIVA EL ATAQUE ENEMIGO!' : '⚔️ ¡DUELO EN LA MAZMORRA!';
+      $('duel-subtitle').textContent = esEsquiva
+        ? `${enemigo.nombre} ataca a ${jugador.nombre}. ¡Resuelve en 10 s para evitar 25 de daño!`
+        : `${jugador.nombre} ataca a ${enemigo.nombre}. ¡Resuelve en 10 s para infligir 25 de daño!`;
+
+      // Lado izquierdo: Personaje
+      $('duel-hero-sprite').innerHTML = HM.getHeroSVG(jugador.clase, jugador.color, jugador.colorOscuro);
+      $('duel-hero-name').textContent = `${jugador.emblema} ${jugador.nombre}`;
+      $('duel-hero-hp').textContent = `❤️ ${jugador.hp} / ${jugador.maxHp} HP`;
+      $('duel-hero-bar').style.width = `${Math.max(0, (jugador.hp / jugador.maxHp) * 100)}%`;
+
+      // Lado derecho: Enemigo
+      $('duel-enemy-sprite').innerHTML = HM.getEnemySVG(enemigo.templateId);
+      $('duel-enemy-name').textContent = enemigo.nombre;
+      $('duel-enemy-hp').textContent = `❤️ ${enemigo.hp} / ${enemigo.maxHp} HP`;
+      $('duel-enemy-bar').style.width = `${Math.max(0, (enemigo.hp / enemigo.maxHp) * 100)}%`;
+
+      // Estado inicial: mostrar botón INICIAR antes de arrancar los 10 segundos
+      $('duel-ready-area').classList.remove('hidden');
+      $('duel-question-area').classList.add('hidden');
+      $('duel-feedback-area').classList.add('hidden');
+      $('duel-start-btn').textContent = esEsquiva ? '🛡️ INICIAR ESQUIVA (10 s)' : '⚔️ INICIAR COMBATE (10 s)';
+
+      const pregunta = HM.generarOperacionCombate(state.dificultad);
+      let timeLeft = 10.0;
+      let resolved = false;
+
+      function stopTimer() {
+        if (state.timerId) {
+          clearInterval(state.timerId);
+          state.timerId = null;
+        }
+      }
+
+      function finalizarDuelo(acierto, timeout = false) {
+        if (resolved) return;
+        resolved = true;
+        stopTimer();
+
+        // Deshabilitar opciones y marcar respuesta correcta
+        document.querySelectorAll('.duel-opt-btn').forEach(b => {
+          b.disabled = true;
+          if (Number(b.dataset.val) === pregunta.respuesta) b.classList.add('opt-correct');
+        });
+
+        const fb = $('duel-feedback-area');
+        fb.classList.remove('hidden');
+        if (acierto) {
+          fb.className = 'duel-feedback ok';
+          $('duel-fb-title').textContent = esEsquiva ? '🛡️ ¡ATAQUE ESQUIVADO!' : '💥 ¡GOLPE CERTERO! (−25 HP)';
+        } else {
+          fb.className = 'duel-feedback fail';
+          $('duel-fb-title').textContent = timeout
+            ? '⏱️ ¡TIEMPO AGOTADO!'
+            : (esEsquiva ? '🩸 ¡NO LOGRASTE ESQUIVAR!' : '❌ ¡ATAQUE FALLIDO!');
+        }
+        $('duel-fb-exp').textContent = `Solución: ${pregunta.respuesta}. ${pregunta.explicacion}`;
+
+        $('duel-continue-btn').onclick = () => {
+          modal.classList.add('hidden');
+          resolve(acierto);
+        };
+      }
+
+      $('duel-start-btn').onclick = () => {
+        $('duel-ready-area').classList.add('hidden');
+        $('duel-question-area').classList.remove('hidden');
+        $('duel-operation').textContent = pregunta.enunciado;
+
+        const optsBox = $('duel-options');
+        optsBox.innerHTML = pregunta.opciones.map(val => `
+          <button type="button" class="duel-opt-btn" data-val="${val}">${val}</button>
+        `).join('');
+
+        optsBox.querySelectorAll('.duel-opt-btn').forEach(btn => {
+          btn.onclick = () => {
+            const chosen = Number(btn.dataset.val);
+            const ok = chosen === pregunta.respuesta;
+            if (!ok) btn.classList.add('opt-wrong');
+            finalizarDuelo(ok, false);
+          };
+        });
+
+        // Arrancar temporizador de 10 segundos
+        timeLeft = 10.0;
+        let lastSec = 10;
+        $('duel-timer-text').textContent = '10 s';
+        $('duel-timer-fill').style.width = '100%';
+        $('duel-timer-fill').classList.remove('timer-danger');
+
+        state.timerId = setInterval(() => {
+          timeLeft = Math.max(0, timeLeft - 0.1);
+          const sec = Math.ceil(timeLeft);
+          $('duel-timer-text').textContent = `${sec} s`;
+          $('duel-timer-fill').style.width = `${(timeLeft / 10) * 100}%`;
+          if (sec <= 3 && sec < lastSec && sec > 0) {
+            HM.Audio.tick();
+            $('duel-timer-fill').classList.add('timer-danger');
+          }
+          lastSec = sec;
+          if (timeLeft <= 0) {
+            finalizarDuelo(false, true);
+          }
+        }, 100);
+      };
+    });
+  }
+
+  async function iniciarCombateJugador(jugador, enemigo) {
+    const acierto = await abrirModalDuelo({ modo: 'ataque', jugador, enemigo });
+
+    if (acierto) {
+      jugador.aciertos++;
+      enemigo.hp = Math.max(0, enemigo.hp - 25);
+      HM.Audio.hit();
+      showFloatText(enemigo.r, enemigo.c, '−25 HP', '#e74c3c');
+
+      if (enemigo.hp <= 0) {
+        enemigo.alive = false;
+        state.mapa.grid[enemigo.r][enemigo.c].enemyId = null;
+        jugador.oro += enemigo.oro;
+        jugador.enemigosVencidos++;
+        HM.Audio.coin();
+        showFloatText(jugador.r, jugador.c, `+${enemigo.oro} 🪙`, '#f1c40f');
+        logMsg(`🏆 <b>${jugador.nombre}</b> derrota a <b>${enemigo.nombre}</b> y gana <b>+${enemigo.oro} 🪙</b>.`);
+      } else {
+        logMsg(`⚔️ <b>${jugador.nombre}</b> golpea a <b>${enemigo.nombre}</b> (−25 HP, queda a ${enemigo.hp} HP).`);
+      }
+    } else {
+      jugador.errores++;
+      HM.Audio.fail();
+      logMsg(`❌ <b>${jugador.nombre}</b> falla el ataque contra <b>${enemigo.nombre}</b>.`);
+    }
+
+    renderAll();
+    terminarTurnoJugador();
+  }
+
+  // ================= POPUP DE PUERTAS Y COFRES (20 SEGUNDOS, PROBLEMA SENCILLO) =================
+  function abrirModalProblema({ tipo, titulo, icono, jugador }) {
+    return new Promise(resolve => {
+      state.fase = 'modal';
+      const modal = $('problem-modal');
+      modal.classList.remove('hidden');
+
+      $('prob-icon').textContent = icono;
+      $('prob-title').textContent = titulo;
+      $('prob-team').innerHTML = `Reto para <b>${jugador.emblema} ${jugador.nombre}</b> · Si fallas o se acaba el tiempo, <b>pierdes el turno</b>.`;
+
+      $('prob-ready-area').classList.remove('hidden');
+      $('prob-active-area').classList.add('hidden');
+      $('prob-feedback-area').classList.add('hidden');
+
+      const prob = HM.generarProblemaPuertaCofre(state.dificultad);
+      let timeLeft = 20.0;
+      let resolved = false;
+
+      function stopTimer() {
+        if (state.timerId) {
+          clearInterval(state.timerId);
+          state.timerId = null;
+        }
+      }
+
+      function finalizarProblema(acierto, timeout = false) {
+        if (resolved) return;
+        resolved = true;
+        stopTimer();
+        document.querySelectorAll('#prob-options .duel-opt-btn').forEach(b => {
+          b.disabled = true;
+          if (Number(b.dataset.val) === prob.respuesta) b.classList.add('opt-correct');
+        });
+
+        const fb = $('prob-feedback-area');
+        fb.classList.remove('hidden');
+        if (acierto) {
+          fb.className = 'duel-feedback ok';
+          $('prob-fb-title').textContent = tipo === 'puerta' ? '🚪 ¡PUERTA DESBLOQUEADA!' : '🧰 ¡COFRE ABIERTO!';
+        } else {
+          fb.className = 'duel-feedback fail';
+          $('prob-fb-title').textContent = timeout ? '⏱️ ¡TIEMPO AGOTADO! Pierdes el turno.' : '❌ ¡INCORRECTO! Pierdes el turno.';
+        }
+        $('prob-fb-exp').textContent = `Solución: ${prob.respuesta}. ${prob.explicacion}`;
+
+        $('prob-continue-btn').onclick = () => {
+          modal.classList.add('hidden');
+          resolve(acierto);
+        };
+      }
+
+      $('prob-start-btn').onclick = () => {
+        $('prob-ready-area').classList.add('hidden');
+        $('prob-active-area').classList.remove('hidden');
+        $('prob-tema').textContent = prob.tema;
+        $('prob-enunciado').textContent = prob.enunciado;
+
+        const optsBox = $('prob-options');
+        optsBox.innerHTML = prob.opciones.map(val => `
+          <button type="button" class="duel-opt-btn" data-val="${val}">${val}</button>
+        `).join('');
+
+        optsBox.querySelectorAll('.duel-opt-btn').forEach(btn => {
+          btn.onclick = () => {
+            const chosen = Number(btn.dataset.val);
+            const ok = chosen === prob.respuesta;
+            if (!ok) btn.classList.add('opt-wrong');
+            finalizarProblema(ok, false);
+          };
+        });
+
+        // Temporizador de 20 segundos
+        timeLeft = 20.0;
+        let lastSec = 20;
+        $('prob-timer-text').textContent = '20 s';
+        $('prob-timer-fill').style.width = '100%';
+        $('prob-timer-fill').classList.remove('timer-danger');
+
+        state.timerId = setInterval(() => {
+          timeLeft = Math.max(0, timeLeft - 0.1);
+          const sec = Math.ceil(timeLeft);
+          $('prob-timer-text').textContent = `${sec} s`;
+          $('prob-timer-fill').style.width = `${(timeLeft / 20) * 100}%`;
+          if (sec <= 5 && sec < lastSec && sec > 0) {
+            HM.Audio.tick();
+            $('prob-timer-fill').classList.add('timer-danger');
+          }
+          lastSec = sec;
+          if (timeLeft <= 0) {
+            finalizarProblema(false, true);
+          }
+        }, 100);
+      };
+    });
+  }
+
+  async function intentarAbrirPuerta(jugador, doorCell) {
+    const acierto = await abrirModalProblema({
+      tipo: 'puerta',
+      titulo: 'Puerta Cerrada con Acertijo',
+      icono: '🚪',
+      jugador
+    });
+
+    if (acierto) {
+      jugador.aciertos++;
+      doorCell.doorOpen = true;
+      HM.Audio.door();
+      // Revelar habitaciones conectadas a esta puerta
+      doorCell.doorRooms.forEach(roomId => {
+        const room = state.mapa.rooms.find(r => r.id === roomId);
+        if (room && !room.revealed) {
+          room.revealed = true;
+          room.cells.forEach(pt => {
+            state.mapa.grid[pt.r][pt.c].revealed = true;
+          });
+          logMsg(`🚪 <b>${jugador.nombre}</b> abre la puerta y descubre <b>${room.nombre}</b>.`);
+        }
+      });
+      state.fase = 'move';
+      renderAll();
+    } else {
+      jugador.errores++;
+      HM.Audio.fail();
+      logMsg(`❌ <b>${jugador.nombre}</b> falla al abrir la puerta y <b>pierde el turno</b>.`);
+      renderAll();
+      terminarTurnoJugador();
+    }
+  }
+
+  async function intentarAbrirCofre(jugador, chestCell) {
+    const chest = chestCell.chest;
+    const acierto = await abrirModalProblema({
+      tipo: 'cofre',
+      titulo: chest.isGrand ? '¡El Gran Cofre Real!' : 'Cofre del Tesoro',
+      icono: chest.isGrand ? '👑' : '🧰',
+      jugador
+    });
+
+    if (acierto) {
+      jugador.aciertos++;
+      chest.opened = true;
+      jugador.oro += chest.oro;
+      HM.Audio.coin();
+      showFloatText(chestCell.r, chestCell.c, `+${chest.oro} 🪙`, '#f1c40f');
+
+      let extra = '';
+      if (chest.hasShield && !jugador.escudo) {
+        jugador.escudo = true;
+        extra = ' y un 🛡️ <b>Escudo Protector</b>';
+      }
+      logMsg(`🧰 <b>${jugador.nombre}</b> abre el cofre y obtiene <b>+${chest.oro} 🪙</b>${extra}.`);
+
+      if (chest.isGrand) {
+        renderAll();
+        mostrarFinPartida(true, jugador);
+        return;
+      }
+
+      state.fase = 'move';
+      renderAll();
+      if (state.stepsLeft <= 0) {
+        setTimeout(() => terminarTurnoJugador(), 450);
+      }
+    } else {
+      jugador.errores++;
+      HM.Audio.fail();
+      logMsg(`❌ <b>${jugador.nombre}</b> falla al abrir el cofre y <b>pierde el turno</b>.`);
+      renderAll();
+      terminarTurnoJugador();
+    }
+  }
+
+  // ================= TURNO AUTOMÁTICO DE ENEMIGOS (BFS + ESQUIVA) =================
+  function buscarSiguientePasoHaciaJugador(enemy) {
+    const vivos = state.jugadores.filter(j => j.alive);
+    if (vivos.length === 0) return null;
+
+    const { rows, cols, grid } = state.mapa;
+    const targetSet = new Set(vivos.map(j => `${j.r},${j.c}`));
+    const visited = Array.from({ length: rows }, () => Array(cols).fill(false));
+    const parent = Array.from({ length: rows }, () => Array(cols).fill(null));
+    const q = [{ r: enemy.r, c: enemy.c }];
+    visited[enemy.r][enemy.c] = true;
+
+    let foundTarget = null;
+    while (q.length) {
+      const cur = q.shift();
+      if (targetSet.has(`${cur.r},${cur.c}`)) {
+        foundTarget = cur;
+        break;
+      }
+      for (const [dr, dc] of DIRS) {
+        const nr = cur.r + dr, nc = cur.c + dc;
+        if (nr < 0 || nr >= rows || nc < 0 || nc >= cols || visited[nr][nc]) continue;
+        const cell = grid[nr][nc];
+        if (!cell.revealed || cell.type === 'wall') continue;
+        if (cell.type === 'door' && !cell.doorOpen) continue;
+        // Evitar casillas con otro enemigo vivo
+        const otherEn = getEnemyAt(nr, nc);
+        if (otherEn && otherEn.uid !== enemy.uid) continue;
+
+        visited[nr][nc] = true;
+        parent[nr][nc] = cur;
+        q.push({ r: nr, c: nc });
+      }
+    }
+
+    if (!foundTarget) return null;
+    // Retroceder hasta el primer paso desde enemy
+    let step = foundTarget;
+    while (parent[step.r][step.c] && !(parent[step.r][step.c].r === enemy.r && parent[step.r][step.c].c === enemy.c)) {
+      step = parent[step.r][step.c];
+    }
+    return step;
+  }
+
+  function getJugadorAdyacenteAEnemigo(enemy) {
+    return state.jugadores.find(j => j.alive && (Math.abs(j.r - enemy.r) + Math.abs(j.c - enemy.c) === 1)) || null;
+  }
+
+  async function ejecutarTurnoEnemigos() {
+    state.fase = 'enemyTurn';
+    renderAll();
+
+    const enemigosActivos = state.mapa.enemies.filter(e => e.alive && isCellRevealed(e.r, e.c));
+    if (enemigosActivos.length > 0) {
+      const banner = $('enemy-turn-banner');
+      banner.classList.remove('hidden');
+      await sleep(900);
+      banner.classList.add('hidden');
+    }
+
+    for (const en of enemigosActivos) {
+      if (!en.alive) continue;
+      if (state.jugadores.every(j => !j.alive)) break;
+
+      // 1. Si no está en rango de ataque, se mueve 1 casilla hacia el jugador vivo más cercano
+      let objetivo = getJugadorAdyacenteAEnemigo(en);
+      if (!objetivo) {
+        const paso = buscarSiguientePasoHaciaJugador(en);
+        if (paso && !state.jugadores.some(j => j.alive && j.r === paso.r && j.c === paso.c)) {
+          state.mapa.grid[en.r][en.c].enemyId = null;
+          en.r = paso.r;
+          en.c = paso.c;
+          state.mapa.grid[en.r][en.c].enemyId = en.uid;
+          HM.Audio.step();
+          renderBoard();
+          await sleep(480);
+        }
+        objetivo = getJugadorAdyacenteAEnemigo(en);
+      }
+
+      // 2. Si entra en rango ortogonal, ataca y el jugador puede esquivar (duelo de 10 s)
+      if (objetivo) {
+        logMsg(`👹 <b>${en.nombre}</b> ataca a <b>${objetivo.nombre}</b>. ¡Intento de esquiva!`);
+        const esquivado = await abrirModalDuelo({ modo: 'esquiva', jugador: objetivo, enemigo: en });
+
+        if (esquivado) {
+          objetivo.aciertos++;
+          HM.Audio.shield();
+          showFloatText(objetivo.r, objetivo.c, '🛡️ ¡ESQUIVADO!', '#2ecc71');
+          logMsg(`🛡️ <b>${objetivo.nombre}</b> esquiva el ataque de <b>${en.nombre}</b>.`);
+        } else {
+          objetivo.errores++;
+          if (objetivo.escudo) {
+            objetivo.escudo = false;
+            HM.Audio.shield();
+            showFloatText(objetivo.r, objetivo.c, '🛡️ Escudo roto', '#3498db');
+            logMsg(`🛡️ El Escudo Protector salvó a <b>${objetivo.nombre}</b> del golpe.`);
+          } else {
+            objetivo.hp = Math.max(0, objetivo.hp - en.danio);
+            HM.Audio.hit();
+            showFloatText(objetivo.r, objetivo.c, `−${en.danio} ❤️`, '#e74c3c');
+            logMsg(`🩸 <b>${en.nombre}</b> hiere a <b>${objetivo.nombre}</b> (−${en.danio} HP).`);
+
+            if (objetivo.hp <= 0) {
+              objetivo.alive = false;
+              logMsg(`💀 <b>${objetivo.nombre}</b> ha caído en la mazmorra.`);
+            }
+          }
+        }
+        renderAll();
+        await sleep(450);
+      }
+    }
+
+    // Comprobar derrota total
+    if (state.jugadores.every(j => !j.alive)) {
+      mostrarFinPartida(false, null);
+      return;
+    }
+
+    // Iniciar siguiente ronda con el primer jugador vivo
+    state.ronda++;
+    state.turnoIdx = state.jugadores.findIndex(j => j.alive);
+    state.fase = 'roll';
+    state.lastDice = null;
+    renderAll();
+  }
+
+  // ================= PANTALLA FINAL (VICTORIA / DERROTA) =================
+  function mostrarFinPartida(victoria, ganador) {
+    state.fase = 'gameover';
+    if (victoria) HM.Audio.victory();
+    else HM.Audio.fail();
+
+    const modal = $('end-modal');
+    modal.classList.remove('hidden');
+
+    $('end-icon').textContent = victoria ? '👑' : '💀';
+    $('end-title').textContent = victoria ? `¡${ganador.nombre} conquista el Gran Cofre!` : '¡Derrota en la Mazmorra!';
+    $('end-subtitle').textContent = victoria
+      ? 'El cofre se abre rebosante de oro y sabiduría matemática.'
+      : 'Todos los equipos han caído. ¡Volved a intentarlo con un nuevo mapa!';
+
+    const ordenados = state.jugadores.slice().sort((a, b) => b.oro - a.oro || b.aciertos - a.aciertos);
+    $('end-podium').innerHTML = ordenados.map((j, idx) => `
+      <div class="podium-row">
+        <span class="podium-rank">#${idx + 1}</span>
+        <span class="podium-name">${j.emblema} ${j.nombre} ${!j.alive ? '💀' : ''}</span>
+        <span class="podium-stat">🪙 ${j.oro}</span>
+        <span class="podium-stat">✅ ${j.aciertos}</span>
+        <span class="podium-stat">⚔️ ${j.enemigosVencidos}</span>
+      </div>
+    `).join('');
+  }
+
+  // ================= EVENTOS GLOBALES =================
+  function bindEvents() {
+    document.querySelectorAll('.team-count-btn').forEach(btn => {
+      btn.onclick = () => { state.numEquipos = Number(btn.dataset.count); renderSetup(); };
+    });
+    document.querySelectorAll('.map-size-btn').forEach(btn => {
+      btn.onclick = () => { state.tamanoMapa = btn.dataset.size; renderSetup(); };
+    });
+    document.querySelectorAll('.diff-btn').forEach(btn => {
+      btn.onclick = () => { state.dificultad = btn.dataset.diff; renderSetup(); };
+    });
+
+    $('btn-start-game').onclick = iniciarPartida;
+    $('btn-roll-dice').onclick = tirarDado;
+    $('btn-end-turn').onclick = terminarTurnoJugador;
+
+    $('dpad-up').onclick = () => moverDireccion(-1, 0);
+    $('dpad-down').onclick = () => moverDireccion(1, 0);
+    $('dpad-left').onclick = () => moverDireccion(0, -1);
+    $('dpad-right').onclick = () => moverDireccion(0, 1);
+
+    $('btn-new-map').onclick = () => {
+      if (confirm('¿Generar una nueva mazmorra con los mismos equipos?')) iniciarPartida();
+    };
+    $('btn-back-setup').onclick = () => {
+      if (confirm('¿Volver a la pantalla de equipos?')) {
+        $('game-screen').classList.add('hidden');
+        $('setup-screen').classList.remove('hidden');
+        state.fase = 'setup';
+      }
+    };
+    $('btn-sound').onclick = () => {
+      const on = HM.Audio.toggle();
+      $('btn-sound').textContent = on ? '🔊 Sonido' : '🔇 Silencio';
+    };
+    $('btn-fullscreen').onclick = () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    };
+    $('btn-rules').onclick = () => $('rules-modal').classList.remove('hidden');
+    $('btn-close-rules').onclick = () => $('rules-modal').classList.add('hidden');
+    $('btn-play-again').onclick = iniciarPartida;
+    $('btn-end-setup').onclick = () => {
+      $('end-modal').classList.add('hidden');
+      $('game-screen').classList.add('hidden');
+      $('setup-screen').classList.remove('hidden');
+    };
+
+    // Flechas del teclado para mover en pizarra/ordenador
+    document.addEventListener('keydown', e => {
+      if (state.fase !== 'move') return;
+      if (e.key === 'ArrowUp')    { e.preventDefault(); moverDireccion(-1, 0); }
+      if (e.key === 'ArrowDown')  { e.preventDefault(); moverDireccion(1, 0); }
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); moverDireccion(0, -1); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); moverDireccion(0, 1); }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    initConfig();
+    bindEvents();
+    renderSetup();
+  });
+})();
+
+  </script>
+</body>
+</html>

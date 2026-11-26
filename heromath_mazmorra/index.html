@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HeroMath: La Mazmorra de los Enteros (1º ESO)</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- ================= PANTALLA DE CONFIGURACIÓN ================= -->
+  <section id="setup-screen" class="screen">
+    <header class="setup-header">
+      <h1>🏰 HeroMath: La Mazmorra de los Enteros</h1>
+      <p>Actividad interactiva de 1º de la ESO · Tablero estilo HeroQuest para pizarra digital</p>
+    </header>
+
+    <div class="setup-options-bar">
+      <div class="opt-group">
+        <span class="opt-title">👥 Equipos</span>
+        <div class="btn-row">
+          <button type="button" class="pill-btn team-count-btn" data-count="2">2</button>
+          <button type="button" class="pill-btn team-count-btn active" data-count="3">3</button>
+          <button type="button" class="pill-btn team-count-btn" data-count="4">4</button>
+        </div>
+      </div>
+
+      <div class="opt-group">
+        <span class="opt-title">🗺️ Tamaño del Mapa</span>
+        <div class="btn-row">
+          <button type="button" class="pill-btn map-size-btn" data-size="pequeno">Pequeño</button>
+          <button type="button" class="pill-btn map-size-btn active" data-size="mediano">Mediano</button>
+          <button type="button" class="pill-btn map-size-btn" data-size="grande">Grande</button>
+        </div>
+      </div>
+
+      <div class="opt-group">
+        <span class="opt-title">➗ Nivel de Enteros</span>
+        <div class="btn-row">
+          <button type="button" class="pill-btn diff-btn" data-diff="basico">Básico</button>
+          <button type="button" class="pill-btn diff-btn active" data-diff="intermedio">Intermedio</button>
+          <button type="button" class="pill-btn diff-btn" data-diff="completo">Completo</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="teams-setup-grid" class="teams-setup-grid"></div>
+
+    <div class="setup-footer">
+      <button type="button" id="btn-start-game" class="btn-primary-xl">⚔️ ¡ENTRAR EN LA MAZMORRA!</button>
+    </div>
+  </section>
+
+  <!-- ================= PANTALLA DE JUEGO ================= -->
+  <section id="game-screen" class="screen hidden">
+    <header class="top-bar">
+      <div class="top-left">
+        <span class="brand">🏰 HeroMath</span>
+        <span id="round-badge" class="badge-gold">Ronda 1</span>
+        <span id="active-turn-banner" class="turn-banner"></span>
+      </div>
+      <div class="top-right">
+        <button type="button" id="btn-rules" class="top-btn">📜 Reglas</button>
+        <button type="button" id="btn-new-map" class="top-btn">🗺️ Nuevo Mapa</button>
+        <button type="button" id="btn-sound" class="top-btn">🔊 Sonido</button>
+        <button type="button" id="btn-fullscreen" class="top-btn">⛶ Pantalla</button>
+        <button type="button" id="btn-back-setup" class="top-btn">⚙️ Equipos</button>
+      </div>
+    </header>
+
+    <main class="game-layout">
+      <!-- Panel Izquierdo: Equipos y Registro -->
+      <aside class="sidebar-left">
+        <h2 class="panel-title">🛡️ Equipos</h2>
+        <div id="players-list" class="players-list"></div>
+        <h2 class="panel-title">📜 Diario de Mazmorra</h2>
+        <div id="battle-log" class="battle-log"></div>
+      </aside>
+
+      <!-- Centro: Tablero HeroQuest -->
+      <div class="board-stage">
+        <div id="enemy-turn-banner" class="enemy-banner hidden">⚔️ TURNO DE LOS ENEMIGOS 👹</div>
+        <div id="dungeon-board" class="dungeon-board"></div>
+      </div>
+
+      <!-- Panel Derecho: Dado, Cruceta Táctil y Acciones -->
+      <aside class="sidebar-right">
+        <h2 class="panel-title">🎲 Control de Turno</h2>
+        <div class="dice-box">
+          <div id="dice-value" class="dice-face">🎲</div>
+          <div id="steps-badge" class="steps-badge">Tira el dado</div>
+          <button type="button" id="btn-roll-dice" class="btn-roll">🎲 TIRAR DADO</button>
+        </div>
+
+        <div class="dpad-wrap">
+          <div class="dpad-row">
+            <button type="button" id="dpad-up" class="dpad-btn" aria-label="Arriba">▲</button>
+          </div>
+          <div class="dpad-row">
+            <button type="button" id="dpad-left" class="dpad-btn" aria-label="Izquierda">◀</button>
+            <span class="dpad-center">🧭</span>
+            <button type="button" id="dpad-right" class="dpad-btn" aria-label="Derecha">▶</button>
+          </div>
+          <div class="dpad-row">
+            <button type="button" id="dpad-down" class="dpad-btn" aria-label="Abajo">▼</button>
+          </div>
+        </div>
+
+        <div id="quick-actions" class="quick-actions"></div>
+
+        <button type="button" id="btn-end-turn" class="btn-end-turn">⏭️ Terminar Turno</button>
+      </aside>
+    </main>
+  </section>
+
+  <!-- ================= POPUP DE DUELO (10 SEGUNDOS, 4 OPCIONES) ================= -->
+  <div id="duel-modal" class="modal-overlay hidden">
+    <div class="modal-card duel-card">
+      <h2 id="duel-title" class="modal-title">⚔️ ¡DUELO EN LA MAZMORRA!</h2>
+      <p id="duel-subtitle" class="modal-subtitle"></p>
+
+      <div class="duel-arena">
+        <div class="duel-fighter hero-side">
+          <div id="duel-hero-sprite" class="fighter-sprite"></div>
+          <div id="duel-hero-name" class="fighter-name"></div>
+          <div class="hp-bar-bg big-hp">
+            <div id="duel-hero-bar" class="hp-bar-fill" style="background:#2ecc71"></div>
+            <span id="duel-hero-hp" class="hp-text"></span>
+          </div>
+        </div>
+
+        <div class="duel-vs">VS</div>
+
+        <div class="duel-fighter enemy-side">
+          <div id="duel-enemy-sprite" class="fighter-sprite"></div>
+          <div id="duel-enemy-name" class="fighter-name"></div>
+          <div class="hp-bar-bg big-hp">
+            <div id="duel-enemy-bar" class="hp-bar-fill" style="background:#e74c3c"></div>
+            <span id="duel-enemy-hp" class="hp-text"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botón para iniciar el temporizador de 10 s -->
+      <div id="duel-ready-area" class="ready-area">
+        <p class="ready-hint">Cuando el equipo esté listo frente a la pizarra, pulsa el botón para ver la operación.</p>
+        <button type="button" id="duel-start-btn" class="btn-primary-xl">⚔️ INICIAR COMBATE (10 s)</button>
+      </div>
+
+      <!-- Zona activa de operación y 4 opciones -->
+      <div id="duel-question-area" class="hidden">
+        <div class="timer-wrap">
+          <div class="timer-bar-bg"><div id="duel-timer-fill" class="timer-bar-fill"></div></div>
+          <span id="duel-timer-text" class="timer-text">10 s</span>
+        </div>
+        <div id="duel-operation" class="operation-box"></div>
+        <div id="duel-options" class="duel-options-grid"></div>
+      </div>
+
+      <!-- Resultado -->
+      <div id="duel-feedback-area" class="duel-feedback hidden">
+        <div id="duel-fb-title" class="fb-title"></div>
+        <div id="duel-fb-exp" class="fb-exp"></div>
+        <button type="button" id="duel-continue-btn" class="btn-continue">Continuar ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= POPUP DE PUERTAS Y COFRES (20 SEGUNDOS, PROBLEMA SENCILLO) ================= -->
+  <div id="problem-modal" class="modal-overlay hidden">
+    <div class="modal-card problem-card">
+      <div class="prob-header">
+        <span id="prob-icon" class="prob-big-icon">🚪</span>
+        <div>
+          <h2 id="prob-title" class="modal-title">Puerta Cerrada</h2>
+          <p id="prob-team" class="modal-subtitle"></p>
+        </div>
+      </div>
+
+      <div id="prob-ready-area" class="ready-area">
+        <p class="ready-hint">Dispondréis de <b>20 segundos</b> para leer y resolver un problema sencillo de números enteros.</p>
+        <button type="button" id="prob-start-btn" class="btn-primary-xl">🔑 INICIAR PRUEBA (20 s)</button>
+      </div>
+
+      <div id="prob-active-area" class="hidden">
+        <div class="timer-wrap">
+          <div class="timer-bar-bg"><div id="prob-timer-fill" class="timer-bar-fill"></div></div>
+          <span id="prob-timer-text" class="timer-text">20 s</span>
+        </div>
+
+        <div id="prob-tema" class="prob-tema-tag"></div>
+        <div id="prob-enunciado" class="prob-enunciado"></div>
+        <div id="prob-options" class="duel-options-grid"></div>
+      </div>
+
+      <div id="prob-feedback-area" class="duel-feedback hidden">
+        <div id="prob-fb-title" class="fb-title"></div>
+        <div id="prob-fb-exp" class="fb-exp"></div>
+        <button type="button" id="prob-continue-btn" class="btn-continue">Continuar ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL DE REGLAS ================= -->
+  <div id="rules-modal" class="modal-overlay hidden">
+    <div class="modal-card rules-card">
+      <h2 class="modal-title">📜 Reglas de HeroMath</h2>
+      <ul class="rules-list">
+        <li><b>Exploración estilo HeroQuest:</b> Tira el dado (1–6) y muévete en horizontal o vertical. Las habitaciones permanecen ocultas hasta abrir su puerta.</li>
+        <li><b>Puertas y Cofres (20 s):</b> Al intentar abrir una puerta o un cofre, resuelves un <b>problema sencillo de números enteros en 20 segundos</b>. Si fallas o se acaba el tiempo, <b>pierdes el turno</b>.</li>
+        <li><b>Zona de Control y Combates (10 s):</b> No puedes pasar junto a un enemigo vivo sin combatir. Los combates se juegan en un popup de duelo con <b>operaciones aritméticas de enteros, 4 opciones y 10 segundos</b> tras pulsar Iniciar.</li>
+        <li><b>Vida, Daño y Oro:</b> Jugadores <b>100 HP</b>, Enemigos <b>50 HP</b>. Cada acierto hace <b>25 de daño</b>. Vencer a un enemigo otorga <b>+25 🪙</b>. Si un equipo llega a 0 HP, queda eliminado.</li>
+        <li><b>Turno de Enemigos y Esquiva:</b> Al acabar la ronda, cada enemigo descubierto avanza <b>1 casilla</b> hacia el héroe más cercano. Si ataca, el héroe puede <b>esquivar el golpe</b> ganando un duelo de 10 segundos.</li>
+        <li><b>Meta:</b> Quien abra el <b>Gran Cofre Real (👑)</b> gana la expedición (+150 🪙).</li>
+      </ul>
+      <button type="button" id="btn-close-rules" class="btn-primary-xl">Entendido</button>
+    </div>
+  </div>
+
+  <!-- ================= MODAL DE FIN DE PARTIDA ================= -->
+  <div id="end-modal" class="modal-overlay hidden">
+    <div class="modal-card end-card">
+      <div id="end-icon" class="end-big-icon">👑</div>
+      <h2 id="end-title" class="modal-title"></h2>
+      <p id="end-subtitle" class="modal-subtitle"></p>
+      <div id="end-podium" class="podium-box"></div>
+      <div class="end-actions">
+        <button type="button" id="btn-play-again" class="btn-primary-xl">🗺️ Jugar Nuevo Mapa</button>
+        <button type="button" id="btn-end-setup" class="top-btn big-alt">⚙️ Cambiar Equipos</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts modulares (compatibles con doble clic local sin servidor) -->
+  <script src="data/personajes.js"></script>
+  <script src="data/enemigos.js"></script>
+  <script src="data/preguntas.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/tablero.js"></script>
+  <script src="js/juego.js"></script>
+</body>
+</html>

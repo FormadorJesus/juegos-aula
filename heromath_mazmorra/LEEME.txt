@@ -1,0 +1,15 @@
+HEROMATH: LA MAZMORRA DE LOS ENTEROS (1º DE LA ESO)
+====================================================
+
+1. USO EN GITHUB PAGES (RECOMENDADO PARA PIZARRA SMART BOARD MX):
+   - Descomprime este ZIP y arrastra la carpeta "heromath_mazmorra" entera
+     a la raíz de tu repositorio público de GitHub (Add file > Upload files).
+   - Incluye "info.json" para que el lanzador automático muestre el título,
+     curso, icono y descripción de la actividad.
+
+2. USO EN PC / ORDENADOR SIN INTERNET:
+   - Descomprime el ZIP y haz doble clic en "index.html".
+
+3. USO EN TABLET ANDROID / PIZARRA SIN INTERNET:
+   - Copia el archivo "heromath_tablet.html" (versión todo en uno) a la carpeta
+     Descargas y ábrelo desde el navegador.
