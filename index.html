@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aula Interactiva · Lanzador de Juegos</title>
+  <style>
+    :root {
+      --bg: #12101d;
+      --card: #1e1b2e;
+      --border: #3c345c;
+      --gold: #f1c40f;
+      --text: #f4f1ea;
+      --muted: #b3acc7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: radial-gradient(circle at top, #241e38 0%, var(--bg) 75%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px 18px 40px;
+    }
+    header {
+      max-width: 1180px;
+      margin: 0 auto 24px;
+      text-align: center;
+    }
+    h1 { color: var(--gold); font-size: clamp(1.8rem, 3.2vw, 2.6rem); }
+    header p { color: var(--muted); margin-top: 6px; font-size: 1.05rem; }
+    .toolbar {
+      max-width: 1180px;
+      margin: 0 auto 20px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    input[type="search"] {
+      background: var(--card);
+      color: var(--text);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 1.05rem;
+      width: min(420px, 100%);
+    }
+    button.btn-refresh {
+      background: #2b2640;
+      color: var(--gold);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .grid {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 18px;
+    }
+    .game-card {
+      background: var(--card);
+      border: 3px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.14s, border-color 0.14s;
+    }
+    .game-card:hover, .game-card:focus-visible {
+      transform: translateY(-4px);
+      border-color: var(--gold);
+      outline: none;
+    }
+    .card-top { display: flex; align-items: center; gap: 12px; }
+    .card-icon { font-size: 2.4rem; }
+    .card-title { font-size: 1.25rem; font-weight: 900; color: var(--gold); }
+    .card-tag {
+      display: inline-block;
+      margin-top: 4px;
+      background: #2d2745;
+      color: #a9dfbf;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+    .card-desc { color: var(--muted); font-size: 0.95rem; line-height: 1.4; }
+    .card-cta {
+      background: linear-gradient(135deg, #f1c40f, #e67e22);
+      color: #161322;
+      text-align: center;
+      padding: 11px;
+      border-radius: 12px;
+      font-weight: 900;
+      font-size: 1rem;
+    }
+    .status {
+      text-align: center;
+      color: var(--muted);
+      font-size: 1.1rem;
+      padding: 30px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🎮 Actividades Interactivas de Aula</h1>
+    <p>Toca una actividad para abrirla en la pizarra digital</p>
+  </header>
+
+  <div class="toolbar" role="search">
+    <input id="search-input" type="search" placeholder="Buscar actividad o curso..." aria-label="Buscar actividad" />
+    <button id="btn-refresh" class="btn-refresh" type="button">🔄 Actualizar lista</button>
+  </div>
+
+  <main id="apps-grid" class="grid" aria-live="polite"></main>
+  <div id="status-msg" class="status">Buscando actividades en el repositorio...</div>
+
+  <script>
+    // === CONFIGURA AQUÍ TUS DATOS DE GITHUB ===
+    const GITHUB_USER = 'FormadorJesus';
+    const GITHUB_REPO = 'juegos_aula';
+    const BRANCH = 'main';
+    // Carpetas internas que NO son juegos
+    const IGNORAR = new Set(['.github', 'assets', 'img', 'css', 'js', 'data']);
+
+    let catalogo = [];
+
+    function formatearNombre(carpeta) {
+      return carpeta
+        .replace(/[-_]+/g, ' ')
+        .replace(/\b\w/g, l => l.toUpperCase());
+    }
+
+    async function cargarActividades(forzar = false) {
+      const status = document.getElementById('status-msg');
+      const grid = document.getElementById('apps-grid');
+      status.style.display = 'block';
+      status.textContent = 'Buscando actividades en el repositorio...';
+      grid.innerHTML = '';
+
+      try {
+        const cacheBust = forzar ? `?t=${Date.now()}` : '';
+        const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${cacheBust}`;
+        const res = await fetch(apiUrl);
+        if (!res.ok) throw new Error('No se pudo leer el repositorio (¿es público?)');
+        const items = await res.json();
+
+        // Filtrar solo carpetas que representen actividades/juegos
+        const carpetas = items.filter(it => it.type === 'dir' && !it.name.startsWith('.') && !IGNORAR.has(it.name));
+
+        // Intentar leer un info.json opcional dentro de cada carpeta
+        catalogo = await Promise.all(carpetas.map(async dir => {
+          let meta = {
+            titulo: formatearNombre(dir.name),
+            curso: 'Matemáticas · ESO',
+            descripcion: 'Actividad interactiva lista para jugar en pantalla digital.',
+            icono: '🎲',
+            entrada: 'index.html'
+          };
+          try {
+            const infoRes = await fetch(`./${dir.name}/info.json${cacheBust}`);
+            if (infoRes.ok) {
+              const custom = await infoRes.json();
+              meta = { ...meta, ...custom };
+            }
+          } catch (_) {}
+          return { carpeta: dir.name, ...meta };
+        }));
+
+        renderizar(catalogo);
+      } catch (err) {
+        status.textContent = `⚠️ ${err.message}. Comprueba GITHUB_USER y GITHUB_REPO en index.html.`;
+      }
+    }
+
+    function renderizar(lista) {
+      const status = document.getElementById('status-msg');
+      const grid = document.getElementById('apps-grid');
+      if (lista.length === 0) {
+        grid.innerHTML = '';
+        status.style.display = 'block';
+        status.textContent = 'No se encontraron carpetas de actividades.';
+        return;
+      }
+      status.style.display = 'none';
+      grid.innerHTML = lista.map(app => `
+        <a class="game-card" href="./${app.carpeta}/${app.entrada}" aria-label="Abrir ${app.titulo}">
+          <div>
+            <div class="card-top">
+              <span class="card-icon" aria-hidden="true">${app.icono}</span>
+              <div>
+                <div class="card-title">${app.titulo}</div>
+                <span class="card-tag">${app.curso}</span>
+              </div>
+            </div>
+            <p class="card-desc" style="margin-top:12px">${app.descripcion}</p>
+          </div>
+          <div class="card-cta">▶ ABRIR ACTIVIDAD</div>
+        </a>
+      `).join('');
+    }
+
+    document.getElementById('search-input').addEventListener('input', e => {
+      const q = e.target.value.toLowerCase().trim();
+      const filtrados = catalogo.filter(a =>
+        a.titulo.toLowerCase().includes(q) ||
+        a.curso.toLowerCase().includes(q) ||
+        a.descripcion.toLowerCase().includes(q)
+      );
+      renderizar(filtrados);
+    });
+
+    document.getElementById('btn-refresh').addEventListener('click', () => cargarActividades(true));
+    cargarActividades();
+  </script>
+</body>
+</html>
