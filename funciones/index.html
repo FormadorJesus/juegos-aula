@@ -1,0 +1,2755 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>MISIÓN DOMINIO: NAVEGACIÓN CÓSMICA — 1º Bachillerato</title>
+  <style>
+    /* ==========================================================================
+       VARIABLES Y ESTILOS BASE (CABINA ESPACIAL DE ALTO CONTRASTE PARA PIZARRA)
+       ========================================================================== */
+    :root {
+      --bg-deep: #050816;
+      --bg-panel: #0c132b;
+      --bg-panel-2: #121c3d;
+      --border-glow: rgba(0, 240, 255, 0.35);
+      --cyan: #00f0ff;
+      --cyan-dim: #00a8b5;
+      --magenta: #ff2a85;
+      --magenta-glow: rgba(255, 42, 133, 0.45);
+      --emerald: #00ff88;
+      --emerald-glow: rgba(0, 255, 136, 0.4);
+      --amber: #ffd000;
+      --red: #ff3b5c;
+      --text-main: #f0f6ff;
+      --text-muted: #93a8d4;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --font-sans: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: 'Consolas', 'Courier New', ui-monospace, SFMono-Regular, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 50% 0%, #101b42 0%, var(--bg-deep) 70%);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      overflow-x: hidden;
+    }
+
+    /* Contenedor principal de pantalla completa para pizarra digital */
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      max-width: 1920px;
+      margin: 0 auto;
+      padding: 10px 14px 14px;
+      gap: 10px;
+    }
+
+    /* ==========================================================================
+       BARRA SUPERIOR (HUD DE MISIÓN Y SELECTOR DEL PROFESOR)
+       ========================================================================== */
+    .top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: linear-gradient(180deg, rgba(18, 28, 61, 0.95), rgba(10, 16, 38, 0.95));
+      border: 2px solid var(--border-glow);
+      border-radius: var(--radius-lg);
+      padding: 10px 16px;
+      box-shadow: 0 0 24px rgba(0, 240, 255, 0.12);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--cyan), #3b5bff);
+      display: grid;
+      place-items: center;
+      font-size: 24px;
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.45);
+      flex-shrink: 0;
+    }
+
+    .brand-text h1 {
+      font-size: clamp(1.05rem, 1.8vw, 1.45rem);
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      color: var(--cyan);
+      text-shadow: 0 0 10px rgba(0, 240, 255, 0.45);
+      line-height: 1.1;
+    }
+
+    .brand-text span {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .mission-selector-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .mission-select {
+      background: #070d22;
+      color: var(--text-main);
+      border: 2px solid var(--cyan-dim);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      outline: none;
+      min-width: 240px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .mission-select:focus, .mission-select:hover {
+      border-color: var(--cyan);
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.35);
+    }
+
+    .hud-stats {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .stat-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(5, 8, 22, 0.8);
+      border: 1.5px solid rgba(147, 168, 212, 0.3);
+      border-radius: var(--radius-md);
+      padding: 7px 12px;
+      font-weight: 800;
+      font-size: 1rem;
+    }
+
+    .stat-pill .label {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-pill .val {
+      color: var(--cyan);
+      font-family: var(--font-mono);
+      font-size: 1.15rem;
+    }
+
+    .stat-pill.streak .val { color: var(--amber); }
+
+    .shields-box {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(5, 8, 22, 0.8);
+      border: 1.5px solid rgba(0, 255, 136, 0.35);
+      border-radius: var(--radius-md);
+      padding: 6px 10px;
+    }
+
+    .shield-icons {
+      display: flex;
+      gap: 4px;
+      font-size: 1.3rem;
+    }
+
+    .shield-icon.lost {
+      opacity: 0.22;
+      filter: grayscale(1);
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* Botones reutilizables grandes y táctiles */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 2px solid transparent;
+      border-radius: var(--radius-md);
+      padding: 10px 16px;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.2s ease, background 0.2s ease;
+      color: var(--text-main);
+      background: var(--bg-panel-2);
+    }
+
+    .btn:active {
+      transform: scale(0.96);
+    }
+
+    .btn-cyan {
+      background: linear-gradient(135deg, #00c8ff, #0077ff);
+      border-color: #66f7ff;
+      color: #031024;
+      box-shadow: 0 4px 18px rgba(0, 200, 255, 0.35);
+    }
+
+    .btn-cyan:hover {
+      box-shadow: 0 0 24px rgba(0, 240, 255, 0.65);
+    }
+
+    .btn-emerald {
+      background: linear-gradient(135deg, #00e676, #00b26a);
+      border-color: #7affbf;
+      color: #021a10;
+      box-shadow: 0 4px 18px rgba(0, 255, 136, 0.35);
+    }
+
+    .btn-magenta {
+      background: linear-gradient(135deg, #ff2a85, #b400ff);
+      border-color: #ff82bb;
+      color: #ffffff;
+      box-shadow: 0 4px 18px rgba(255, 42, 133, 0.4);
+    }
+
+    .btn-amber {
+      background: linear-gradient(135deg, #ffd000, #ff8c00);
+      border-color: #ffe875;
+      color: #1f1200;
+      box-shadow: 0 4px 14px rgba(255, 208, 0, 0.3);
+    }
+
+    .btn-ghost {
+      background: rgba(18, 28, 61, 0.9);
+      border-color: rgba(147, 168, 212, 0.4);
+      color: var(--text-main);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    .btn-small {
+      padding: 7px 11px;
+      font-size: 0.88rem;
+      border-radius: var(--radius-sm);
+    }
+
+    /* ==========================================================================
+       ÁREA PRINCIPAL DE CABINA (2 COLUMNAS EN PIZARRA, APILABLE EN MÓVIL)
+       ========================================================================== */
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.65fr) minmax(340px, 460px);
+      gap: 12px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    @media (max-width: 1080px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Panel izquierdo: Función + Visor Canvas */
+    .viewport-column {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 520px;
+    }
+
+    /* Tarjeta gigante de la función matemática */
+    .function-banner {
+      background: linear-gradient(180deg, #101b3d, #0a1129);
+      border: 2px solid var(--cyan);
+      border-radius: var(--radius-lg);
+      padding: 14px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: 0 0 26px rgba(0, 240, 255, 0.16), inset 0 0 18px rgba(0, 240, 255, 0.08);
+      position: relative;
+    }
+
+    .func-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .category-badge {
+      display: inline-block;
+      align-self: flex-start;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: rgba(255, 42, 133, 0.2);
+      border: 1.5px solid var(--magenta);
+      color: #ff8cc0;
+    }
+
+    .mission-prompt {
+      font-size: 1rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .math-display-box {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 76px;
+      padding: 6px 16px;
+      background: rgba(4, 8, 22, 0.72);
+      border-radius: var(--radius-md);
+      border: 1.5px solid rgba(0, 240, 255, 0.28);
+    }
+
+    /* ==========================================================================
+       NOTACIÓN MATEMÁTICA IMPECABLE Y GRANDE PARA PIZARRA DIGITAL
+       ========================================================================== */
+    .math-expr {
+      font-family: 'Cambria Math', 'Times New Roman', Georgia, serif;
+      font-size: clamp(2rem, 3.2vw, 3rem);
+      font-weight: 700;
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: 0.02em;
+      text-shadow: 0 0 14px rgba(0, 240, 255, 0.35);
+    }
+
+    .math-expr .fn-name {
+      color: var(--cyan);
+      font-style: italic;
+    }
+
+    .math-expr .eq {
+      color: var(--amber);
+      margin: 0 4px;
+    }
+
+    .math-expr sup {
+      font-size: 0.62em;
+      vertical-align: super;
+      line-height: 0;
+      color: #a8f5ff;
+    }
+
+    /* Fracción con barra horizontal limpia */
+    .frac {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      vertical-align: middle;
+      margin: 0 4px;
+      line-height: 1.1;
+    }
+
+    .frac .num {
+      padding: 0 10px 4px;
+      border-bottom: 3.5px solid #ffffff;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .frac .den {
+      padding: 5px 10px 0;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    /* Raíz cuadrada con barra superior (vínculo) */
+    .rad {
+      display: inline-flex;
+      align-items: stretch;
+      vertical-align: middle;
+      margin: 0 3px;
+    }
+
+    .rad-sign {
+      font-size: 1.15em;
+      line-height: 1;
+      display: flex;
+      align-items: flex-end;
+      padding-right: 1px;
+      color: var(--emerald);
+      transform: translateY(2px);
+    }
+
+    .rad-body {
+      border-top: 3.5px solid var(--emerald);
+      padding: 2px 8px 0 5px;
+      display: inline-flex;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+    .math-inline {
+      font-family: 'Cambria Math', 'Times New Roman', Georgia, serif;
+      font-weight: 700;
+      font-size: 1.15em;
+    }
+
+    /* Contenedor del Canvas espacial */
+    .canvas-frame {
+      position: relative;
+      flex: 1;
+      min-height: 400px;
+      background: #030612;
+      border: 2.5px solid rgba(0, 240, 255, 0.45);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: inset 0 0 40px rgba(0, 240, 255, 0.14), 0 8px 30px rgba(0, 0, 0, 0.55);
+    }
+
+    #spaceCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+      touch-action: none;
+    }
+
+    .canvas-hint-tag {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      background: rgba(5, 10, 28, 0.82);
+      border: 1px solid rgba(0, 240, 255, 0.35);
+      border-radius: 999px;
+      padding: 5px 12px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--cyan);
+      pointer-events: none;
+    }
+
+    .canvas-legend {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      display: flex;
+      gap: 10px;
+      background: rgba(5, 10, 28, 0.85);
+      border: 1px solid rgba(147, 168, 212, 0.3);
+      border-radius: 999px;
+      padding: 5px 12px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      pointer-events: none;
+    }
+
+    .legend-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 5px;
+    }
+
+    /* Superposición de resultado y explicación pedagógica dentro del visor */
+    .feedback-overlay {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 14px;
+      background: rgba(8, 14, 34, 0.96);
+      border: 2.5px solid var(--cyan);
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.75);
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 20;
+      animation: slideUp 0.25s ease-out;
+    }
+
+    .feedback-overlay.show {
+      display: flex;
+    }
+
+    .feedback-overlay.success {
+      border-color: var(--emerald);
+      box-shadow: 0 0 32px var(--emerald-glow);
+    }
+
+    .feedback-overlay.error {
+      border-color: var(--red);
+      box-shadow: 0 0 32px rgba(255, 59, 92, 0.45);
+    }
+
+    .feedback-overlay.info {
+      border-color: var(--amber);
+      box-shadow: 0 0 28px rgba(255, 208, 0, 0.35);
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .feedback-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .feedback-title {
+      font-size: 1.35rem;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+    }
+
+    .feedback-overlay.success .feedback-title { color: var(--emerald); }
+    .feedback-overlay.error .feedback-title { color: #ff6b85; }
+    .feedback-overlay.info .feedback-title { color: var(--amber); }
+
+    .feedback-body {
+      font-size: 1.12rem;
+      line-height: 1.45;
+      color: var(--text-main);
+    }
+
+    .domain-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 255, 136, 0.14);
+      border: 2px solid var(--emerald);
+      color: #c8ffe4;
+      padding: 8px 16px;
+      border-radius: var(--radius-md);
+      font-size: 1.25rem;
+      font-weight: 800;
+      margin-top: 4px;
+      align-self: flex-start;
+    }
+
+    .feedback-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    /* ==========================================================================
+       PANEL DERECHO: CONSOLA DE NAVEGACIÓN TÁCTIL
+       ========================================================================== */
+    .control-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: linear-gradient(180deg, rgba(16, 25, 56, 0.96), rgba(9, 14, 34, 0.98));
+      border: 2px solid var(--border-glow);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      box-shadow: 0 0 24px rgba(0, 240, 255, 0.1);
+    }
+
+    .panel-section-title {
+      font-size: 0.92rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--cyan);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Visor de coordenada X elegida */
+    .coord-readout {
+      background: #040817;
+      border: 2.5px solid var(--cyan);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: inset 0 0 18px rgba(0, 240, 255, 0.18);
+    }
+
+    .coord-prefix {
+      font-family: 'Cambria Math', Georgia, serif;
+      font-style: italic;
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: var(--cyan);
+    }
+
+    .coord-value {
+      font-family: var(--font-mono);
+      font-size: 2.4rem;
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: 0.04em;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+    }
+
+    .coord-value.placeholder {
+      color: rgba(147, 168, 212, 0.45);
+      font-size: 1.4rem;
+      font-family: var(--font-sans);
+    }
+
+    /* Deslizador rápido de coordenada X */
+    .slider-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .x-slider {
+      width: 100%;
+      height: 14px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #1b2a5c, #00f0ff, #1b2a5c);
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+      cursor: pointer;
+    }
+
+    .x-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--cyan);
+      border: 3px solid #ffffff;
+      box-shadow: 0 0 16px var(--cyan);
+      cursor: pointer;
+    }
+
+    .x-slider::-moz-range-thumb {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--cyan);
+      border: 3px solid #ffffff;
+      box-shadow: 0 0 16px var(--cyan);
+      cursor: pointer;
+    }
+
+    .slider-ticks {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      padding: 0 4px;
+    }
+
+    /* Teclado numérico táctil grande */
+    .numpad {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .num-key {
+      height: 58px;
+      border-radius: var(--radius-md);
+      border: 2px solid rgba(0, 240, 255, 0.3);
+      background: linear-gradient(180deg, #182652, #0f1938);
+      color: #ffffff;
+      font-family: var(--font-mono);
+      font-size: 1.65rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 4px 0 #070d20;
+      transition: transform 0.08s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .num-key:hover {
+      border-color: var(--cyan);
+      background: linear-gradient(180deg, #21346e, #15234d);
+    }
+
+    .num-key:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #070d20;
+    }
+
+    .num-key.op {
+      background: linear-gradient(180deg, #2b1d4f, #1a1133);
+      border-color: rgba(255, 42, 133, 0.45);
+      color: #ff8cc0;
+      font-family: var(--font-sans);
+      font-size: 1.35rem;
+    }
+
+    .num-key.clear {
+      background: linear-gradient(180deg, #4a1929, #2e0f1a);
+      border-color: rgba(255, 59, 92, 0.55);
+      color: #ff8ca0;
+      font-family: var(--font-sans);
+      font-size: 1.25rem;
+    }
+
+    /* Botones principales de acción */
+    .launch-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 2px;
+    }
+
+    .btn-launch {
+      padding: 16px 20px;
+      font-size: 1.3rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border-radius: 14px;
+    }
+
+    .btn-warp {
+      padding: 14px 16px;
+      font-size: 1.12rem;
+      letter-spacing: 0.03em;
+      border-radius: 14px;
+    }
+
+    /* Herramientas de aula del profesor */
+    .teacher-tools {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: auto;
+      padding-top: 8px;
+      border-top: 1.5px solid rgba(147, 168, 212, 0.2);
+    }
+
+    .hint-box {
+      background: rgba(255, 208, 0, 0.12);
+      border: 1.5px solid var(--amber);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      font-size: 1rem;
+      line-height: 1.4;
+      color: #fff2b2;
+      display: none;
+    }
+
+    .hint-box.show {
+      display: block;
+      animation: slideUp 0.2s ease-out;
+    }
+
+    /* ==========================================================================
+       HERRAMIENTA INTEGRADA DE PIZARRA (MODO LÁPIZ SOBRE TODA LA PANTALLA)
+       ========================================================================== */
+    #drawCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 900;
+      pointer-events: none;
+      touch-action: none;
+    }
+
+    #drawCanvas.active {
+      pointer-events: auto;
+      cursor: crosshair;
+    }
+
+    .draw-toolbar {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 950;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      background: rgba(8, 14, 34, 0.96);
+      border: 2.5px solid var(--amber);
+      border-radius: 999px;
+      padding: 10px 18px;
+      box-shadow: 0 10px 34px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 208, 0, 0.35);
+    }
+
+    .draw-toolbar.show {
+      display: flex;
+    }
+
+    .draw-badge {
+      font-weight: 900;
+      color: var(--amber);
+      font-size: 0.95rem;
+      padding-right: 6px;
+      border-right: 1.5px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .color-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 3px solid rgba(255, 255, 255, 0.4);
+      cursor: pointer;
+      transition: transform 0.12s, box-shadow 0.15s;
+    }
+
+    .color-btn.selected {
+      transform: scale(1.18);
+      border-color: #ffffff;
+      box-shadow: 0 0 14px #ffffff;
+    }
+
+    .tool-btn {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      background: #142048;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 0.92rem;
+      cursor: pointer;
+    }
+
+    .tool-btn.selected {
+      background: var(--cyan);
+      color: #031024;
+      border-color: #ffffff;
+    }
+
+    /* Botón flotante para limpiar trazos cuando el modo lápiz está cerrado pero hay dibujo */
+    .floating-clear-ink {
+      position: fixed;
+      bottom: 16px;
+      left: 16px;
+      z-index: 940;
+      display: none;
+    }
+
+    .floating-clear-ink.show {
+      display: inline-flex;
+    }
+
+    /* Modal de fin de misión (resumen de clase) */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 6, 18, 0.82);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 800;
+      padding: 20px;
+    }
+
+    .modal-backdrop.show {
+      display: flex;
+    }
+
+    .modal-card {
+      background: linear-gradient(180deg, #121e47, #091026);
+      border: 3px solid var(--cyan);
+      border-radius: 22px;
+      padding: 28px 32px;
+      max-width: 580px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 0 50px rgba(0, 240, 255, 0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .modal-card h2 {
+      font-size: 2rem;
+      color: var(--emerald);
+      font-weight: 900;
+    }
+
+    .modal-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 6px 0;
+    }
+
+    .modal-stat-box {
+      background: rgba(4, 8, 22, 0.75);
+      border: 1.5px solid rgba(0, 240, 255, 0.3);
+      border-radius: 14px;
+      padding: 12px;
+    }
+
+    .modal-stat-box .big {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--cyan);
+      font-family: var(--font-mono);
+    }
+
+    .modal-stat-box .lbl {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <!-- CAPA DE PIZARRA DIGITAL (DIBUJO A MANO ALZADA SOBRE TODA LA PANTALLA) -->
+  <canvas id="drawCanvas"></canvas>
+
+  <!-- BARRA DE HERRAMIENTAS DEL MODO LÁPIZ -->
+  <div id="drawToolbar" class="draw-toolbar" role="toolbar" aria-label="Herramientas de pizarra">
+    <span class="draw-badge">✏️ PIZARRA ACTIVA</span>
+    <button class="color-btn selected" data-color="#ffd000" style="background:#ffd000" title="Amarillo"></button>
+    <button class="color-btn" data-color="#00f0ff" style="background:#00f0ff" title="Cian"></button>
+    <button class="color-btn" data-color="#ffffff" style="background:#ffffff" title="Blanco"></button>
+    <button class="color-btn" data-color="#ff2a85" style="background:#ff2a85" title="Magenta"></button>
+    <button id="btnEraser" class="tool-btn" title="Goma de borrar">🧽 Goma</button>
+    <button id="btnClearDraw" class="tool-btn" title="Borrar todo el dibujo">🗑️ Limpiar</button>
+    <button id="btnCloseDraw" class="btn btn-amber btn-small">✅ Volver a controles</button>
+  </div>
+
+  <!-- BOTÓN RÁPIDO PARA BORRAR TRAZOS SI QUEDAN EN PANTALLA -->
+  <button id="btnQuickClearInk" class="btn btn-ghost btn-small floating-clear-ink">🗑️ Borrar anotaciones</button>
+
+  <!-- APLICACIÓN PRINCIPAL -->
+  <div class="app-shell">
+    <!-- BARRA SUPERIOR -->
+    <header class="top-bar">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">🚀</div>
+        <div class="brand-text">
+          <h1>MISIÓN DOMINIO: NAVEGACIÓN CÓSMICA</h1>
+          <span>Matemáticas 1º Bachillerato · Dominio de Funciones</span>
+        </div>
+      </div>
+
+      <div class="mission-selector-wrap">
+        <select id="missionSelect" class="mission-select" aria-label="Selector de misión">
+          <option value="mix">🌌 Misión Completa (Mezcla)</option>
+          <option value="racionales">➗ Racionales (Denominador = 0)</option>
+          <option value="radicales">√ Radicales (Índice par)</option>
+          <option value="logaritmicas">📈 Logarítmicas (Argumento ≤ 0)</option>
+          <option value="pro">⚡ Nivel Pro: Combinadas y Trampas (Dom = ℝ)</option>
+        </select>
+      </div>
+
+      <div class="hud-stats">
+        <div class="stat-pill">
+          <span class="label">Onda</span>
+          <span id="statLevel" class="val">1/10</span>
+        </div>
+        <div class="stat-pill">
+          <span class="label">Puntos</span>
+          <span id="statScore" class="val">0</span>
+        </div>
+        <div class="stat-pill streak">
+          <span class="label">Racha</span>
+          <span id="statStreak" class="val">0🔥</span>
+        </div>
+        <div class="shields-box">
+          <div id="shieldsDisplay" class="shield-icons" title="Escudos de la nave">
+            <span class="shield-icon">🛡️</span>
+            <span class="shield-icon">🛡️</span>
+            <span class="shield-icon">🛡️</span>
+          </div>
+          <button id="btnRecharge" class="btn btn-ghost btn-small" title="Recargar escudos">⚡</button>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <button id="btnPencil" class="btn btn-amber">✏️ Modo Lápiz</button>
+        <button id="btnMute" class="btn btn-ghost" title="Activar o silenciar sonido">🔊</button>
+      </div>
+    </header>
+
+    <!-- ÁREA PRINCIPAL -->
+    <main class="main-grid">
+      <!-- COLUMNA IZQUIERDA: FUNCIÓN Y VISOR ESPACIAL -->
+      <section class="viewport-column">
+        <div class="function-banner">
+          <div class="func-meta">
+            <span id="categoryBadge" class="category-badge">FUNCIÓN RACIONAL</span>
+            <span class="mission-prompt">Encuentra un punto <strong>x</strong> donde <strong>f(x) NO exista</strong> para cruzar a salvo:</span>
+          </div>
+          <div class="math-display-box">
+            <div id="mathFormula" class="math-expr"></div>
+          </div>
+        </div>
+
+        <div class="canvas-frame" id="canvasFrame">
+          <canvas id="spaceCanvas"></canvas>
+          <div class="canvas-hint-tag">👆 Toca el eje X o usa el teclado para elegir la coordenada de cruce</div>
+          <div class="canvas-legend">
+            <span><i class="legend-dot" style="background:#ff2a85"></i>Onda peligrosa (existe)</span>
+            <span><i class="legend-dot" style="background:#00ff88"></i>Brecha segura (no existe)</span>
+          </div>
+
+          <!-- PANEL DE RESULTADO Y EXPLICACIÓN -->
+          <div id="feedbackOverlay" class="feedback-overlay" role="status" aria-live="polite">
+            <div class="feedback-header">
+              <div id="feedbackTitle" class="feedback-title"></div>
+              <button id="btnCloseFeedback" class="btn btn-ghost btn-small">✕</button>
+            </div>
+            <div id="feedbackBody" class="feedback-body"></div>
+            <div id="domainBox" class="domain-pill" style="display:none;"></div>
+            <div class="feedback-actions">
+              <button id="btnRetryWave" class="btn btn-ghost" style="display:none;">🔄 Intentar otra coordenada</button>
+              <button id="btnNextWave" class="btn btn-emerald">Siguiente onda cósmica ➜</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- COLUMNA DERECHA: CONSOLA TÁCTIL DE PILOTAJE -->
+      <aside class="control-panel">
+        <div class="panel-section-title">
+          <span>🎯 Coordenada de cruce</span>
+          <span style="color:var(--text-muted); font-size:0.82rem;">Rango visible: [-8, 8]</span>
+        </div>
+
+        <div class="coord-readout">
+          <span class="coord-prefix">x =</span>
+          <div id="coordValue" class="coord-value placeholder">Elige un número</div>
+        </div>
+
+        <div class="slider-wrap">
+          <input id="xSlider" class="x-slider" type="range" min="-8" max="8" step="0.5" value="0" aria-label="Deslizador de coordenada x" />
+          <div class="slider-ticks">
+            <span>-8</span><span>-4</span><span>0</span><span>+4</span><span>+8</span>
+          </div>
+        </div>
+
+        <!-- TECLADO NUMÉRICO TÁCTIL GRANDE -->
+        <div class="numpad" role="group" aria-label="Teclado numérico táctil">
+          <button class="num-key" data-key="7">7</button>
+          <button class="num-key" data-key="8">8</button>
+          <button class="num-key" data-key="9">9</button>
+          <button class="num-key op" data-key="back" title="Borrar último dígito">⌫</button>
+
+          <button class="num-key" data-key="4">4</button>
+          <button class="num-key" data-key="5">5</button>
+          <button class="num-key" data-key="6">6</button>
+          <button class="num-key op" data-key="sign" title="Cambiar signo negativo/positivo">±</button>
+
+          <button class="num-key" data-key="1">1</button>
+          <button class="num-key" data-key="2">2</button>
+          <button class="num-key" data-key="3">3</button>
+          <button class="num-key clear" data-key="clear" title="Limpiar">C</button>
+
+          <button class="num-key" data-key="0" style="grid-column: span 2;">0</button>
+          <button class="num-key" data-key=".">.</button>
+          <button class="num-key op" data-key="-">−</button>
+        </div>
+
+        <!-- ACCIONES PRINCIPALES DE NAVEGACIÓN -->
+        <div class="launch-group">
+          <button id="btnLaunch" class="btn btn-cyan btn-launch">🚀 LANZAR NAVE</button>
+          <button id="btnWarp" class="btn btn-magenta btn-warp">⚡ SALTO HIPERESPACIAL (Dom = ℝ)</button>
+        </div>
+
+        <!-- CAJA DE PISTA -->
+        <div id="hintBox" class="hint-box"></div>
+
+        <!-- HERRAMIENTAS DEL PROFESOR -->
+        <div class="teacher-tools">
+          <button id="btnHint" class="btn btn-ghost">💡 Pista</button>
+          <button id="btnReveal" class="btn btn-ghost">📊 Revelar Gráfica</button>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- MODAL DE RESUMEN AL COMPLETAR TODAS LAS ONDAS DEL MODO -->
+  <div id="summaryModal" class="modal-backdrop">
+    <div class="modal-card">
+      <h2>🏆 ¡SECTOR COMPLETADO!</h2>
+      <p style="font-size:1.12rem; color:var(--text-muted); line-height:1.45;">
+        La tripulación ha superado todas las ondas cósmicas de esta misión. ¡Excelente trabajo con el dominio de funciones!
+      </p>
+      <div class="modal-stats">
+        <div class="modal-stat-box">
+          <div id="sumScore" class="big">0</div>
+          <div class="lbl">Puntuación</div>
+        </div>
+        <div class="modal-stat-box">
+          <div id="sumCleared" class="big">0</div>
+          <div class="lbl">Ondas superadas</div>
+        </div>
+        <div class="modal-stat-box">
+          <div id="sumBestStreak" class="big">0</div>
+          <div class="lbl">Mejor racha</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:8px;">
+        <button id="btnReplayMission" class="btn btn-cyan">🔄 Repetir misión</button>
+        <button id="btnNextCategory" class="btn btn-emerald">🌌 Misión Completa (Mezcla)</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       1. SINTETIZADOR DE AUDIO (WEB AUDIO API - SIN ARCHIVOS EXTERNOS)
+       ========================================================================== */
+    const SoundFX = (() => {
+      let ctx = null;
+      let muted = false;
+
+      function ensureCtx() {
+        if (muted) return null;
+        if (!ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) ctx = new AudioCtx();
+        }
+        if (ctx && ctx.state === 'suspended') {
+          ctx.resume().catch(() => {});
+        }
+        return ctx;
+      }
+
+      function tone(freq, duration, type = 'sine', gainVal = 0.14, freqEnd = null, delay = 0) {
+        const c = ensureCtx();
+        if (!c) return;
+        const now = c.currentTime + delay;
+        const osc = c.createOscillator();
+        const gain = c.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+        if (freqEnd !== null) {
+          osc.frequency.exponentialRampToValueAtTime(Math.max(20, freqEnd), now + duration);
+        }
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.linearRampToValueAtTime(gainVal, now + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+        osc.connect(gain);
+        gain.connect(c.destination);
+        osc.start(now);
+        osc.stop(now + duration + 0.02);
+      }
+
+      return {
+        toggleMute() {
+          muted = !muted;
+          return muted;
+        },
+        click() {
+          tone(680, 0.055, 'triangle', 0.09, 420);
+        },
+        launch() {
+          tone(160, 0.45, 'sawtooth', 0.12, 620);
+          tone(90, 0.45, 'triangle', 0.14, 240);
+        },
+        success() {
+          tone(523.25, 0.14, 'triangle', 0.16, null, 0);
+          tone(659.25, 0.14, 'triangle', 0.16, null, 0.1);
+          tone(783.99, 0.16, 'triangle', 0.16, null, 0.2);
+          tone(1046.5, 0.32, 'sine', 0.18, null, 0.3);
+        },
+        impact() {
+          tone(170, 0.32, 'sawtooth', 0.22, 42);
+          tone(110, 0.38, 'square', 0.14, 30, 0.04);
+        },
+        warp() {
+          tone(220, 0.65, 'sine', 0.16, 1760);
+          tone(330, 0.65, 'triangle', 0.12, 1320, 0.05);
+          tone(880, 0.35, 'sine', 0.14, 1760, 0.42);
+        },
+        reveal() {
+          tone(440, 0.18, 'sine', 0.1, 880);
+        }
+      };
+    })();
+
+    /* ==========================================================================
+       2. BANCO DE MISIONES (1º DE BACHILLERATO - DOMINIO DE FUNCIONES)
+       ========================================================================== */
+    const HTML_HELPERS = {
+      frac: (n, d) => `<span class="frac"><span class="num">${n}</span><span class="den">${d}</span></span>`,
+      rad: (inner) => `<span class="rad"><span class="rad-sign">√</span><span class="rad-body">${inner}</span></span>`,
+      fn: (body) => `<span class="fn-name">f(x)</span><span class="eq">=</span>${body}`
+    };
+
+    const MISSION_BANK = {
+      racionales: [
+        {
+          id: 'rat1',
+          category: 'Función Racional',
+          formulaHTML: HTML_HELPERS.fn(HTML_HELPERS.frac('1', 'x − 3')),
+          evalFn: (x) => Math.abs(x - 3) < 1e-6 ? NaN : 1 / (x - 3),
+          isOutsideDomain: (x) => Math.abs(x - 3) < 0.06,
+          asymptotes: [3],
+          voidIntervals: [],
+          isAllReals: false,
+          domainText: 'Dom(f) = ℝ − {3}',
+          hint: 'En una función racional no podemos dividir entre cero. Plantea la ecuación del denominador igual a cero: x − 3 = 0.',
+          explainPoint: (x) => `Al sustituir x = ${formatNum(x)}, el denominador vale ${formatNum(x)} − 3 = 0. Como no se puede dividir por cero, la función no existe ahí y se abre una brecha segura (asíntota vertical).`
+        },
+        {
+          id: 'rat2',
+          category: 'Función Racional',
+          formulaHTML: HTML_HELPERS.fn(HTML_HELPERS.frac('2x + 1', 'x + 4')),
+          evalFn: (x) => Math.abs(x + 4) < 1e-6 ? NaN : (2 * x + 1) / (x + 4),
+          isOutsideDomain: (x) => Math.abs(x + 4) < 0.06,
+          asymptotes: [-4],
+          voidIntervals: [],
+          isAllReals: false,
+          domainText: 'Dom(f) = ℝ − {−4}',
+          hint: 'Busca qué valor de x anula el denominador: x + 4 = 0. ¡Cuidado con el signo negativo!',
+          explainPoint: (x) => `En x = ${formatNum(x)}, el denominador se anula (${formatNum(x)} + 4 = 0). No existe división entre cero.`
+        },
+        {
+          id: 'rat3',
+          category: 'Función Racional',
+          formulaHTML: HTML_HELPERS.fn(HTML_HELPERS.frac('5', 'x<sup>2</sup> − 9')),
+          evalFn: (x) => Math.abs(x * x - 9) < 1e-6 ? NaN : 5 / (x * x - 9),
+          isOutsideDomain: (x) => Math.abs(x - 3) < 0.06 || Math.abs(x + 3) < 0.06,
+          asymptotes: [-3, 3],
+          voidIntervals: [],
+          isAllReals: false,
+          domainText: 'Dom(f) = ℝ − {−3, 3}',
+          hint: 'Iguala el denominador a cero: x² − 9 = 0. Recuerda que una ecuación de segundo grado incompleta tiene dos soluciones opuestas.',
+          explainPoint: (x) => `En x = ${formatNum(x)}, tenemos (${formatNum(x)})² − 9 = 0. Hay dos portales seguros: x = −3 y x = 3.`
+        },
+        {
+          id: 'rat4',
+          category: 'Función Racional',
+          formulaHTML: HTML_HELPERS.fn(HTML_HELPERS.frac('x + 2', 'x<sup>2</sup> − 5x + 6')),
+          evalFn: (x) => {
+            const d = x * x - 5 * x + 6;
+            return Math.abs(d) < 1e-6 ? NaN : (x + 2) / d;
+          },
+          isOutsideDomain: (x) => Math.abs(x - 2) < 0.06 || Math.abs(x - 3) < 0.06,
+          asymptotes: [2, 3],
+          voidIntervals: [],
+          isAllReals: false,
+          domainText: 'Dom(f) = ℝ − {2, 3}',
+          hint: 'Resuelve la ecuación de segundo grado del denominador: x² − 5x + 6 = 0 (puedes usar la fórmula cuadrática o factorizar).',
+          explainPoint: (x) => `Como x² − 5x + 6 = (x − 2)(x − 3), el denominador se anula en x = 2 y en x = 3. ¡Cruce perfecto en x = ${formatNum(x)}!`
+        },
+        {
+          id: 'rat5',
+          category: 'Función Racional',
+          formulaHTML: HTML_HELPERS.fn(HTML_HELPERS.frac('3x', 'x<sup>2</sup> + 4x')),
+          evalFn: (x) => {
+            const d = x * x + 4 * x;
+            return Math.abs(d) < 1e-6 ? NaN : (3 * x) / d;
+          },
+          isOutsideDomain: (x) => Math.abs(x) < 0.06 || Math.abs(x + 4) < 0.06,
+          asymptotes: [-4, 0],
+          voidIntervals: [],
+          isAllReals: false,
+          domainText: 'Dom(f) = ℝ − {−4, 0}',
+          hint: 'Saca factor común en el denominador: x² + 4x = x(x + 4) = 0. Atención: aunque la x aparezca arriba y abajo, en la función original x = 0 tampoco pertenece al dominio.',
+          explainPoint: (x) => `Al factorizar el denominador x(x + 4) = 0, obtenemos dos puntos fuera del dominio: x = 0 (discontinuidad evitable) y x = −4 (asíntota vertical).`
+        },
+        {
+          id: 'rat6',
+          category: 'Función Racional (Decimal)',
+          formulaHTML: HTML_HELPERS.fn(HTML_HELPERS.frac('x − 1', '2x − 5')),
+          evalFn: (x) => Math.abs(2 * x - 5) < 1e-6 ? NaN : (x - 1) / (2 * x - 5),
+          isOutsideDomain: (x) => Math.abs(x - 2.5) < 0.06,
+          asymptotes: [2.5],
+          voidIntervals: [],
+          isAllReals: false,
+          domainText: 'Dom(f) = ℝ − {5/2} = ℝ − {2.5}',
+          hint: 'Resuelve 2x − 5 = 0. ¡Atención! La solución es una fracción / número decimal exacto.',
+          explainPoint: (x) => `De 2x − 5 = 0 se obtiene x = 5/2 = 2.5. En x = 2.5 el denominador se hace cero y la nave cruza sin peligro.`
+        }
+      ],
+
+      radicales: [
+        {
+          id: 'rad1',
+          category: 'Función Radical (Índice par)',
+          formulaHTML: HTML_HELPERS.fn(HTML_HELPERS.rad('x − 3')),
+          evalFn: (x) => (x - 3 < -1e-9) ? NaN : Math.sqrt(Math.max(0, x - 3)),
+          isOutsideDomain: (x) => x < 3 - 1e-6,
+          asymptotes: [],
+          voidIntervals: [[-10, 3]],
+          isAllReals: false,
+          domainText: 'Dom(f) = [3, +∞)',
+          hint: 'Una raíz cuadrada solo existe en ℝ si el radicando es ≥ 0. Por tanto, NO existe cuando x − 3 < 0.',
+          explainPoint: (x) => `En x = ${formatNum(x)}, el radicando vale ${formatNum(x)} − 3 = ${formatNum(x - 3)} < 0. No existe la raíz cuadrada real de un número negativo.`
+        },
+        {
+          id: 'rad2',
+          category: 'Función Radical (Índice par)',
+          formulaHTML: HTML_HELPERS.fn(HTML_HELPERS.rad('4 − x')),
+          evalFn: (x) => (4 - x < -1e-9) ? NaN : Math.sqrt(Math.max(0, 4 - x)),
+          isOutsideDomain: (x) => x > 4 + 1e-6,
+          asymptotes: [],
+          voidIntervals: [[4, 10]],
+          isAllReals: false,
+          domainText: 'Dom(f) = (−∞, 4]',
+          hint: 'La función NO existe si el radicando es negativo: 4 − x < 0. ¡Cuidado al despejar la x negativa!',
+          explainPoint: (x) => `Para x = ${formatNum(x)}, el radicando es 4 − (${formatNum(x)}) = ${formatNum(4 - x)} < 0, así que la onda desaparece para todo x > 4.`
+        },
+        {
+          id: 'rad3',
+          category: 'Función Radical (Índice par)',
+          formulaHTML: HTML_HELPERS.fn(HTML_HELPERS.rad('2x + 6')),
+          evalFn: (x) => (2 * x + 6 < -1e-9) ? NaN : Math.sqrt(Math.max(0, 2 * x + 6)),
+          isOutsideDomain: (x) => x < -3 - 1e-6,
+          asymptotes: [],
+          voidIntervals: [[-10, -3]],
+          isAllReals: false,
+          domainText: 'Dom(f) = [−3, +∞)',
+          hint: 'Plantea la inecuación de existencia 2x + 6 ≥ 0. La zona segura es la contraria: 2x + 6 < 0.',
+          explainPoint: (x) => `En x = ${formatNum(x)}, el radicando es 2(${formatNum(x)}) + 6 = ${formatNum(2 * x + 6)} < 0. Cualquier valor estrictamente menor que −3 es seguro.`
+        },
+        {
+          id: 'rad4',
+          category: 'Función Radical (2º grado)',
+          formulaHTML: HTML_HELPERS.fn(HTML_HELPERS.rad('x<sup>2</sup> − 4')),
+          evalFn: (x) => (x * x - 4 < -1e-9) ? NaN : Math.sqrt(Math.max(0, x * x - 4)),
+          isOutsideDomain: (x) => x > -2 + 1e-6 && x < 2 - 1e-6,
+          asymptotes: [],
+          voidIntervals: [[-2, 2]],
+          isAllReals: false,
+          domainText: 'Dom(f) = (−∞, −2] ∪ [2, +∞)',
+          hint: 'Estudia el signo de x² − 4. Sus raíces son −2 y 2. ¿En qué intervalo resulta negativo?',
+          explainPoint: (x) => `En x = ${formatNum(x)}, el radicando vale (${formatNum(x)})² − 4 = ${formatNum(x * x - 4)} < 0. Toda la franja abierta (−2, 2) es un vacío seguro.`
+        },
+        {
+          id: 'rad5',
+          category: 'Función Radical (2º grado)',
+          formulaHTML: HTML_HELPERS.fn(HTML_HELPERS.rad('9 − x<sup>2</sup>')),
+          evalFn: (x) => (9 - x * x < -1e-9) ? NaN : Math.sqrt(Math.max(0, 9 - x * x)),
+          isOutsideDomain: (x) => x < -3 - 1e-6 || x > 3 + 1e-6,
+          asymptotes: [],
+          voidIntervals: [[-10, -3], [3, 10]],
+          isAllReals: false,
+          domainText: 'Dom(f) = [−3, 3]',
+          hint: 'El radicando 9 − x² es positivo entre −3 y 3. Por fuera de ese intervalo es negativo y la función no existe.',
+          explainPoint: (x) => `Para x = ${formatNum(x)}, 9 − (${formatNum(x)})² = ${formatNum(9 - x * x)} < 0. Fuera del intervalo [−3, 3] no hay onda.`
+        }
+      ],
+
+      logaritmicas: [
+        {
+          id: 'log1',
+          category: 'Función Logarítmica',
+          formulaHTML: HTML_HELPERS.fn('ln(x − 2)'),
+          evalFn: (x) => (x - 2 <= 1e-9) ? NaN : Math.log(x - 2),
+          isOutsideDomain: (x) => x <= 2 + 1e-6,
+          asymptotes: [2],
+          voidIntervals: [[-10, 2]],
+          isAllReals: false,
+          domainText: 'Dom(f) = (2, +∞)',
+          hint: 'El logaritmo solo existe si su argumento es estrictamente mayor que cero (x − 2 > 0). Por tanto, NO existe si x − 2 ≤ 0 (¡x = 2 también es seguro!).',
+          explainPoint: (x) => `En x = ${formatNum(x)}, el argumento es ${formatNum(x)} − 2 = ${formatNum(x - 2)} ≤ 0. No existe el logaritmo de cero ni de números negativos.`
+        },
+        {
+          id: 'log2',
+          category: 'Función Logarítmica',
+          formulaHTML: HTML_HELPERS.fn('log(5 − x)'),
+          evalFn: (x) => (5 - x <= 1e-9) ? NaN : Math.log10(5 - x),
+          isOutsideDomain: (x) => x >= 5 - 1e-6,
+          asymptotes: [5],
+          voidIntervals: [[5, 10]],
+          isAllReals: false,
+          domainText: 'Dom(f) = (−∞, 5)',
+          hint: 'Plantea 5 − x > 0 para ver dónde existe. La nave puede pasar donde 5 − x ≤ 0.',
+          explainPoint: (x) => `En x = ${formatNum(x)}, el argumento vale 5 − (${formatNum(x)}) = ${formatNum(5 - x)} ≤ 0, fuera del dominio del logaritmo.`
+        },
+        {
+          id: 'log3',
+          category: 'Función Logarítmica',
+          formulaHTML: HTML_HELPERS.fn('ln(x + 4)'),
+          evalFn: (x) => (x + 4 <= 1e-9) ? NaN : Math.log(x + 4),
+          isOutsideDomain: (x) => x <= -4 + 1e-6,
+          asymptotes: [-4],
+          voidIntervals: [[-10, -4]],
+          isAllReals: false,
+          domainText: 'Dom(f) = (−4, +∞)',
+          hint: 'El logaritmo neperiano exige x + 4 > 0. Busca un valor donde x + 4 ≤ 0.',
+          explainPoint: (x) => `Con x = ${formatNum(x)}, tenemos ${formatNum(x)} + 4 = ${formatNum(x + 4)} ≤ 0. La función no existe para x ≤ −4.`
+        },
+        {
+          id: 'log4',
+          category: 'Función Logarítmica (2º grado)',
+          formulaHTML: HTML_HELPERS.fn('ln(x<sup>2</sup> − 1)'),
+          evalFn: (x) => (x * x - 1 <= 1e-9) ? NaN : Math.log(x * x - 1),
+          isOutsideDomain: (x) => x >= -1 - 1e-6 && x <= 1 + 1e-6,
+          asymptotes: [-1, 1],
+          voidIntervals: [[-1, 1]],
+          isAllReals: false,
+          domainText: 'Dom(f) = (−∞, −1) ∪ (1, +∞)',
+          hint: 'Necesitamos que el argumento x² − 1 sea ≤ 0 para cruzar. Estudia el signo entre −1 y 1.',
+          explainPoint: (x) => `En x = ${formatNum(x)}, el argumento es (${formatNum(x)})² − 1 = ${formatNum(x * x - 1)} ≤ 0. Todo el intervalo cerrado [−1, 1] está libre de onda.`
+        },
+        {
+          id: 'log5',
+          category: 'Función Logarítmica (2º grado)',
+          formulaHTML: HTML_HELPERS.fn('log(4 − x<sup>2</sup>)'),
+          evalFn: (x) => (4 - x * x <= 1e-9) ? NaN : Math.log10(4 - x * x),
+          isOutsideDomain: (x) => x <= -2 + 1e-6 || x >= 2 - 1e-6,
+          asymptotes: [-2, 2],
+          voidIntervals: [[-10, -2], [2, 10]],
+          isAllReals: false,
+          domainText: 'Dom(f) = (−2, 2)',
+          hint: '4 − x² solo es estrictamente positivo entre −2 y 2. En los extremos (±2) y fuera de ellos el logaritmo no existe.',
+          explainPoint: (x) => `En x = ${formatNum(x)}, 4 − (${formatNum(x)})² = ${formatNum(4 - x * x)} ≤ 0. El dominio es únicamente el intervalo abierto (−2, 2).`
+        }
+      ],
+
+      pro: [
+        {
+          id: 'pro1',
+          category: 'Nivel Pro · Combinada',
+          formulaHTML: HTML_HELPERS.fn(HTML_HELPERS.frac('1', HTML_HELPERS.rad('x − 2'))),
+          evalFn: (x) => (x - 2 <= 1e-9) ? NaN : 1 / Math.sqrt(x - 2),
+          isOutsideDomain: (x) => x <= 2 + 1e-6,
+          asymptotes: [2],
+          voidIntervals: [[-10, 2]],
+          isAllReals: false,
+          domainText: 'Dom(f) = (2, +∞)',
+          hint: 'Hay una raíz cuadrada en el denominador: el radicando no puede ser negativo NI tampoco cero (división entre 0). Exige x − 2 > 0.',
+          explainPoint: (x) => `En x = ${formatNum(x)}, el radicando vale ${formatNum(x - 2)} ≤ 0. Si es negativo falla la raíz, y si es 0 (x = 2) se anula el denominador.`
+        },
+        {
+          id: 'pro2',
+          category: 'Nivel Pro · Combinada',
+          formulaHTML: HTML_HELPERS.fn(HTML_HELPERS.frac(HTML_HELPERS.rad('x + 3'), 'x − 1')),
+          evalFn: (x) => {
+            if (x + 3 < -1e-9 || Math.abs(x - 1) < 1e-6) return NaN;
+            return Math.sqrt(Math.max(0, x + 3)) / (x - 1);
+          },
+          isOutsideDomain: (x) => x < -3 - 1e-6 || Math.abs(x - 1) < 0.06,
+          asymptotes: [1],
+          voidIntervals: [[-10, -3]],
+          isAllReals: false,
+          domainText: 'Dom(f) = [−3, +∞) − {1}',
+          hint: 'Doble condición: el radicando del numerador debe ser ≥ 0 (x ≥ −3) Y el denominador no puede ser 0 (x ≠ 1). Puedes cruzar por x < −3 o justo por x = 1.',
+          explainPoint: (x) => Math.abs(x - 1) < 0.06
+            ? `¡Precisión quirúrgica! Aunque √(1+3) = 2 existe, en x = 1 el denominador se anula (1 − 1 = 0).`
+            : `En x = ${formatNum(x)}, el radicando x + 3 = ${formatNum(x + 3)} < 0, así que la raíz cuadrada no existe.`
+        },
+        {
+          id: 'pro3',
+          category: 'Nivel Pro · ¡Posible Trampa!',
+          formulaHTML: HTML_HELPERS.fn(HTML_HELPERS.frac('4', 'x<sup>2</sup> + 4')),
+          evalFn: (x) => 4 / (x * x + 4),
+          isOutsideDomain: () => false,
+          asymptotes: [],
+          voidIntervals: [],
+          isAllReals: true,
+          domainText: 'Dom(f) = ℝ',
+          hint: 'Intenta resolver x² + 4 = 0 en los números reales. ¿Existe algún número real cuyo cuadrado sea −4?',
+          explainPoint: () => 'Como x² ≥ 0 para todo x ∈ ℝ, entonces x² + 4 ≥ 4 > 0 siempre. ¡El denominador nunca se anula! No hay brechas: la única salida es el Salto Hiperespacial.'
+        },
+        {
+          id: 'pro4',
+          category: 'Nivel Pro · ¡Posible Trampa!',
+          formulaHTML: HTML_HELPERS.fn(HTML_HELPERS.rad('x<sup>2</sup> + 1')),
+          evalFn: (x) => Math.sqrt(x * x + 1),
+          isOutsideDomain: () => false,
+          asymptotes: [],
+          voidIntervals: [],
+          isAllReals: true,
+          domainText: 'Dom(f) = ℝ',
+          hint: 'Analiza el signo de x² + 1. ¿Puede llegar a ser negativo para algún número real x?',
+          explainPoint: () => 'Para cualquier número real x, x² ≥ 0, por lo que x² + 1 ≥ 1 > 0. La raíz siempre existe y el dominio es todo ℝ.'
+        },
+        {
+          id: 'pro5',
+          category: 'Nivel Pro · ¡Posible Trampa!',
+          formulaHTML: HTML_HELPERS.fn('ln(x<sup>2</sup> + 2)'),
+          evalFn: (x) => Math.log(x * x + 2),
+          isOutsideDomain: () => false,
+          asymptotes: [],
+          voidIntervals: [],
+          isAllReals: true,
+          domainText: 'Dom(f) = ℝ',
+          hint: 'El logaritmo exige que el argumento sea estrictamente positivo. Comprueba si x² + 2 puede ser ≤ 0.',
+          explainPoint: () => 'Como x² ≥ 0, el argumento cumple x² + 2 ≥ 2 > 0 siempre. El logaritmo existe para todo x ∈ ℝ: ¡Salto Hiperespacial obligatorio!'
+        },
+        {
+          id: 'pro6',
+          category: 'Nivel Pro · Cuadrado perfecto',
+          formulaHTML: HTML_HELPERS.fn(HTML_HELPERS.frac('1', 'x<sup>2</sup> − 4x + 4')),
+          evalFn: (x) => {
+            const d = x * x - 4 * x + 4;
+            return Math.abs(d) < 1e-6 ? NaN : 1 / d;
+          },
+          isOutsideDomain: (x) => Math.abs(x - 2) < 0.06,
+          asymptotes: [2],
+          voidIntervals: [],
+          isAllReals: false,
+          domainText: 'Dom(f) = ℝ − {2}',
+          hint: 'Fíjate en el denominador: x² − 4x + 4 es una identidad notable (x − 2)². ¿Dónde se anula?',
+          explainPoint: (x) => `El denominador es (x − 2)², que tiene una raíz doble en x = 2. Ahí es el único punto donde la función no existe.`
+        }
+      ]
+    };
+
+    function formatNum(n) {
+      if (!Number.isFinite(n)) return '∞';
+      const rounded = Math.round(n * 100) / 100;
+      return Object.is(rounded, -0) ? '0' : String(rounded);
+    }
+
+    /* ==========================================================================
+       3. ESTADO DEL JUEGO Y CONTROL DE MISIONES
+       ========================================================================== */
+    const state = {
+      mode: 'mix',
+      queue: [],
+      index: 0,
+      score: 0,
+      streak: 0,
+      bestStreak: 0,
+      cleared: 0,
+      shields: 3,
+      inputStr: '',
+      selectedX: 0,
+      hasSelection: false,
+      phase: 'IDLE', // IDLE | AIMING | FLYING | WARP | RESULT
+      revealed: false,
+      waveSolved: false,
+      // Variables de animación en Canvas
+      shipX: 0,
+      shipYNorm: 0.86, // 0 arriba, 1 abajo
+      targetX: 0,
+      warpProgress: 0,
+      shakeTime: 0,
+      scanAlpha: 0,
+      particles: [],
+      stars: [],
+      time: 0
+    };
+
+    // Referencias DOM
+    const dom = {
+      missionSelect: document.getElementById('missionSelect'),
+      statLevel: document.getElementById('statLevel'),
+      statScore: document.getElementById('statScore'),
+      statStreak: document.getElementById('statStreak'),
+      shieldsDisplay: document.getElementById('shieldsDisplay'),
+      btnRecharge: document.getElementById('btnRecharge'),
+      btnPencil: document.getElementById('btnPencil'),
+      btnMute: document.getElementById('btnMute'),
+      categoryBadge: document.getElementById('categoryBadge'),
+      mathFormula: document.getElementById('mathFormula'),
+      canvasFrame: document.getElementById('canvasFrame'),
+      spaceCanvas: document.getElementById('spaceCanvas'),
+      coordValue: document.getElementById('coordValue'),
+      xSlider: document.getElementById('xSlider'),
+      btnLaunch: document.getElementById('btnLaunch'),
+      btnWarp: document.getElementById('btnWarp'),
+      btnHint: document.getElementById('btnHint'),
+      btnReveal: document.getElementById('btnReveal'),
+      hintBox: document.getElementById('hintBox'),
+      feedbackOverlay: document.getElementById('feedbackOverlay'),
+      feedbackTitle: document.getElementById('feedbackTitle'),
+      feedbackBody: document.getElementById('feedbackBody'),
+      domainBox: document.getElementById('domainBox'),
+      btnCloseFeedback: document.getElementById('btnCloseFeedback'),
+      btnRetryWave: document.getElementById('btnRetryWave'),
+      btnNextWave: document.getElementById('btnNextWave'),
+      summaryModal: document.getElementById('summaryModal'),
+      sumScore: document.getElementById('sumScore'),
+      sumCleared: document.getElementById('sumCleared'),
+      sumBestStreak: document.getElementById('sumBestStreak'),
+      btnReplayMission: document.getElementById('btnReplayMission'),
+      btnNextCategory: document.getElementById('btnNextCategory')
+    };
+
+    function shuffle(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function buildQueue(mode) {
+      if (mode === 'mix') {
+        // Selección equilibrada de todas las categorías (10 ondas variadas)
+        const r = shuffle(MISSION_BANK.racionales).slice(0, 3);
+        const rad = shuffle(MISSION_BANK.radicales).slice(0, 2);
+        const log = shuffle(MISSION_BANK.logaritmicas).slice(0, 2);
+        const pro = shuffle(MISSION_BANK.pro).slice(0, 3);
+        return shuffle([...r, ...rad, ...log, ...pro]);
+      }
+      return [...MISSION_BANK[mode]];
+    }
+
+    function currentWave() {
+      return state.queue[state.index];
+    }
+
+    function startMission(mode) {
+      state.mode = mode;
+      state.queue = buildQueue(mode);
+      state.index = 0;
+      state.score = 0;
+      state.streak = 0;
+      state.bestStreak = 0;
+      state.cleared = 0;
+      state.shields = 3;
+      dom.summaryModal.classList.remove('show');
+      loadWave();
+      updateHUD();
+    }
+
+    function loadWave() {
+      const wave = currentWave();
+      if (!wave) {
+        showSummary();
+        return;
+      }
+      state.phase = 'IDLE';
+      state.revealed = false;
+      state.waveSolved = false;
+      state.shipYNorm = 0.86;
+      state.warpProgress = 0;
+      state.scanAlpha = 0;
+      state.particles = [];
+      state.inputStr = '';
+      state.hasSelection = false;
+      state.selectedX = 0;
+      state.shipX = 0;
+
+      dom.categoryBadge.textContent = wave.category;
+      dom.mathFormula.innerHTML = wave.formulaHTML;
+      dom.xSlider.value = '0';
+      dom.hintBox.classList.remove('show');
+      dom.hintBox.textContent = '';
+      hideFeedback();
+      renderCoordDisplay();
+      updateHUD();
+    }
+
+    function updateHUD() {
+      dom.statLevel.textContent = `${Math.min(state.index + 1, state.queue.length)}/${state.queue.length}`;
+      dom.statScore.textContent = state.score;
+      dom.statStreak.textContent = `${state.streak}🔥`;
+      const icons = dom.shieldsDisplay.querySelectorAll('.shield-icon');
+      icons.forEach((el, i) => {
+        el.classList.toggle('lost', i >= state.shields);
+      });
+    }
+
+    function renderCoordDisplay() {
+      if (!state.hasSelection && state.inputStr === '') {
+        dom.coordValue.textContent = 'Elige un número';
+        dom.coordValue.classList.add('placeholder');
+      } else {
+        dom.coordValue.textContent = state.inputStr !== '' ? state.inputStr : formatNum(state.selectedX);
+        dom.coordValue.classList.remove('placeholder');
+      }
+    }
+
+    function setCoordinateFromNumber(val) {
+      if (state.phase !== 'IDLE') return;
+      const clamped = Math.max(-8, Math.min(8, Math.round(val * 100) / 100));
+      state.selectedX = clamped;
+      state.inputStr = formatNum(clamped);
+      state.hasSelection = true;
+      dom.xSlider.value = String(Math.max(-8, Math.min(8, clamped)));
+      renderCoordDisplay();
+    }
+
+    function handleNumpadKey(key) {
+      if (state.phase !== 'IDLE') return;
+      SoundFX.click();
+
+      if (key === 'clear') {
+        state.inputStr = '';
+        state.hasSelection = false;
+        state.selectedX = 0;
+        dom.xSlider.value = '0';
+        renderCoordDisplay();
+        return;
+      }
+
+      if (key === 'back') {
+        state.inputStr = state.inputStr.slice(0, -1);
+        if (state.inputStr === '' || state.inputStr === '-') {
+          state.hasSelection = false;
+        } else {
+          const parsed = parseFloat(state.inputStr);
+          if (!Number.isNaN(parsed)) {
+            state.selectedX = parsed;
+            state.hasSelection = true;
+            dom.xSlider.value = String(Math.max(-8, Math.min(8, parsed)));
+          }
+        }
+        renderCoordDisplay();
+        return;
+      }
+
+      if (key === 'sign') {
+        if (state.inputStr === '') {
+          state.inputStr = '-';
+        } else if (state.inputStr.startsWith('-')) {
+          state.inputStr = state.inputStr.slice(1);
+        } else {
+          state.inputStr = '-' + state.inputStr;
+        }
+        const parsed = parseFloat(state.inputStr);
+        if (!Number.isNaN(parsed)) {
+          state.selectedX = parsed;
+          state.hasSelection = true;
+          dom.xSlider.value = String(Math.max(-8, Math.min(8, parsed)));
+        }
+        renderCoordDisplay();
+        return;
+      }
+
+      if (key === '-') {
+        if (state.inputStr === '') {
+          state.inputStr = '-';
+          renderCoordDisplay();
+        }
+        return;
+      }
+
+      if (key === '.') {
+        if (!state.inputStr.includes('.')) {
+          state.inputStr = (state.inputStr === '' || state.inputStr === '-') ? state.inputStr + '0.' : state.inputStr + '.';
+          renderCoordDisplay();
+        }
+        return;
+      }
+
+      // Dígito 0-9
+      if (state.inputStr.length >= 6) return;
+      state.inputStr += key;
+      const parsed = parseFloat(state.inputStr);
+      if (!Number.isNaN(parsed)) {
+        state.selectedX = parsed;
+        state.hasSelection = true;
+        dom.xSlider.value = String(Math.max(-8, Math.min(8, parsed)));
+      }
+      renderCoordDisplay();
+    }
+
+    /* ==========================================================================
+       4. LANZAMIENTO DE LA NAVE, SALTO HIPERESPACIAL Y EVALUACIÓN MATEMÁTICA
+       ========================================================================== */
+    function launchShip() {
+      if (state.phase !== 'IDLE') return;
+      const parsed = parseFloat(state.inputStr);
+      if (!state.hasSelection || Number.isNaN(parsed)) {
+        showFeedback(
+          'info',
+          '⚠️ Introduce una coordenada x',
+          'Selecciona un valor de x en el teclado numérico o toca directamente sobre el eje X antes de lanzar la nave.',
+          null,
+          false,
+          true
+        );
+        return;
+      }
+
+      if (parsed < -8 || parsed > 8) {
+        showFeedback(
+          'info',
+          '📡 Coordenada fuera del radar',
+          'El visor cubre el intervalo [−8, 8]. Introduce un valor de x entre −8 y +8.',
+          null,
+          false,
+          true
+        );
+        return;
+      }
+
+      hideFeedback();
+      state.selectedX = parsed;
+      state.targetX = parsed;
+      state.phase = 'AIMING';
+      SoundFX.launch();
+    }
+
+    function triggerWarp() {
+      if (state.phase !== 'IDLE') return;
+      hideFeedback();
+      const wave = currentWave();
+      state.phase = 'WARP';
+      state.warpProgress = 0;
+      state.revealed = true;
+      state.scanAlpha = 1;
+
+      if (wave.isAllReals) {
+        SoundFX.warp();
+      } else {
+        SoundFX.impact();
+      }
+    }
+
+    function evaluateArrival() {
+      const wave = currentWave();
+      const x = state.targetX;
+      state.revealed = true;
+      state.phase = 'RESULT';
+
+      const outside = wave.isOutsideDomain(x);
+
+      if (outside) {
+        // ¡ÉXITO! La función NO existe en x
+        state.waveSolved = true;
+        state.cleared++;
+        state.streak++;
+        if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+        state.score += 100 + (state.streak - 1) * 20;
+        SoundFX.success();
+        spawnParticles(worldToScreenX(x), getBarrierY(), '#00ff88', 46);
+        updateHUD();
+
+        showFeedback(
+          'success',
+          `✅ ¡CRUCE SEGURO EN x = ${formatNum(x)}!`,
+          wave.explainPoint(x),
+          wave.domainText,
+          true,
+          false
+        );
+      } else {
+        // ¡IMPACTO! La función SÍ existe en x
+        state.streak = 0;
+        state.shields = Math.max(0, state.shields - 1);
+        state.shakeTime = 0.45;
+        SoundFX.impact();
+        spawnParticles(worldToScreenX(x), getBarrierY(), '#ff2a85', 42);
+        updateHUD();
+
+        const fxVal = wave.evalFn(x);
+        const valText = Number.isFinite(fxVal) ? fxVal.toFixed(2) : 'muy elevada';
+        let extra = wave.isAllReals
+          ? ' ¡Pista: comprueba si esta función tiene dominio todo ℝ y necesita el Salto Hiperespacial!'
+          : ' Analiza de nuevo qué valor de x hace que la función deje de existir.';
+
+        if (state.shields === 0) {
+          extra += ' (Escudos agotados: pulsa ⚡ arriba para recargarlos y seguir practicando).';
+        }
+
+        showFeedback(
+          'error',
+          `💥 ¡IMPACTO CONTRA LA ONDA!`,
+          `En <strong>x = ${formatNum(x)}</strong> la función <strong>SÍ existe</strong> con intensidad <strong>f(${formatNum(x)}) = ${valText}</strong>.${extra}`,
+          null,
+          false,
+          true
+        );
+      }
+    }
+
+    function evaluateWarpResult() {
+      const wave = currentWave();
+      state.phase = 'RESULT';
+
+      if (wave.isAllReals) {
+        state.waveSolved = true;
+        state.cleared++;
+        state.streak++;
+        if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+        state.score += 150 + (state.streak - 1) * 20;
+        updateHUD();
+
+        showFeedback(
+          'success',
+          '⚡ ¡SALTO HIPERESPACIAL PERFECTO!',
+          wave.explainPoint(0),
+          wave.domainText,
+          true,
+          false
+        );
+      } else {
+        state.streak = 0;
+        state.shields = Math.max(0, state.shields - 1);
+        state.shakeTime = 0.4;
+        updateHUD();
+
+        showFeedback(
+          'error',
+          '⚠️ ¡ENERGÍA HIPERESPACIAL DESPERDICIADA!',
+          `Esta onda <strong>SÍ tenía brechas reales</strong> donde la función no existe. No hacía falta usar el Salto Hiperespacial. Observa la gráfica revelada o inténtalo de nuevo.`,
+          wave.domainText,
+          false,
+          true
+        );
+      }
+    }
+
+    function showFeedback(type, title, bodyHTML, domainText, showNext, showRetry) {
+      dom.feedbackOverlay.className = `feedback-overlay show ${type}`;
+      dom.feedbackTitle.textContent = title;
+      dom.feedbackBody.innerHTML = bodyHTML;
+      if (domainText) {
+        dom.domainBox.style.display = 'inline-flex';
+        dom.domainBox.textContent = `📐 ${domainText}`;
+      } else {
+        dom.domainBox.style.display = 'none';
+      }
+      dom.btnNextWave.style.display = showNext ? 'inline-flex' : 'none';
+      dom.btnRetryWave.style.display = showRetry ? 'inline-flex' : 'none';
+    }
+
+    function hideFeedback() {
+      dom.feedbackOverlay.classList.remove('show');
+    }
+
+    function showSummary() {
+      dom.sumScore.textContent = state.score;
+      dom.sumCleared.textContent = `${state.cleared}/${state.queue.length}`;
+      dom.sumBestStreak.textContent = `${state.bestStreak}🔥`;
+      dom.summaryModal.classList.add('show');
+    }
+
+    /* ==========================================================================
+       5. MOTOR GRÁFICO HTML5 CANVAS (NAVE, ESTRELLAS, ONDA Y GRÁFICA REAL)
+       ========================================================================== */
+    const canvas = dom.spaceCanvas;
+    const ctx = canvas.getContext('2d');
+    let cw = 800, ch = 480;
+
+    function initStars() {
+      state.stars = [];
+      for (let i = 0; i < 110; i++) {
+        state.stars.push({
+          x: Math.random(),
+          y: Math.random(),
+          r: Math.random() * 1.8 + 0.5,
+          speed: Math.random() * 0.14 + 0.03,
+          alpha: Math.random() * 0.65 + 0.35
+        });
+      }
+    }
+
+    function resizeSpaceCanvas() {
+      const rect = dom.canvasFrame.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      cw = Math.max(300, rect.width);
+      ch = Math.max(300, rect.height);
+      canvas.width = Math.floor(cw * dpr);
+      canvas.height = Math.floor(ch * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    // Transformaciones de coordenadas matemáticas [-8, 8] <-> píxeles del canvas
+    const X_MIN = -8;
+    const X_MAX = 8;
+    const Y_MIN = -5;
+    const Y_MAX = 5;
+
+    function getPlotBounds() {
+      const padX = Math.max(36, cw * 0.055);
+      const top = 46;
+      const bottom = ch * 0.68;
+      return { left: padX, right: cw - padX, top, bottom, width: cw - padX * 2, height: bottom - top };
+    }
+
+    function getBarrierY() {
+      const b = getPlotBounds();
+      return (b.top + b.bottom) * 0.5;
+    }
+
+    function worldToScreenX(x) {
+      const b = getPlotBounds();
+      return b.left + ((x - X_MIN) / (X_MAX - X_MIN)) * b.width;
+    }
+
+    function screenToWorldX(sx) {
+      const b = getPlotBounds();
+      const t = (sx - b.left) / b.width;
+      return X_MIN + t * (X_MAX - X_MIN);
+    }
+
+    function worldToScreenY(y) {
+      const b = getPlotBounds();
+      return b.bottom - ((y - Y_MIN) / (Y_MAX - Y_MIN)) * b.height;
+    }
+
+    function spawnParticles(x, y, color, count) {
+      for (let i = 0; i < count; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = Math.random() * 220 + 60;
+        state.particles.push({
+          x, y,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          life: 1,
+          decay: Math.random() * 0.9 + 0.7,
+          size: Math.random() * 4.5 + 2,
+          color
+        });
+      }
+    }
+
+    function drawBackground(dt) {
+      // Fondo espacial profundo
+      const grad = ctx.createLinearGradient(0, 0, 0, ch);
+      grad.addColorStop(0, '#040819');
+      grad.addColorStop(0.55, '#070e28');
+      grad.addColorStop(1, '#040714');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, cw, ch);
+
+      // Estrellas animadas (se estiran durante el Salto Hiperespacial)
+      const isWarp = state.phase === 'WARP' && currentWave()?.isAllReals;
+      for (const s of state.stars) {
+        const mult = isWarp ? 12 : 1;
+        s.y += s.speed * dt * mult;
+        if (s.y > 1) {
+          s.y = 0;
+          s.x = Math.random();
+        }
+        const sx = s.x * cw;
+        const sy = s.y * ch;
+        ctx.fillStyle = `rgba(210, 235, 255, ${s.alpha})`;
+        if (isWarp) {
+          ctx.strokeStyle = 'rgba(0, 240, 255, 0.85)';
+          ctx.lineWidth = s.r * 1.3;
+          ctx.beginPath();
+          ctx.moveTo(sx, sy - 26);
+          ctx.lineTo(sx, sy + 12);
+          ctx.stroke();
+        } else {
+          ctx.beginPath();
+          ctx.arc(sx, sy, s.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+
+    function drawMysteryBarrier() {
+      const b = getPlotBounds();
+      const midY = getBarrierY();
+      const bandH = 66;
+
+      // Halo de energía cósmica que oculta las brechas antes del lanzamiento
+      const g = ctx.createLinearGradient(0, midY - bandH, 0, midY + bandH);
+      g.addColorStop(0, 'rgba(255, 42, 133, 0)');
+      g.addColorStop(0.35, 'rgba(180, 0, 255, 0.25)');
+      g.addColorStop(0.5, 'rgba(255, 42, 133, 0.55)');
+      g.addColorStop(0.65, 'rgba(180, 0, 255, 0.25)');
+      g.addColorStop(1, 'rgba(255, 42, 133, 0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(b.left, midY - bandH, b.width, bandH * 2);
+
+      // Ondas sinusoidales animadas de interferencia
+      for (let layer = 0; layer < 3; layer++) {
+        ctx.beginPath();
+        ctx.lineWidth = layer === 1 ? 3.5 : 2;
+        ctx.strokeStyle = layer === 1 ? '#ff4da6' : 'rgba(0, 240, 255, 0.65)';
+        for (let px = b.left; px <= b.right; px += 6) {
+          const t = (px - b.left) / b.width;
+          const amp = (14 + layer * 6) * Math.sin(state.time * 2.2 + layer);
+          const py = midY + Math.sin(t * 22 + state.time * (3 + layer * 1.4)) * amp
+                          + Math.cos(t * 9 - state.time * 2.1) * 7;
+          if (px === b.left) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+      }
+
+      // Etiqueta central
+      ctx.save();
+      ctx.fillStyle = 'rgba(8, 14, 34, 0.85)';
+      ctx.strokeStyle = 'rgba(255, 42, 133, 0.75)';
+      ctx.lineWidth = 1.5;
+      const label = '⚡ CAMPO DE ONDA CÓSMICA — ESCÁNER EN ESPERA ⚡';
+      ctx.font = 'bold 14px Segoe UI, sans-serif';
+      const tw = ctx.measureText(label).width + 26;
+      const rx = cw / 2 - tw / 2;
+      const ry = midY - 16;
+      ctx.beginPath();
+      ctx.roundRect(rx, ry, tw, 32, 16);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#ffd1e8';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(label, cw / 2, midY);
+      ctx.restore();
+    }
+
+    function drawRevealedFunction(wave) {
+      const b = getPlotBounds();
+      const alpha = Math.min(1, state.scanAlpha);
+      ctx.save();
+      ctx.globalAlpha = alpha;
+
+      // 1. Rejilla cartesiana sutil
+      ctx.strokeStyle = 'rgba(147, 168, 212, 0.14)';
+      ctx.lineWidth = 1;
+      for (let x = X_MIN; x <= X_MAX; x++) {
+        const sx = worldToScreenX(x);
+        ctx.beginPath();
+        ctx.moveTo(sx, b.top);
+        ctx.lineTo(sx, b.bottom);
+        ctx.stroke();
+      }
+      for (let y = Y_MIN; y <= Y_MAX; y++) {
+        const sy = worldToScreenY(y);
+        ctx.beginPath();
+        ctx.moveTo(b.left, sy);
+        ctx.lineTo(b.right, sy);
+        ctx.stroke();
+      }
+
+      // 2. Zonas de vacío seguro (intervalos donde la función NO existe)
+      for (const [a, c] of wave.voidIntervals) {
+        const x1 = worldToScreenX(Math.max(X_MIN, a));
+        const x2 = worldToScreenX(Math.min(X_MAX, c));
+        if (x2 > x1) {
+          ctx.fillStyle = 'rgba(0, 255, 136, 0.14)';
+          ctx.fillRect(x1, b.top, x2 - x1, b.height);
+          ctx.strokeStyle = 'rgba(0, 255, 136, 0.65)';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([7, 5]);
+          ctx.strokeRect(x1, b.top, x2 - x1, b.height);
+          ctx.setLineDash([]);
+
+          if (x2 - x1 > 70) {
+            ctx.fillStyle = '#00ff88';
+            ctx.font = 'bold 13px Segoe UI, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('BRECHA SEGURA', (x1 + x2) / 2, b.top + 20);
+          }
+        }
+      }
+
+      // 3. Asíntotas verticales / portales puntuales seguros en verde brillante
+      for (const ax of wave.asymptotes) {
+        if (ax >= X_MIN && ax <= X_MAX) {
+          const sx = worldToScreenX(ax);
+          const pulse = 0.65 + 0.35 * Math.sin(state.time * 6);
+          ctx.fillStyle = `rgba(0, 255, 136, ${0.18 * pulse})`;
+          ctx.fillRect(sx - 10, b.top, 20, b.height);
+
+          ctx.strokeStyle = '#00ff88';
+          ctx.lineWidth = 3;
+          ctx.setLineDash([8, 6]);
+          ctx.beginPath();
+          ctx.moveTo(sx, b.top);
+          ctx.lineTo(sx, b.bottom);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // Etiqueta del portal
+          ctx.fillStyle = '#031a10';
+          ctx.strokeStyle = '#00ff88';
+          ctx.lineWidth = 1.5;
+          const tag = `x = ${formatNum(ax)}`;
+          ctx.font = 'bold 13px Consolas, monospace';
+          const tw = ctx.measureText(tag).width + 14;
+          ctx.beginPath();
+          ctx.roundRect(sx - tw / 2, b.top + 6, tw, 24, 8);
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = '#00ff88';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(tag, sx, b.top + 18);
+        }
+      }
+
+      // 4. Ejes cartesianos principales (Eje Y y Eje X del gráfico)
+      const zeroX = worldToScreenX(0);
+      const zeroY = worldToScreenY(0);
+      ctx.strokeStyle = 'rgba(220, 240, 255, 0.55)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(b.left, zeroY);
+      ctx.lineTo(b.right, zeroY);
+      ctx.moveTo(zeroX, b.top);
+      ctx.lineTo(zeroX, b.bottom);
+      ctx.stroke();
+
+      // 5. Curva real f(x) como muro de plasma rojo/magenta
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(b.left, b.top, b.width, b.height);
+      ctx.clip();
+
+      const steps = 420;
+      const dx = (X_MAX - X_MIN) / steps;
+
+      const drawCurvePass = (color, width, blur) => {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = width;
+        ctx.shadowColor = color;
+        ctx.shadowBlur = blur;
+        ctx.beginPath();
+        let penDown = false;
+        let prevY = null;
+
+        for (let i = 0; i <= steps; i++) {
+          const x = X_MIN + i * dx;
+          const y = wave.evalFn(x);
+          if (!Number.isFinite(y) || Math.abs(y) > 40) {
+            penDown = false;
+            prevY = null;
+            continue;
+          }
+          // Evitar líneas verticales falsas al cruzar una asíntota
+          if (prevY !== null && Math.abs(y - prevY) > 6) {
+            penDown = false;
+          }
+          const sx = worldToScreenX(x);
+          const sy = worldToScreenY(y);
+          if (!penDown) {
+            ctx.moveTo(sx, sy);
+            penDown = true;
+          } else {
+            ctx.lineTo(sx, sy);
+          }
+          prevY = y;
+        }
+        ctx.stroke();
+      };
+
+      drawCurvePass('rgba(255, 42, 133, 0.45)', 10, 18);
+      drawCurvePass('#ff3b8d', 4, 8);
+      drawCurvePass('#ffd6ea', 1.6, 0);
+
+      ctx.restore();
+      ctx.restore();
+    }
+
+    function drawXAxisBar() {
+      const b = getPlotBounds();
+      const axisY = ch * 0.75;
+
+      // Barra base
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.7)';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(b.left, axisY);
+      ctx.lineTo(b.right, axisY);
+      ctx.stroke();
+
+      // Marcas enteras y medias (-8 a +8)
+      for (let v = X_MIN; v <= X_MAX; v += 0.5) {
+        const sx = worldToScreenX(v);
+        const isInt = Math.abs(v - Math.round(v)) < 1e-6;
+        const tickH = isInt ? 11 : 5;
+        ctx.strokeStyle = isInt ? '#00f0ff' : 'rgba(0, 240, 255, 0.45)';
+        ctx.lineWidth = isInt ? 2.2 : 1.3;
+        ctx.beginPath();
+        ctx.moveTo(sx, axisY - tickH);
+        ctx.lineTo(sx, axisY + tickH);
+        ctx.stroke();
+
+        if (isInt) {
+          ctx.fillStyle = v === 0 ? '#ffd000' : '#d6ebff';
+          ctx.font = v === 0 ? 'bold 16px Consolas, monospace' : 'bold 14px Consolas, monospace';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'top';
+          ctx.fillText(String(v), sx, axisY + 14);
+        }
+      }
+
+      // Marcador de puntería para la coordenada seleccionada
+      if (state.hasSelection && state.selectedX >= X_MIN && state.selectedX <= X_MAX) {
+        const tx = worldToScreenX(state.selectedX);
+        ctx.save();
+        ctx.strokeStyle = 'rgba(0, 240, 255, 0.55)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(tx, b.top);
+        ctx.lineTo(tx, axisY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Diamante de objetivo en el eje X
+        ctx.fillStyle = '#ffd000';
+        ctx.beginPath();
+        ctx.moveTo(tx, axisY - 12);
+        ctx.lineTo(tx + 9, axisY);
+        ctx.lineTo(tx, axisY + 12);
+        ctx.lineTo(tx - 9, axisY);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    function drawSpaceship() {
+      const sx = worldToScreenX(state.shipX);
+      const sy = ch * state.shipYNorm;
+
+      ctx.save();
+      ctx.translate(sx, sy);
+
+      // Llama del propulsor animada
+      const thrust = (state.phase === 'FLYING' || state.phase === 'WARP') ? 2.1 : 1.0;
+      const flicker = (0.8 + Math.random() * 0.45) * thrust;
+      const flameG = ctx.createLinearGradient(0, 14, 0, 14 + 28 * flicker);
+      flameG.addColorStop(0, '#ffffff');
+      flameG.addColorStop(0.35, '#00f0ff');
+      flameG.addColorStop(1, 'rgba(0, 120, 255, 0)');
+      ctx.fillStyle = flameG;
+      ctx.beginPath();
+      ctx.moveTo(-9, 15);
+      ctx.lineTo(0, 16 + 28 * flicker);
+      ctx.lineTo(9, 15);
+      ctx.closePath();
+      ctx.fill();
+
+      // Alas laterales
+      ctx.fillStyle = '#1d3b8c';
+      ctx.strokeStyle = '#00f0ff';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, -14);
+      ctx.lineTo(26, 16);
+      ctx.lineTo(14, 20);
+      ctx.lineTo(0, 10);
+      ctx.lineTo(-14, 20);
+      ctx.lineTo(-26, 16);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Fuselaje central
+      const bodyG = ctx.createLinearGradient(-12, -26, 12, 18);
+      bodyG.addColorStop(0, '#e8f7ff');
+      bodyG.addColorStop(0.5, '#78c8ff');
+      bodyG.addColorStop(1, '#1f4ea3');
+      ctx.fillStyle = bodyG;
+      ctx.beginPath();
+      ctx.moveTo(0, -30);
+      ctx.quadraticCurveTo(13, -6, 11, 16);
+      ctx.lineTo(-11, 16);
+      ctx.quadraticCurveTo(-13, -6, 0, -30);
+      ctx.closePath();
+      ctx.fill();
+
+      // Cabina brillante
+      ctx.fillStyle = '#00f0ff';
+      ctx.beginPath();
+      ctx.ellipse(0, -8, 5, 9, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.ellipse(-1.5, -11, 1.8, 3.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Escudo energético sutil si quedan escudos
+      if (state.shields > 0) {
+        ctx.strokeStyle = `rgba(0, 255, 136, ${0.22 + 0.1 * Math.sin(state.time * 4)})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, -2, 34, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function updateAndDrawParticles(dt) {
+      for (let i = state.particles.length - 1; i >= 0; i--) {
+        const p = state.particles[i];
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.life -= p.decay * dt;
+        if (p.life <= 0) {
+          state.particles.splice(i, 1);
+          continue;
+        }
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.fillStyle = p.color;
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    let lastFrameTime = performance.now();
+    function animate(now) {
+      const dt = Math.min(0.05, (now - lastFrameTime) / 1000);
+      lastFrameTime = now;
+      state.time += dt;
+
+      // Actualización de estados de animación
+      if (state.phase === 'IDLE' && state.hasSelection) {
+        const clamped = Math.max(X_MIN, Math.min(X_MAX, state.selectedX));
+        state.shipX += (clamped - state.shipX) * Math.min(1, dt * 10);
+      } else if (state.phase === 'AIMING') {
+        const diff = state.targetX - state.shipX;
+        state.shipX += diff * Math.min(1, dt * 11);
+        if (Math.abs(diff) < 0.04) {
+          state.shipX = state.targetX;
+          state.phase = 'FLYING';
+        }
+      } else if (state.phase === 'FLYING') {
+        state.shipYNorm -= dt * 1.15;
+        const barrierNorm = getBarrierY() / ch;
+        if (state.shipYNorm <= barrierNorm + 0.04) {
+          state.revealed = true;
+          state.scanAlpha = Math.min(1, state.scanAlpha + dt * 5);
+        }
+        if (state.shipYNorm <= barrierNorm) {
+          const wave = currentWave();
+          if (wave.isOutsideDomain(state.targetX)) {
+            // Sigue cruzando hacia arriba tras evaluar
+            evaluateArrival();
+            state.shipYNorm = 0.14;
+          } else {
+            // Rebota levemente al chocar
+            state.shipYNorm = barrierNorm + 0.08;
+            evaluateArrival();
+          }
+        }
+      } else if (state.phase === 'WARP') {
+        state.warpProgress += dt * 1.35;
+        if (currentWave()?.isAllReals) {
+          state.shipYNorm -= dt * 1.4;
+        }
+        if (state.warpProgress >= 1) {
+          evaluateWarpResult();
+        }
+      }
+
+      if (state.revealed && state.scanAlpha < 1) {
+        state.scanAlpha = Math.min(1, state.scanAlpha + dt * 3.5);
+      }
+
+      // Sacudida de cámara al impactar
+      ctx.save();
+      if (state.shakeTime > 0) {
+        state.shakeTime = Math.max(0, state.shakeTime - dt);
+        const mag = state.shakeTime * 18;
+        ctx.translate((Math.random() - 0.5) * mag, (Math.random() - 0.5) * mag);
+      }
+
+      drawBackground(dt);
+      const wave = currentWave();
+      if (wave) {
+        if (!state.revealed) {
+          drawMysteryBarrier();
+        } else {
+          drawRevealedFunction(wave);
+        }
+      }
+      drawXAxisBar();
+      drawSpaceship();
+      updateAndDrawParticles(dt);
+
+      // Destello blanco/cian en Salto Hiperespacial exitoso
+      if (state.phase === 'WARP' && wave?.isAllReals) {
+        const flash = Math.sin(state.warpProgress * Math.PI) * 0.45;
+        ctx.fillStyle = `rgba(0, 240, 255, ${flash})`;
+        ctx.fillRect(0, 0, cw, ch);
+      }
+
+      ctx.restore();
+      requestAnimationFrame(animate);
+    }
+
+    // Interacción táctil / ratón directamente sobre el Canvas para elegir coordenada X
+    let isDraggingAxis = false;
+    function pickXFromPointer(e) {
+      if (state.phase !== 'IDLE') return;
+      const rect = canvas.getBoundingClientRect();
+      const px = e.clientX - rect.left;
+      const rawX = screenToWorldX(px);
+      // Ajuste a pasos de 0.5 para facilidad en pizarra digital
+      const snapped = Math.round(rawX * 2) / 2;
+      setCoordinateFromNumber(snapped);
+    }
+
+    canvas.addEventListener('pointerdown', (e) => {
+      if (state.phase !== 'IDLE') return;
+      isDraggingAxis = true;
+      canvas.setPointerCapture(e.pointerId);
+      pickXFromPointer(e);
+      SoundFX.click();
+    });
+
+    canvas.addEventListener('pointermove', (e) => {
+      if (!isDraggingAxis) return;
+      pickXFromPointer(e);
+    });
+
+    canvas.addEventListener('pointerup', () => { isDraggingAxis = false; });
+    canvas.addEventListener('pointercancel', () => { isDraggingAxis = false; });
+
+    /* ==========================================================================
+       6. HERRAMIENTA INTEGRADA DE PIZARRA (MODO LÁPIZ)
+       ========================================================================== */
+    const drawCanvas = document.getElementById('drawCanvas');
+    const drawCtx = drawCanvas.getContext('2d');
+    const drawToolbar = document.getElementById('drawToolbar');
+    const btnQuickClearInk = document.getElementById('btnQuickClearInk');
+
+    const drawState = {
+      active: false,
+      drawing: false,
+      color: '#ffd000',
+      eraser: false,
+      hasInk: false,
+      lastX: 0,
+      lastY: 0
+    };
+
+    function resizeDrawCanvas() {
+      // Preservamos el dibujo actual al redimensionar si existe
+      const temp = document.createElement('canvas');
+      temp.width = drawCanvas.width;
+      temp.height = drawCanvas.height;
+      if (temp.width > 0 && temp.height > 0) {
+        temp.getContext('2d').drawImage(drawCanvas, 0, 0);
+      }
+      drawCanvas.width = window.innerWidth;
+      drawCanvas.height = window.innerHeight;
+      if (temp.width > 0 && temp.height > 0) {
+        drawCtx.drawImage(temp, 0, 0);
+      }
+    }
+
+    function setPencilMode(active) {
+      drawState.active = active;
+      drawCanvas.classList.toggle('active', active);
+      drawToolbar.classList.toggle('show', active);
+      dom.btnPencil.textContent = active ? '✅ Cerrar Lápiz' : '✏️ Modo Lápiz';
+      btnQuickClearInk.classList.toggle('show', !active && drawState.hasInk);
+    }
+
+    function clearDrawing() {
+      drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+      drawState.hasInk = false;
+      btnQuickClearInk.classList.remove('show');
+    }
+
+    drawCanvas.addEventListener('pointerdown', (e) => {
+      if (!drawState.active) return;
+      drawState.drawing = true;
+      drawState.hasInk = true;
+      drawState.lastX = e.clientX;
+      drawState.lastY = e.clientY;
+      drawCanvas.setPointerCapture(e.pointerId);
+    });
+
+    drawCanvas.addEventListener('pointermove', (e) => {
+      if (!drawState.drawing || !drawState.active) return;
+      drawCtx.save();
+      drawCtx.lineCap = 'round';
+      drawCtx.lineJoin = 'round';
+      if (drawState.eraser) {
+        drawCtx.globalCompositeOperation = 'destination-out';
+        drawCtx.lineWidth = 30;
+      } else {
+        drawCtx.globalCompositeOperation = 'source-over';
+        drawCtx.strokeStyle = drawState.color;
+        drawCtx.lineWidth = 5;
+        drawCtx.shadowColor = drawState.color;
+        drawCtx.shadowBlur = 4;
+      }
+      drawCtx.beginPath();
+      drawCtx.moveTo(drawState.lastX, drawState.lastY);
+      drawCtx.lineTo(e.clientX, e.clientY);
+      drawCtx.stroke();
+      drawCtx.restore();
+
+      drawState.lastX = e.clientX;
+      drawState.lastY = e.clientY;
+    });
+
+    drawCanvas.addEventListener('pointerup', () => { drawState.drawing = false; });
+    drawCanvas.addEventListener('pointercancel', () => { drawState.drawing = false; });
+
+    document.querySelectorAll('.color-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        drawState.eraser = false;
+        drawState.color = btn.dataset.color;
+        document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        document.getElementById('btnEraser').classList.remove('selected');
+      });
+    });
+
+    document.getElementById('btnEraser').addEventListener('click', (e) => {
+      drawState.eraser = !drawState.eraser;
+      e.currentTarget.classList.toggle('selected', drawState.eraser);
+    });
+
+    document.getElementById('btnClearDraw').addEventListener('click', clearDrawing);
+    document.getElementById('btnCloseDraw').addEventListener('click', () => setPencilMode(false));
+    btnQuickClearInk.addEventListener('click', clearDrawing);
+    dom.btnPencil.addEventListener('click', () => setPencilMode(!drawState.active));
+
+    /* ==========================================================================
+       7. EVENTOS DE INTERFAZ Y TECLADO FÍSICO
+       ========================================================================== */
+    dom.missionSelect.addEventListener('change', (e) => {
+      SoundFX.click();
+      startMission(e.target.value);
+    });
+
+    dom.xSlider.addEventListener('input', (e) => {
+      setCoordinateFromNumber(parseFloat(e.target.value));
+    });
+
+    document.querySelectorAll('.num-key').forEach((btn) => {
+      btn.addEventListener('click', () => handleNumpadKey(btn.dataset.key));
+    });
+
+    dom.btnLaunch.addEventListener('click', launchShip);
+    dom.btnWarp.addEventListener('click', triggerWarp);
+
+    dom.btnHint.addEventListener('click', () => {
+      const wave = currentWave();
+      if (!wave) return;
+      SoundFX.click();
+      dom.hintBox.innerHTML = `<strong>💡 Pista matemática:</strong> ${wave.hint}`;
+      dom.hintBox.classList.toggle('show');
+    });
+
+    dom.btnReveal.addEventListener('click', () => {
+      const wave = currentWave();
+      if (!wave) return;
+      SoundFX.reveal();
+      state.revealed = true;
+      state.scanAlpha = 1;
+      state.phase = 'RESULT';
+      showFeedback(
+        'info',
+        '📊 GRÁFICA Y DOMINIO REVELADOS (MODO PROFESOR)',
+        wave.isAllReals
+          ? wave.explainPoint(0)
+          : `Observa en rojo/magenta los valores donde <strong>f(x)</strong> existe y en verde brillante las brechas donde la función <strong>no existe</strong>.`,
+        wave.domainText,
+        true,
+        true
+      );
+    });
+
+    dom.btnNextWave.addEventListener('click', () => {
+      SoundFX.click();
+      state.index++;
+      loadWave();
+    });
+
+    dom.btnRetryWave.addEventListener('click', () => {
+      SoundFX.click();
+      state.phase = 'IDLE';
+      state.shipYNorm = 0.86;
+      hideFeedback();
+    });
+
+    dom.btnCloseFeedback.addEventListener('click', () => {
+      hideFeedback();
+      if (!state.waveSolved) {
+        state.phase = 'IDLE';
+        state.shipYNorm = 0.86;
+      }
+    });
+
+    dom.btnRecharge.addEventListener('click', () => {
+      state.shields = 3;
+      SoundFX.success();
+      updateHUD();
+    });
+
+    dom.btnMute.addEventListener('click', () => {
+      const isMuted = SoundFX.toggleMute();
+      dom.btnMute.textContent = isMuted ? '🔇' : '🔊';
+    });
+
+    dom.btnReplayMission.addEventListener('click', () => {
+      SoundFX.click();
+      startMission(state.mode);
+    });
+
+    dom.btnNextCategory.addEventListener('click', () => {
+      SoundFX.click();
+      dom.missionSelect.value = 'mix';
+      startMission('mix');
+    });
+
+    // Soporte para teclado físico del ordenador conectado a la pizarra
+    window.addEventListener('keydown', (e) => {
+      if (drawState.active) return;
+      if (e.key >= '0' && e.key <= '9') handleNumpadKey(e.key);
+      else if (e.key === '.' || e.key === ',') handleNumpadKey('.');
+      else if (e.key === '-') handleNumpadKey('-');
+      else if (e.key === 'Backspace') handleNumpadKey('back');
+      else if (e.key === 'Escape') handleNumpadKey('clear');
+      else if (e.key === 'Enter') {
+        if (state.phase === 'IDLE') launchShip();
+        else if (state.waveSolved) {
+          state.index++;
+          loadWave();
+        }
+      }
+    });
+
+    // Inicialización al cargar la ventana
+    window.addEventListener('resize', () => {
+      resizeSpaceCanvas();
+      resizeDrawCanvas();
+    });
+
+    window.onload = function () {
+      initStars();
+      resizeSpaceCanvas();
+      resizeDrawCanvas();
+      startMission('mix');
+      requestAnimationFrame(animate);
+    };
+  </script>
+</body>
+</html>
