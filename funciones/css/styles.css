@@ -1,0 +1,965 @@
+/* ==========================================================================
+   VARIABLES Y ESTILOS BASE (CABINA ESPACIAL DE ALTO CONTRASTE PARA PIZARRA)
+   ========================================================================== */
+:root {
+  --bg-deep: #050816;
+  --bg-panel: #0c132b;
+  --bg-panel-2: #121c3d;
+  --border-glow: rgba(0, 240, 255, 0.35);
+  --cyan: #00f0ff;
+  --cyan-dim: #00a8b5;
+  --magenta: #ff2a85;
+  --magenta-glow: rgba(255, 42, 133, 0.45);
+  --emerald: #00ff88;
+  --emerald-glow: rgba(0, 255, 136, 0.4);
+  --amber: #ffd000;
+  --red: #ff3b5c;
+  --text-main: #f0f6ff;
+  --text-muted: #93a8d4;
+  --radius-lg: 18px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+  --font-sans: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'Consolas', 'Courier New', ui-monospace, SFMono-Regular, monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 50% 0%, #101b42 0%, var(--bg-deep) 70%);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+/* Contenedor principal de pantalla completa para pizarra digital */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  max-width: 1920px;
+  margin: 0 auto;
+  padding: 10px 14px 14px;
+  gap: 10px;
+}
+
+:fullscreen .app-shell,
+:-webkit-full-screen .app-shell {
+  height: 100vh;
+  max-width: none;
+  padding: 10px 16px 14px;
+}
+
+/* ==========================================================================
+   BARRA SUPERIOR (HUD DE MISIÓN Y SELECTOR DEL PROFESOR)
+   ========================================================================== */
+.top-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: linear-gradient(180deg, rgba(18, 28, 61, 0.95), rgba(10, 16, 38, 0.95));
+  border: 2px solid var(--border-glow);
+  border-radius: var(--radius-lg);
+  padding: 10px 16px;
+  box-shadow: 0 0 24px rgba(0, 240, 255, 0.12);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--cyan), #3b5bff);
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.45);
+  flex-shrink: 0;
+}
+
+.brand-text h1 {
+  font-size: clamp(1.05rem, 1.8vw, 1.45rem);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: var(--cyan);
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.45);
+  line-height: 1.1;
+}
+
+.brand-text span {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.mission-selector-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mission-select {
+  background: #070d22;
+  color: var(--text-main);
+  border: 2px solid var(--cyan-dim);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  outline: none;
+  min-width: 240px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.mission-select:focus, .mission-select:hover {
+  border-color: var(--cyan);
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.35);
+}
+
+.hud-stats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.stat-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(5, 8, 22, 0.8);
+  border: 1.5px solid rgba(147, 168, 212, 0.3);
+  border-radius: var(--radius-md);
+  padding: 7px 12px;
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+.stat-pill .label {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-pill .val {
+  color: var(--cyan);
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+}
+
+.stat-pill.streak .val { color: var(--amber); }
+
+.shields-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(5, 8, 22, 0.8);
+  border: 1.5px solid rgba(0, 255, 136, 0.35);
+  border-radius: var(--radius-md);
+  padding: 6px 10px;
+}
+
+.shield-icons {
+  display: flex;
+  gap: 4px;
+  font-size: 1.3rem;
+}
+
+.shield-icon.lost {
+  opacity: 0.22;
+  filter: grayscale(1);
+}
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Botones reutilizables grandes y táctiles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 2px solid transparent;
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  color: var(--text-main);
+  background: var(--bg-panel-2);
+}
+
+.btn:active {
+  transform: scale(0.96);
+}
+
+.btn-cyan {
+  background: linear-gradient(135deg, #00c8ff, #0077ff);
+  border-color: #66f7ff;
+  color: #031024;
+  box-shadow: 0 4px 18px rgba(0, 200, 255, 0.35);
+}
+
+.btn-cyan:hover {
+  box-shadow: 0 0 24px rgba(0, 240, 255, 0.65);
+}
+
+.btn-emerald {
+  background: linear-gradient(135deg, #00e676, #00b26a);
+  border-color: #7affbf;
+  color: #021a10;
+  box-shadow: 0 4px 18px rgba(0, 255, 136, 0.35);
+}
+
+.btn-magenta {
+  background: linear-gradient(135deg, #ff2a85, #b400ff);
+  border-color: #ff82bb;
+  color: #ffffff;
+  box-shadow: 0 4px 18px rgba(255, 42, 133, 0.4);
+}
+
+.btn-amber {
+  background: linear-gradient(135deg, #ffd000, #ff8c00);
+  border-color: #ffe875;
+  color: #1f1200;
+  box-shadow: 0 4px 14px rgba(255, 208, 0, 0.3);
+}
+
+.btn-ghost {
+  background: rgba(18, 28, 61, 0.9);
+  border-color: rgba(147, 168, 212, 0.4);
+  color: var(--text-main);
+}
+
+.btn-ghost:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.22);
+}
+
+.btn-fullscreen {
+  background: linear-gradient(180deg, rgba(22, 38, 84, 0.96), rgba(11, 20, 48, 0.96));
+  border-color: rgba(0, 240, 255, 0.5);
+  color: #d6faff;
+  padding: 10px 14px;
+  white-space: nowrap;
+}
+
+.btn-fullscreen:hover {
+  border-color: var(--cyan);
+  color: #ffffff;
+  box-shadow: 0 0 18px rgba(0, 240, 255, 0.38);
+}
+
+.btn-fullscreen.is-active {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.25), rgba(0, 119, 255, 0.35));
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+.btn-small {
+  padding: 7px 11px;
+  font-size: 0.88rem;
+  border-radius: var(--radius-sm);
+}
+
+/* ==========================================================================
+   ÁREA PRINCIPAL DE CABINA (2 COLUMNAS EN PIZARRA, APILABLE EN MÓVIL)
+   ========================================================================== */
+.main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(340px, 460px);
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+}
+
+@media (max-width: 1080px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Panel izquierdo: Función + Visor Canvas */
+.viewport-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 520px;
+}
+
+/* Tarjeta gigante de la función matemática */
+.function-banner {
+  background: linear-gradient(180deg, #101b3d, #0a1129);
+  border: 2px solid var(--cyan);
+  border-radius: var(--radius-lg);
+  padding: 14px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: 0 0 26px rgba(0, 240, 255, 0.16), inset 0 0 18px rgba(0, 240, 255, 0.08);
+  position: relative;
+}
+
+.func-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.category-badge {
+  display: inline-block;
+  align-self: flex-start;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: rgba(255, 42, 133, 0.2);
+  border: 1.5px solid var(--magenta);
+  color: #ff8cc0;
+}
+
+.mission-prompt {
+  font-size: 1rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.math-display-box {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 76px;
+  padding: 6px 16px;
+  background: rgba(4, 8, 22, 0.72);
+  border-radius: var(--radius-md);
+  border: 1.5px solid rgba(0, 240, 255, 0.28);
+}
+
+/* ==========================================================================
+   NOTACIÓN MATEMÁTICA IMPECABLE Y GRANDE PARA PIZARRA DIGITAL
+   ========================================================================== */
+.math-expr {
+  font-family: 'Cambria Math', 'Times New Roman', Georgia, serif;
+  font-size: clamp(2rem, 3.2vw, 3rem);
+  font-weight: 700;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 14px rgba(0, 240, 255, 0.35);
+}
+
+.math-expr .fn-name {
+  color: var(--cyan);
+  font-style: italic;
+}
+
+.math-expr .eq {
+  color: var(--amber);
+  margin: 0 4px;
+}
+
+.math-expr sup {
+  font-size: 0.62em;
+  vertical-align: super;
+  line-height: 0;
+  color: #a8f5ff;
+}
+
+/* Fracción con barra horizontal limpia */
+.frac {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+  margin: 0 4px;
+  line-height: 1.1;
+}
+
+.frac .num {
+  padding: 0 10px 4px;
+  border-bottom: 3.5px solid #ffffff;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.frac .den {
+  padding: 5px 10px 0;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Raíz cuadrada con barra superior (vínculo) */
+.rad {
+  display: inline-flex;
+  align-items: stretch;
+  vertical-align: middle;
+  margin: 0 3px;
+}
+
+.rad-sign {
+  font-size: 1.15em;
+  line-height: 1;
+  display: flex;
+  align-items: flex-end;
+  padding-right: 1px;
+  color: var(--emerald);
+  transform: translateY(2px);
+}
+
+.rad-body {
+  border-top: 3.5px solid var(--emerald);
+  padding: 2px 8px 0 5px;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.math-inline {
+  font-family: 'Cambria Math', 'Times New Roman', Georgia, serif;
+  font-weight: 700;
+  font-size: 1.15em;
+}
+
+/* Contenedor del Canvas espacial */
+.canvas-frame {
+  position: relative;
+  flex: 1;
+  min-height: 400px;
+  background: #030612;
+  border: 2.5px solid rgba(0, 240, 255, 0.45);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: inset 0 0 40px rgba(0, 240, 255, 0.14), 0 8px 30px rgba(0, 0, 0, 0.55);
+}
+
+#spaceCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.canvas-hint-tag {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  background: rgba(5, 10, 28, 0.82);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--cyan);
+  pointer-events: none;
+}
+
+.canvas-legend {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  display: flex;
+  gap: 10px;
+  background: rgba(5, 10, 28, 0.85);
+  border: 1px solid rgba(147, 168, 212, 0.3);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+/* Superposición de resultado y explicación pedagógica dentro del visor */
+.feedback-overlay {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  background: rgba(8, 14, 34, 0.96);
+  border: 2.5px solid var(--cyan);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.75);
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 20;
+  animation: slideUp 0.25s ease-out;
+}
+
+.feedback-overlay.show {
+  display: flex;
+}
+
+.feedback-overlay.success {
+  border-color: var(--emerald);
+  box-shadow: 0 0 32px var(--emerald-glow);
+}
+
+.feedback-overlay.error {
+  border-color: var(--red);
+  box-shadow: 0 0 32px rgba(255, 59, 92, 0.45);
+}
+
+.feedback-overlay.info {
+  border-color: var(--amber);
+  box-shadow: 0 0 28px rgba(255, 208, 0, 0.35);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.feedback-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.feedback-title {
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+.feedback-overlay.success .feedback-title { color: var(--emerald); }
+.feedback-overlay.error .feedback-title { color: #ff6b85; }
+.feedback-overlay.info .feedback-title { color: var(--amber); }
+
+.feedback-body {
+  font-size: 1.12rem;
+  line-height: 1.45;
+  color: var(--text-main);
+}
+
+.domain-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 255, 136, 0.14);
+  border: 2px solid var(--emerald);
+  color: #c8ffe4;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-top: 4px;
+  align-self: flex-start;
+}
+
+.feedback-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+/* ==========================================================================
+   PANEL DERECHO: CONSOLA DE NAVEGACIÓN TÁCTIL
+   ========================================================================== */
+.control-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: linear-gradient(180deg, rgba(16, 25, 56, 0.96), rgba(9, 14, 34, 0.98));
+  border: 2px solid var(--border-glow);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: 0 0 24px rgba(0, 240, 255, 0.1);
+}
+
+.panel-section-title {
+  font-size: 0.92rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--cyan);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Visor de coordenada X elegida */
+.coord-readout {
+  background: #040817;
+  border: 2.5px solid var(--cyan);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: inset 0 0 18px rgba(0, 240, 255, 0.18);
+}
+
+.coord-prefix {
+  font-family: 'Cambria Math', Georgia, serif;
+  font-style: italic;
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: var(--cyan);
+}
+
+.coord-value {
+  font-family: var(--font-mono);
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 0.04em;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.coord-value.placeholder {
+  color: rgba(147, 168, 212, 0.45);
+  font-size: 1.4rem;
+  font-family: var(--font-sans);
+}
+
+/* Deslizador rápido de coordenada X */
+.slider-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.x-slider {
+  width: 100%;
+  height: 14px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #1b2a5c, #00f0ff, #1b2a5c);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.x-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--cyan);
+  border: 3px solid #ffffff;
+  box-shadow: 0 0 16px var(--cyan);
+  cursor: pointer;
+}
+
+.x-slider::-moz-range-thumb {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--cyan);
+  border: 3px solid #ffffff;
+  box-shadow: 0 0 16px var(--cyan);
+  cursor: pointer;
+}
+
+.slider-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  padding: 0 4px;
+}
+
+/* Teclado numérico táctil grande */
+.numpad {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.num-key {
+  height: 58px;
+  border-radius: var(--radius-md);
+  border: 2px solid rgba(0, 240, 255, 0.3);
+  background: linear-gradient(180deg, #182652, #0f1938);
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 1.65rem;
+  font-weight: 900;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 0 #070d20;
+  transition: transform 0.08s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.num-key:hover {
+  border-color: var(--cyan);
+  background: linear-gradient(180deg, #21346e, #15234d);
+}
+
+.num-key:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #070d20;
+}
+
+.num-key.op {
+  background: linear-gradient(180deg, #2b1d4f, #1a1133);
+  border-color: rgba(255, 42, 133, 0.45);
+  color: #ff8cc0;
+  font-family: var(--font-sans);
+  font-size: 1.35rem;
+}
+
+.num-key.clear {
+  background: linear-gradient(180deg, #4a1929, #2e0f1a);
+  border-color: rgba(255, 59, 92, 0.55);
+  color: #ff8ca0;
+  font-family: var(--font-sans);
+  font-size: 1.25rem;
+}
+
+/* Botones principales de acción */
+.launch-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.btn-launch {
+  padding: 16px 20px;
+  font-size: 1.3rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 14px;
+}
+
+.btn-warp {
+  padding: 14px 16px;
+  font-size: 1.12rem;
+  letter-spacing: 0.03em;
+  border-radius: 14px;
+}
+
+/* Herramientas de aula del profesor */
+.teacher-tools {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1.5px solid rgba(147, 168, 212, 0.2);
+}
+
+.hint-box {
+  background: rgba(255, 208, 0, 0.12);
+  border: 1.5px solid var(--amber);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 1rem;
+  line-height: 1.4;
+  color: #fff2b2;
+  display: none;
+}
+
+.hint-box.show {
+  display: block;
+  animation: slideUp 0.2s ease-out;
+}
+
+/* ==========================================================================
+   HERRAMIENTA INTEGRADA DE PIZARRA (MODO LÁPIZ SOBRE TODA LA PANTALLA)
+   ========================================================================== */
+#drawCanvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 900;
+  pointer-events: none;
+  touch-action: none;
+}
+
+#drawCanvas.active {
+  pointer-events: auto;
+  cursor: crosshair;
+}
+
+.draw-toolbar {
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 950;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  background: rgba(8, 14, 34, 0.96);
+  border: 2.5px solid var(--amber);
+  border-radius: 999px;
+  padding: 10px 18px;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 208, 0, 0.35);
+}
+
+.draw-toolbar.show {
+  display: flex;
+}
+
+.draw-badge {
+  font-weight: 900;
+  color: var(--amber);
+  font-size: 0.95rem;
+  padding-right: 6px;
+  border-right: 1.5px solid rgba(255, 255, 255, 0.2);
+}
+
+.color-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.15s;
+}
+
+.color-btn.selected {
+  transform: scale(1.18);
+  border-color: #ffffff;
+  box-shadow: 0 0 14px #ffffff;
+}
+
+.tool-btn {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: #142048;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+.tool-btn.selected {
+  background: var(--cyan);
+  color: #031024;
+  border-color: #ffffff;
+}
+
+/* Botón flotante para limpiar trazos cuando el modo lápiz está cerrado pero hay dibujo */
+.floating-clear-ink {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  z-index: 940;
+  display: none;
+}
+
+.floating-clear-ink.show {
+  display: inline-flex;
+}
+
+/* Modal de fin de misión (resumen de clase) */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 6, 18, 0.82);
+  backdrop-filter: blur(6px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 800;
+  padding: 20px;
+}
+
+.modal-backdrop.show {
+  display: flex;
+}
+
+.modal-card {
+  background: linear-gradient(180deg, #121e47, #091026);
+  border: 3px solid var(--cyan);
+  border-radius: 22px;
+  padding: 28px 32px;
+  max-width: 580px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 0 50px rgba(0, 240, 255, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-card h2 {
+  font-size: 2rem;
+  color: var(--emerald);
+  font-weight: 900;
+}
+
+.modal-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 6px 0;
+}
+
+.modal-stat-box {
+  background: rgba(4, 8, 22, 0.75);
+  border: 1.5px solid rgba(0, 240, 255, 0.3);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.modal-stat-box .big {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--cyan);
+  font-family: var(--font-mono);
+}
+
+.modal-stat-box .lbl {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 700;
+}

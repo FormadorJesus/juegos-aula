@@ -25,7 +25,10 @@ window.HeroMath.CLASES = [
   { id: 'paladin',  nombre: 'Paladín',  desc: 'Caballero de armadura dorada' }
 ];
 
-window.HeroMath.getHeroSVG = function(claseId, colorHex, colorOscuro) {
+window.HeroMath.getHeroSVG = function(claseId, colorHex, colorOscuro, opts) {
+  if (window.HeroMath.PixelArt && typeof window.HeroMath.PixelArt.createHeroCanvasHTML === 'function') {
+    return window.HeroMath.PixelArt.createHeroCanvasHTML(claseId, colorHex, colorOscuro, opts);
+  }
   const c = colorHex || '#3498db';
   const d = colorOscuro || '#1f618d';
   let body = '';

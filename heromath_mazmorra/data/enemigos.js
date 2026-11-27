@@ -49,7 +49,7 @@ window.HeroMath.ENEMIGOS = [
     danio: 25,
     oro: 25,
     esJefe: false,
-    frase: '¡Resuelve los enteros o sufre la maldición!'
+    frase: '¡Resuelve el reto o sufre la maldición!'
   },
   {
     id: 'gargola',
@@ -58,11 +58,14 @@ window.HeroMath.ENEMIGOS = [
     danio: 25,
     oro: 25,
     esJefe: true,
-    frase: '¡Solo los maestros de los enteros abrirán el Gran Cofre!'
+    frase: '¡Solo los maestros de las matemáticas abrirán el Gran Cofre!'
   }
 ];
 
-window.HeroMath.getEnemySVG = function(enemyId) {
+window.HeroMath.getEnemySVG = function(enemyId, opts) {
+  if (window.HeroMath.PixelArt && typeof window.HeroMath.PixelArt.createEnemyCanvasHTML === 'function') {
+    return window.HeroMath.PixelArt.createEnemyCanvasHTML(enemyId, opts);
+  }
   let body = '';
   switch (enemyId) {
     case 'goblin':

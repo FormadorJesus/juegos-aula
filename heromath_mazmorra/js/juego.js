@@ -16,7 +16,7 @@ window.HeroMath = window.HeroMath || {};
   const state = {
     numEquipos: 3,
     tamanoMapa: 'mediano',
-    dificultad: 'intermedio',
+    ejerciciosConfig: { temas: ['enteros'], nivel: '1eso', tipo: 'mixto' },
     equiposConfig: [],
     jugadores: [],
     mapa: null,
@@ -27,6 +27,8 @@ window.HeroMath = window.HeroMath || {};
     lastDice: null,
     timerId: null
   };
+
+  let bancoSelector = null;
 
   // --- Inicialización de configuración por defecto ---
   function initConfig() {
@@ -46,6 +48,69 @@ window.HeroMath = window.HeroMath || {};
   // --- Utilidades DOM ---
   const $ = id => document.getElementById(id);
   const sleep = ms => new Promise(res => setTimeout(res, ms));
+
+  function getEjercicioConfig() {
+    return bancoSelector ? bancoSelector.getConfig() : state.ejerciciosConfig;
+  }
+
+  function paintSprites() {
+    if (HM.PixelArt && typeof HM.PixelArt.paintAll === 'function') {
+      HM.PixelArt.paintAll();
+    }
+  }
+
+  function actualizarResumenEjercicios() {
+    const sub = $('setup-subtitle');
+    if (!sub) return;
+    if (bancoSelector) {
+      sub.textContent = `Aventura RPG 16-bit estilo HeroQuest · Activo: ${bancoSelector.getResumenDetallado()}`;
+    } else {
+      sub.textContent = 'Aventura RPG 16-bit estilo HeroQuest · 1.º ESO – 2.º Bachillerato · Pizarra digital';
+    }
+  }
+
+  function getOptionSizeClass(opciones) {
+    const maxLen = Math.max(0, ...(opciones || []).map(o => String(o).length));
+    if (maxLen <= 8) return 'opt-len-sm';
+    if (maxLen <= 18) return 'opt-len-md';
+    if (maxLen <= 30) return 'opt-len-lg';
+    return 'opt-len-xl';
+  }
+
+  function renderOpcionesBotones(optsBox, pregunta, onChoose) {
+    optsBox.innerHTML = '';
+    const sizeCls = getOptionSizeClass(pregunta.opciones);
+    pregunta.opciones.forEach((val, idx) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `duel-opt-btn ${sizeCls}`;
+      btn.dataset.idx = String(idx);
+      btn.textContent = String(val);
+      btn.onclick = () => {
+        const ok = idx === pregunta.indiceCorrecto || String(val) === String(pregunta.respuestaCorrecta);
+        if (!ok) btn.classList.add('opt-wrong');
+        onChoose(ok);
+      };
+      optsBox.appendChild(btn);
+    });
+  }
+
+  function marcarOpcionCorrecta(optsBox, pregunta) {
+    optsBox.querySelectorAll('.duel-opt-btn').forEach(b => {
+      b.disabled = true;
+      const idx = Number(b.dataset.idx);
+      if (idx === pregunta.indiceCorrecto || b.textContent === String(pregunta.respuestaCorrecta)) {
+        b.classList.add('opt-correct');
+      }
+    });
+  }
+
+  function aplicarTamanoEnunciado(el, texto) {
+    el.classList.remove('op-text-medium', 'op-text-long');
+    const len = String(texto || '').length;
+    if (len > 48) el.classList.add('op-text-long');
+    else if (len > 22) el.classList.add('op-text-medium');
+  }
 
   function logMsg(html) {
     const log = $('battle-log');
@@ -76,9 +141,6 @@ window.HeroMath = window.HeroMath || {};
     document.querySelectorAll('.map-size-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.size === state.tamanoMapa);
     });
-    document.querySelectorAll('.diff-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.diff === state.dificultad);
-    });
 
     const container = $('teams-setup-grid');
     container.innerHTML = '';
@@ -96,7 +158,7 @@ window.HeroMath = window.HeroMath || {};
           <span class="setup-emblem-preview">${HM.EMBLEMAS[cfg.emblemaIdx]}</span>
         </div>
         <div class="setup-avatar-box">
-          ${HM.getHeroSVG(cfg.clase, col.hex, col.oscuro)}
+          ${HM.getHeroSVG(cfg.clase, col.hex, col.oscuro, { phase: i })}
         </div>
         <input type="text" class="team-name-input" data-idx="${i}" value="${cfg.nombre}" maxlength="18" placeholder="Nombre del equipo"/>
         <div class="setup-label">Clase</div>
@@ -149,6 +211,8 @@ window.HeroMath = window.HeroMath || {};
         renderSetup();
       });
     });
+
+    paintSprites();
   }
 
   // ================= INICIO DE PARTIDA =================
@@ -280,7 +344,7 @@ window.HeroMath = window.HeroMath || {};
       const hpColor = hpPct > 50 ? '#2ecc71' : (hpPct > 25 ? '#f39c12' : '#e74c3c');
       return `
         <div class="player-card ${active ? 'active-turn' : ''} ${!j.alive ? 'dead-player' : ''}" style="border-left-color:${j.color}">
-          <div class="pc-avatar">${HM.getHeroSVG(j.clase, j.color, j.colorOscuro)}</div>
+          <div class="pc-avatar">${HM.getHeroSVG(j.clase, j.color, j.colorOscuro, { phase: idx })}</div>
           <div class="pc-info">
             <div class="pc-top">
               <span class="pc-name">${j.emblema} ${j.nombre}</span>
@@ -299,6 +363,7 @@ window.HeroMath = window.HeroMath || {};
         </div>
       `;
     }).join('');
+    paintSprites();
   }
 
   function renderControls() {
@@ -363,6 +428,7 @@ window.HeroMath = window.HeroMath || {};
     const activeP = getCurrentPlayer();
     const isMovePhase = state.fase === 'move' && activeP && activeP.alive;
     const activeAdjEnemies = isMovePhase ? getAdjacentEnemies(activeP.r, activeP.c) : [];
+    const PA = HM.PixelArt;
 
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
@@ -371,6 +437,14 @@ window.HeroMath = window.HeroMath || {};
         el.className = `cell cell-${cell.type}`;
         el.dataset.r = r;
         el.dataset.c = c;
+
+        // Antorchas parpadeantes en muros seleccionados
+        if (cell.type === 'wall' && cell.hasTorch && PA) {
+          el.classList.add('wall-torch-cell');
+          el.innerHTML = `<div class="prop-sprite torch-prop">${PA.createPropCanvasHTML('torch', { phase: (r + c) % 4 })}</div>`;
+          boardEl.appendChild(el);
+          continue;
+        }
 
         if (cell.type === 'room' && !cell.revealed) {
           el.classList.add('cell-fog');
@@ -381,13 +455,17 @@ window.HeroMath = window.HeroMath || {};
 
         if (cell.type === 'door') {
           el.classList.add(cell.doorOpen ? 'door-open' : 'door-closed');
-          if (!cell.doorOpen) {
+          if (PA) {
+            el.innerHTML = `<div class="prop-sprite door-prop">${PA.createPropCanvasHTML(cell.doorOpen ? 'door_open' : 'door', { phase: (r + c) % 4 })}</div>`;
+          } else if (!cell.doorOpen) {
             el.innerHTML = '<span class="door-icon">🚪</span>';
           }
         }
 
         if (cell.start) {
-          el.innerHTML += '<span class="start-badge" title="Entrada">🪜</span>';
+          el.innerHTML += PA
+            ? `<div class="start-stairs-prop" title="Entrada de la Mazmorra">${PA.createPropCanvasHTML('stairs')}</div>`
+            : '<span class="start-badge" title="Entrada">🪜</span>';
         }
 
         // Zona de control visual alrededor de enemigos vivos revelados
@@ -398,9 +476,14 @@ window.HeroMath = window.HeroMath || {};
         // Cofre revelado
         if (cell.revealed && cell.chest) {
           if (cell.chest.opened) {
-            el.innerHTML += '<span class="chest-opened-icon" title="Cofre abierto">📭</span>';
+            el.innerHTML += PA
+              ? `<div class="prop-sprite chest-opened-prop" title="Cofre abierto">${PA.createPropCanvasHTML('chest_open')}</div>`
+              : '<span class="chest-opened-icon" title="Cofre abierto">📭</span>';
           } else {
-            el.innerHTML += `<span class="chest-icon ${cell.chest.isGrand ? 'grand-chest' : ''}" title="${cell.chest.isGrand ? 'Gran Cofre Real' : 'Cofre de Tesoro'}">${cell.chest.isGrand ? '👑' : '🧰'}</span>`;
+            const propId = cell.chest.isGrand ? 'grand_chest' : 'chest';
+            el.innerHTML += PA
+              ? `<div class="prop-sprite chest-prop ${cell.chest.isGrand ? 'grand-chest-prop' : ''}" title="${cell.chest.isGrand ? 'Gran Cofre Real' : 'Cofre de Tesoro'}">${PA.createPropCanvasHTML(propId, { phase: (r + c) % 4 })}</div>`
+              : `<span class="chest-icon ${cell.chest.isGrand ? 'grand-chest' : ''}" title="${cell.chest.isGrand ? 'Gran Cofre Real' : 'Cofre de Tesoro'}">${cell.chest.isGrand ? '👑' : '🧰'}</span>`;
           }
         }
 
@@ -410,7 +493,7 @@ window.HeroMath = window.HeroMath || {};
           const hpPct = Math.round((enemy.hp / enemy.maxHp) * 100);
           el.innerHTML += `
             <div class="enemy-token ${enemy.esJefe ? 'boss-token' : ''}" title="${enemy.nombre} (${enemy.hp}/${enemy.maxHp} HP)">
-              ${HM.getEnemySVG(enemy.templateId)}
+              ${HM.getEnemySVG(enemy.templateId, { phase: enemy.uid % 4 })}
               <div class="mini-hp"><div class="mini-hp-fill enemy-hp" style="width:${hpPct}%"></div></div>
             </div>
           `;
@@ -426,8 +509,8 @@ window.HeroMath = window.HeroMath || {};
             tok.className = `hero-token ${j.id === state.turnoIdx && state.fase !== 'enemyTurn' ? 'current-hero' : ''} ${!j.alive ? 'dead-token' : ''}`;
             tok.style.borderColor = j.color;
             tok.innerHTML = j.alive
-              ? `${HM.getHeroSVG(j.clase, j.color, j.colorOscuro)}<span class="tok-emblem">${j.emblema}</span>`
-              : '<span class="tomb-icon">🪦</span>';
+              ? `${HM.getHeroSVG(j.clase, j.color, j.colorOscuro, { phase: j.id })}<span class="tok-emblem">${j.emblema}</span>`
+              : (PA ? PA.createPropCanvasHTML('tomb') : '<span class="tomb-icon">🪦</span>');
             wrap.appendChild(tok);
           });
           el.appendChild(wrap);
@@ -459,6 +542,8 @@ window.HeroMath = window.HeroMath || {};
         boardEl.appendChild(el);
       }
     }
+
+    paintSprites();
   }
 
   // ================= ACCIONES DE TURNO DEL JUGADOR =================
@@ -582,17 +667,23 @@ window.HeroMath = window.HeroMath || {};
         ? `${enemigo.nombre} ataca a ${jugador.nombre}. ¡Resuelve en 10 s para evitar 25 de daño!`
         : `${jugador.nombre} ataca a ${enemigo.nombre}. ¡Resuelve en 10 s para infligir 25 de daño!`;
 
-      // Lado izquierdo: Personaje
-      $('duel-hero-sprite').innerHTML = HM.getHeroSVG(jugador.clase, jugador.color, jugador.colorOscuro);
+      // Lado izquierdo: Personaje (Pixel Art 16-bit)
+      const heroBox = $('duel-hero-sprite');
+      const enemyBox = $('duel-enemy-sprite');
+      heroBox.classList.remove('anim-lunge-right', 'anim-hit-shake');
+      enemyBox.classList.remove('anim-lunge-left', 'anim-hit-shake');
+
+      heroBox.innerHTML = HM.getHeroSVG(jugador.clase, jugador.color, jugador.colorOscuro, { phase: 0 });
       $('duel-hero-name').textContent = `${jugador.emblema} ${jugador.nombre}`;
       $('duel-hero-hp').textContent = `❤️ ${jugador.hp} / ${jugador.maxHp} HP`;
       $('duel-hero-bar').style.width = `${Math.max(0, (jugador.hp / jugador.maxHp) * 100)}%`;
 
-      // Lado derecho: Enemigo
-      $('duel-enemy-sprite').innerHTML = HM.getEnemySVG(enemigo.templateId);
+      // Lado derecho: Enemigo (Pixel Art 16-bit)
+      enemyBox.innerHTML = HM.getEnemySVG(enemigo.templateId, { phase: 2 });
       $('duel-enemy-name').textContent = enemigo.nombre;
       $('duel-enemy-hp').textContent = `❤️ ${enemigo.hp} / ${enemigo.maxHp} HP`;
       $('duel-enemy-bar').style.width = `${Math.max(0, (enemigo.hp / enemigo.maxHp) * 100)}%`;
+      paintSprites();
 
       // Estado inicial: mostrar botón INICIAR antes de arrancar los 10 segundos
       $('duel-ready-area').classList.remove('hidden');
@@ -600,7 +691,7 @@ window.HeroMath = window.HeroMath || {};
       $('duel-feedback-area').classList.add('hidden');
       $('duel-start-btn').textContent = esEsquiva ? '🛡️ INICIAR ESQUIVA (10 s)' : '⚔️ INICIAR COMBATE (10 s)';
 
-      const pregunta = HM.generarOperacionCombate(state.dificultad);
+      const pregunta = HM.generarOperacionCombate(getEjercicioConfig());
       let timeLeft = 10.0;
       let resolved = false;
 
@@ -616,11 +707,25 @@ window.HeroMath = window.HeroMath || {};
         resolved = true;
         stopTimer();
 
-        // Deshabilitar opciones y marcar respuesta correcta
-        document.querySelectorAll('.duel-opt-btn').forEach(b => {
-          b.disabled = true;
-          if (Number(b.dataset.val) === pregunta.respuesta) b.classList.add('opt-correct');
-        });
+        // Deshabilitar opciones y marcar respuesta correcta (compatible con texto/fracciones/ecuaciones)
+        marcarOpcionCorrecta($('duel-options'), pregunta);
+
+        // Animaciones de pose 16-bit (attack / hit) en la arena de duelo
+        if (acierto) {
+          if (HM.PixelArt) {
+            HM.PixelArt.setPose(heroBox, 'attack', 800);
+            if (!esEsquiva) HM.PixelArt.setPose(enemyBox, 'hit', 800);
+          }
+          heroBox.classList.add('anim-lunge-right');
+          if (!esEsquiva) enemyBox.classList.add('anim-hit-shake');
+        } else {
+          if (HM.PixelArt) {
+            HM.PixelArt.setPose(enemyBox, 'attack', 800);
+            HM.PixelArt.setPose(heroBox, 'hit', 800);
+          }
+          enemyBox.classList.add('anim-lunge-left');
+          heroBox.classList.add('anim-hit-shake');
+        }
 
         const fb = $('duel-feedback-area');
         fb.classList.remove('hidden');
@@ -633,7 +738,7 @@ window.HeroMath = window.HeroMath || {};
             ? '⏱️ ¡TIEMPO AGOTADO!'
             : (esEsquiva ? '🩸 ¡NO LOGRASTE ESQUIVAR!' : '❌ ¡ATAQUE FALLIDO!');
         }
-        $('duel-fb-exp').textContent = `Solución: ${pregunta.respuesta}. ${pregunta.explicacion}`;
+        $('duel-fb-exp').textContent = `Solución: ${pregunta.respuestaCorrecta}. ${pregunta.explicacion}`;
 
         $('duel-continue-btn').onclick = () => {
           modal.classList.add('hidden');
@@ -644,21 +749,14 @@ window.HeroMath = window.HeroMath || {};
       $('duel-start-btn').onclick = () => {
         $('duel-ready-area').classList.add('hidden');
         $('duel-question-area').classList.remove('hidden');
-        $('duel-operation').textContent = pregunta.enunciado;
 
-        const optsBox = $('duel-options');
-        optsBox.innerHTML = pregunta.opciones.map(val => `
-          <button type="button" class="duel-opt-btn" data-val="${val}">${val}</button>
-        `).join('');
+        const duelTema = $('duel-tema');
+        if (duelTema) duelTema.textContent = pregunta.tema || '';
+        const opEl = $('duel-operation');
+        opEl.textContent = pregunta.enunciado;
+        aplicarTamanoEnunciado(opEl, pregunta.enunciado);
 
-        optsBox.querySelectorAll('.duel-opt-btn').forEach(btn => {
-          btn.onclick = () => {
-            const chosen = Number(btn.dataset.val);
-            const ok = chosen === pregunta.respuesta;
-            if (!ok) btn.classList.add('opt-wrong');
-            finalizarDuelo(ok, false);
-          };
-        });
+        renderOpcionesBotones($('duel-options'), pregunta, ok => finalizarDuelo(ok, false));
 
         // Arrancar temporizador de 10 segundos
         timeLeft = 10.0;
@@ -715,14 +813,20 @@ window.HeroMath = window.HeroMath || {};
     terminarTurnoJugador();
   }
 
-  // ================= POPUP DE PUERTAS Y COFRES (20 SEGUNDOS, PROBLEMA SENCILLO) =================
-  function abrirModalProblema({ tipo, titulo, icono, jugador }) {
+  // ================= POPUP DE PUERTAS Y COFRES (20 SEGUNDOS, PROBLEMA) =================
+  function abrirModalProblema({ tipo, titulo, icono, propId, jugador }) {
     return new Promise(resolve => {
       state.fase = 'modal';
       const modal = $('problem-modal');
       modal.classList.remove('hidden');
 
-      $('prob-icon').textContent = icono;
+      const probIconEl = $('prob-icon');
+      if (HM.PixelArt && propId) {
+        probIconEl.innerHTML = HM.PixelArt.createPropCanvasHTML(propId, { className: 'modal-prop-canvas' });
+        paintSprites();
+      } else {
+        probIconEl.textContent = icono;
+      }
       $('prob-title').textContent = titulo;
       $('prob-team').innerHTML = `Reto para <b>${jugador.emblema} ${jugador.nombre}</b> · Si fallas o se acaba el tiempo, <b>pierdes el turno</b>.`;
 
@@ -730,7 +834,7 @@ window.HeroMath = window.HeroMath || {};
       $('prob-active-area').classList.add('hidden');
       $('prob-feedback-area').classList.add('hidden');
 
-      const prob = HM.generarProblemaPuertaCofre(state.dificultad);
+      const prob = HM.generarProblemaCofre(getEjercicioConfig());
       let timeLeft = 20.0;
       let resolved = false;
 
@@ -745,10 +849,7 @@ window.HeroMath = window.HeroMath || {};
         if (resolved) return;
         resolved = true;
         stopTimer();
-        document.querySelectorAll('#prob-options .duel-opt-btn').forEach(b => {
-          b.disabled = true;
-          if (Number(b.dataset.val) === prob.respuesta) b.classList.add('opt-correct');
-        });
+        marcarOpcionCorrecta($('prob-options'), prob);
 
         const fb = $('prob-feedback-area');
         fb.classList.remove('hidden');
@@ -759,7 +860,7 @@ window.HeroMath = window.HeroMath || {};
           fb.className = 'duel-feedback fail';
           $('prob-fb-title').textContent = timeout ? '⏱️ ¡TIEMPO AGOTADO! Pierdes el turno.' : '❌ ¡INCORRECTO! Pierdes el turno.';
         }
-        $('prob-fb-exp').textContent = `Solución: ${prob.respuesta}. ${prob.explicacion}`;
+        $('prob-fb-exp').textContent = `Solución: ${prob.respuestaCorrecta}. ${prob.explicacion}`;
 
         $('prob-continue-btn').onclick = () => {
           modal.classList.add('hidden');
@@ -773,19 +874,7 @@ window.HeroMath = window.HeroMath || {};
         $('prob-tema').textContent = prob.tema;
         $('prob-enunciado').textContent = prob.enunciado;
 
-        const optsBox = $('prob-options');
-        optsBox.innerHTML = prob.opciones.map(val => `
-          <button type="button" class="duel-opt-btn" data-val="${val}">${val}</button>
-        `).join('');
-
-        optsBox.querySelectorAll('.duel-opt-btn').forEach(btn => {
-          btn.onclick = () => {
-            const chosen = Number(btn.dataset.val);
-            const ok = chosen === prob.respuesta;
-            if (!ok) btn.classList.add('opt-wrong');
-            finalizarProblema(ok, false);
-          };
-        });
+        renderOpcionesBotones($('prob-options'), prob, ok => finalizarProblema(ok, false));
 
         // Temporizador de 20 segundos
         timeLeft = 20.0;
@@ -817,6 +906,7 @@ window.HeroMath = window.HeroMath || {};
       tipo: 'puerta',
       titulo: 'Puerta Cerrada con Acertijo',
       icono: '🚪',
+      propId: 'door',
       jugador
     });
 
@@ -852,6 +942,7 @@ window.HeroMath = window.HeroMath || {};
       tipo: 'cofre',
       titulo: chest.isGrand ? '¡El Gran Cofre Real!' : 'Cofre del Tesoro',
       icono: chest.isGrand ? '👑' : '🧰',
+      propId: chest.isGrand ? 'grand_chest' : 'chest',
       jugador
     });
 
@@ -1026,7 +1117,13 @@ window.HeroMath = window.HeroMath || {};
     const modal = $('end-modal');
     modal.classList.remove('hidden');
 
-    $('end-icon').textContent = victoria ? '👑' : '💀';
+    const endIcon = $('end-icon');
+    if (HM.PixelArt) {
+      endIcon.innerHTML = HM.PixelArt.createPropCanvasHTML(victoria ? 'grand_chest' : 'tomb', { className: 'end-prop-canvas' });
+      paintSprites();
+    } else {
+      endIcon.textContent = victoria ? '👑' : '💀';
+    }
     $('end-title').textContent = victoria ? `¡${ganador.nombre} conquista el Gran Cofre!` : '¡Derrota en la Mazmorra!';
     $('end-subtitle').textContent = victoria
       ? 'El cofre se abre rebosante de oro y sabiduría matemática.'
@@ -1044,6 +1141,48 @@ window.HeroMath = window.HeroMath || {};
     `).join('');
   }
 
+  // ================= SELECTOR BANCO DE EJERCICIOS Y PANTALLA COMPLETA =================
+  function initBancoSelector() {
+    if (window.BancoUI && typeof window.BancoUI.crearSelector === 'function') {
+      bancoSelector = window.BancoUI.crearSelector({
+        gameId: 'heromath_mazmorra',
+        defaultTemas: ['enteros'],
+        defaultNivel: '1eso',
+        defaultTipo: 'mixto',
+        notaModalidad: 'En modo "Ambos", los combates usan Operaciones rápidas y las puertas/cofres usan Problemas.',
+        onChange: (cfg) => {
+          state.ejerciciosConfig = cfg;
+          actualizarResumenEjercicios();
+          if (state.fase !== 'setup') {
+            logMsg(`📚 <b>Ejercicios actualizados:</b> ${bancoSelector.getResumenDetallado()}.`);
+          }
+        }
+      });
+      bancoSelector.bindButton($('btn-selector-ejercicios-setup'));
+      bancoSelector.bindButton($('btn-selector-ejercicios-top'));
+      state.ejerciciosConfig = bancoSelector.getConfig();
+      actualizarResumenEjercicios();
+    }
+
+    if (window.BancoUI && typeof window.BancoUI.bindFullscreenButton === 'function') {
+      window.BancoUI.bindFullscreenButton($('btn-fullscreen-setup'), {
+        enterText: '⛶ Pantalla completa',
+        exitText: '🗗 Salir pantalla'
+      });
+      window.BancoUI.bindFullscreenButton($('btn-fullscreen'), {
+        enterText: '⛶ Pantalla',
+        exitText: '🗗 Salir'
+      });
+    } else {
+      const toggleFs = () => {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+        else document.exitFullscreen?.();
+      };
+      if ($('btn-fullscreen')) $('btn-fullscreen').onclick = toggleFs;
+      if ($('btn-fullscreen-setup')) $('btn-fullscreen-setup').onclick = toggleFs;
+    }
+  }
+
   // ================= EVENTOS GLOBALES =================
   function bindEvents() {
     document.querySelectorAll('.team-count-btn').forEach(btn => {
@@ -1051,9 +1190,6 @@ window.HeroMath = window.HeroMath || {};
     });
     document.querySelectorAll('.map-size-btn').forEach(btn => {
       btn.onclick = () => { state.tamanoMapa = btn.dataset.size; renderSetup(); };
-    });
-    document.querySelectorAll('.diff-btn').forEach(btn => {
-      btn.onclick = () => { state.dificultad = btn.dataset.diff; renderSetup(); };
     });
 
     $('btn-start-game').onclick = iniciarPartida;
@@ -1073,15 +1209,12 @@ window.HeroMath = window.HeroMath || {};
         $('game-screen').classList.add('hidden');
         $('setup-screen').classList.remove('hidden');
         state.fase = 'setup';
+        paintSprites();
       }
     };
     $('btn-sound').onclick = () => {
       const on = HM.Audio.toggle();
       $('btn-sound').textContent = on ? '🔊 Sonido' : '🔇 Silencio';
-    };
-    $('btn-fullscreen').onclick = () => {
-      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
-      else document.exitFullscreen?.();
     };
     $('btn-rules').onclick = () => $('rules-modal').classList.remove('hidden');
     $('btn-close-rules').onclick = () => $('rules-modal').classList.add('hidden');
@@ -1090,6 +1223,8 @@ window.HeroMath = window.HeroMath || {};
       $('end-modal').classList.add('hidden');
       $('game-screen').classList.add('hidden');
       $('setup-screen').classList.remove('hidden');
+      state.fase = 'setup';
+      paintSprites();
     };
 
     // Flechas del teclado para mover en pizarra/ordenador
@@ -1104,6 +1239,7 @@ window.HeroMath = window.HeroMath || {};
 
   document.addEventListener('DOMContentLoaded', () => {
     initConfig();
+    initBancoSelector();
     bindEvents();
     renderSetup();
   });

@@ -3,15 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HeroMath: La Mazmorra de los Enteros (1º ESO)</title>
+  <title>HeroMath: La Mazmorra Matemática (1.º ESO – 2.º Bachillerato)</title>
+  <link rel="stylesheet" href="../banco_ejercicios/selector.css" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
   <!-- ================= PANTALLA DE CONFIGURACIÓN ================= -->
   <section id="setup-screen" class="screen">
     <header class="setup-header">
-      <h1>🏰 HeroMath: La Mazmorra de los Enteros</h1>
-      <p>Actividad interactiva de 1º de la ESO · Tablero estilo HeroQuest para pizarra digital</p>
+      <div class="setup-header-actions">
+        <button type="button" id="btn-fullscreen-setup" class="top-btn setup-fs-btn">⛶ Pantalla completa</button>
+      </div>
+      <h1>🏰 HeroMath: La Mazmorra Matemática</h1>
+      <p id="setup-subtitle">Aventura RPG 16-bit estilo HeroQuest · 1.º ESO – 2.º Bachillerato · Pizarra digital</p>
     </header>
 
     <div class="setup-options-bar">
@@ -33,13 +37,9 @@
         </div>
       </div>
 
-      <div class="opt-group">
-        <span class="opt-title">➗ Nivel de Enteros</span>
-        <div class="btn-row">
-          <button type="button" class="pill-btn diff-btn" data-diff="basico">Básico</button>
-          <button type="button" class="pill-btn diff-btn active" data-diff="intermedio">Intermedio</button>
-          <button type="button" class="pill-btn diff-btn" data-diff="completo">Completo</button>
-        </div>
+      <div class="opt-group opt-group-selector">
+        <span class="opt-title">🎓 Ejercicios</span>
+        <button type="button" id="btn-selector-ejercicios-setup" data-label="📚 Temas y Curso">📚 Temas y Curso</button>
       </div>
     </div>
 
@@ -59,6 +59,7 @@
         <span id="active-turn-banner" class="turn-banner"></span>
       </div>
       <div class="top-right">
+        <button type="button" id="btn-selector-ejercicios-top" data-label="📚 Temas y Curso">📚 Temas y Curso</button>
         <button type="button" id="btn-rules" class="top-btn">📜 Reglas</button>
         <button type="button" id="btn-new-map" class="top-btn">🗺️ Nuevo Mapa</button>
         <button type="button" id="btn-sound" class="top-btn">🔊 Sonido</button>
@@ -76,7 +77,7 @@
         <div id="battle-log" class="battle-log"></div>
       </aside>
 
-      <!-- Centro: Tablero HeroQuest -->
+      <!-- Centro: Tablero HeroQuest 16-bit -->
       <div class="board-stage">
         <div id="enemy-turn-banner" class="enemy-banner hidden">⚔️ TURNO DE LOS ENEMIGOS 👹</div>
         <div id="dungeon-board" class="dungeon-board"></div>
@@ -142,7 +143,7 @@
 
       <!-- Botón para iniciar el temporizador de 10 s -->
       <div id="duel-ready-area" class="ready-area">
-        <p class="ready-hint">Cuando el equipo esté listo frente a la pizarra, pulsa el botón para ver la operación.</p>
+        <p class="ready-hint">Cuando el equipo esté listo frente a la pizarra, pulsa el botón para ver el reto de combate.</p>
         <button type="button" id="duel-start-btn" class="btn-primary-xl">⚔️ INICIAR COMBATE (10 s)</button>
       </div>
 
@@ -152,6 +153,7 @@
           <div class="timer-bar-bg"><div id="duel-timer-fill" class="timer-bar-fill"></div></div>
           <span id="duel-timer-text" class="timer-text">10 s</span>
         </div>
+        <div id="duel-tema" class="prob-tema-tag"></div>
         <div id="duel-operation" class="operation-box"></div>
         <div id="duel-options" class="duel-options-grid"></div>
       </div>
@@ -165,7 +167,7 @@
     </div>
   </div>
 
-  <!-- ================= POPUP DE PUERTAS Y COFRES (20 SEGUNDOS, PROBLEMA SENCILLO) ================= -->
+  <!-- ================= POPUP DE PUERTAS Y COFRES (20 SEGUNDOS, PROBLEMA) ================= -->
   <div id="problem-modal" class="modal-overlay hidden">
     <div class="modal-card problem-card">
       <div class="prob-header">
@@ -177,7 +179,7 @@
       </div>
 
       <div id="prob-ready-area" class="ready-area">
-        <p class="ready-hint">Dispondréis de <b>20 segundos</b> para leer y resolver un problema sencillo de números enteros.</p>
+        <p class="ready-hint">Dispondréis de <b>20 segundos</b> para leer y resolver el reto matemático de la mazmorra.</p>
         <button type="button" id="prob-start-btn" class="btn-primary-xl">🔑 INICIAR PRUEBA (20 s)</button>
       </div>
 
@@ -205,9 +207,10 @@
     <div class="modal-card rules-card">
       <h2 class="modal-title">📜 Reglas de HeroMath</h2>
       <ul class="rules-list">
+        <li><b>Temas y Curso configurables:</b> Pulsa <b>📚 Temas y Curso</b> en cualquier momento para elegir uno o varios bloques (Enteros, Fracciones, Potencias, Ecuaciones y Funciones) y el curso (<b>1.º ESO a 2.º Bachillerato</b>).</li>
         <li><b>Exploración estilo HeroQuest:</b> Tira el dado (1–6) y muévete en horizontal o vertical. Las habitaciones permanecen ocultas hasta abrir su puerta.</li>
-        <li><b>Puertas y Cofres (20 s):</b> Al intentar abrir una puerta o un cofre, resuelves un <b>problema sencillo de números enteros en 20 segundos</b>. Si fallas o se acaba el tiempo, <b>pierdes el turno</b>.</li>
-        <li><b>Zona de Control y Combates (10 s):</b> No puedes pasar junto a un enemigo vivo sin combatir. Los combates se juegan en un popup de duelo con <b>operaciones aritméticas de enteros, 4 opciones y 10 segundos</b> tras pulsar Iniciar.</li>
+        <li><b>Puertas y Cofres (20 s):</b> Al intentar abrir una puerta o un cofre, resuelves un <b>problema matemático en 20 segundos</b> (en modo «Ambos»). Si fallas o se acaba el tiempo, <b>pierdes el turno</b>.</li>
+        <li><b>Zona de Control y Combates (10 s):</b> No puedes pasar junto a un enemigo vivo sin combatir. Los combates se juegan en un popup de duelo con <b>operaciones rápidas, 4 opciones y 10 segundos</b> tras pulsar Iniciar.</li>
         <li><b>Vida, Daño y Oro:</b> Jugadores <b>100 HP</b>, Enemigos <b>50 HP</b>. Cada acierto hace <b>25 de daño</b>. Vencer a un enemigo otorga <b>+25 🪙</b>. Si un equipo llega a 0 HP, queda eliminado.</li>
         <li><b>Turno de Enemigos y Esquiva:</b> Al acabar la ronda, cada enemigo descubierto avanza <b>1 casilla</b> hacia el héroe más cercano. Si ataca, el héroe puede <b>esquivar el golpe</b> ganando un duelo de 10 segundos.</li>
         <li><b>Meta:</b> Quien abra el <b>Gran Cofre Real (👑)</b> gana la expedición (+150 🪙).</li>
@@ -230,7 +233,18 @@
     </div>
   </div>
 
-  <!-- Scripts modulares (compatibles con doble clic local sin servidor) -->
+  <!-- Banco de Ejercicios compartido (1.º ESO – 2.º Bachillerato) -->
+  <script src="../banco_ejercicios/engine/utils.js"></script>
+  <script src="../banco_ejercicios/engine/generators/enteros.js"></script>
+  <script src="../banco_ejercicios/engine/generators/fracciones.js"></script>
+  <script src="../banco_ejercicios/engine/generators/potencias.js"></script>
+  <script src="../banco_ejercicios/engine/generators/ecuaciones.js"></script>
+  <script src="../banco_ejercicios/engine/generators/funciones.js"></script>
+  <script src="../banco_ejercicios/api.js"></script>
+  <script src="../banco_ejercicios/selector.js"></script>
+
+  <!-- Motor Pixel-Art 16-bit y scripts modulares del juego -->
+  <script src="js/pixel-art.js"></script>
   <script src="data/personajes.js"></script>
   <script src="data/enemigos.js"></script>
   <script src="data/preguntas.js"></script>

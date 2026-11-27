@@ -425,6 +425,12 @@
   });
 
   // Inicialización
+  if (window.BancoUI && window.BancoUI.bindFullscreenButton) {
+    window.BancoUI.bindFullscreenButton('#btn-fullscreen-banco', {
+      enterText: '⛶ Pantalla',
+      exitText: '🗗 Salir'
+    });
+  }
   renderTemas();
   syncBotonesNivelYTipo();
   renderEstadoAula();

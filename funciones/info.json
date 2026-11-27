@@ -1,0 +1,7 @@
+{
+  "titulo": "Misión Dominio: Navegación Cósmica",
+  "curso": "1.º Bachillerato · Dominio de Funciones",
+  "descripcion": "Pilota una nave espacial pixel-art cruzando barreras de funciones por los puntos fuera del dominio o usando el Salto Hiperespacial cuando Dom(f) = ℝ.",
+  "icono": "🛸",
+  "entrada": "index.html"
+}

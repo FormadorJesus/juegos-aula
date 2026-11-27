@@ -287,6 +287,35 @@ window.HeroMath.Tablero = (function() {
       return null;
     }
 
+    // 9. Colocar antorchas pixel-art en muros seleccionados junto a pasillos y puertas
+    const torchCandidates = [];
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        grid[r][c].hasTorch = false;
+        if (grid[r][c].type !== 'wall') continue;
+        // Preferir muros directamente encima de un pasillo o adyacentes a pasillo/puerta
+        const below = grid[r + 1]?.[c];
+        const touchesCorridor = (below && (below.type === 'corridor' || below.type === 'door')) ||
+          [[-1, 0], [0, -1], [0, 1]].some(([dr, dc]) => {
+            const nb = grid[r + dr]?.[c + dc];
+            return nb && nb.type === 'corridor';
+          });
+        if (touchesCorridor) {
+          torchCandidates.push({ r, c, priority: (below && below.type === 'corridor') ? 1 : 0 });
+        }
+      }
+    }
+    torchCandidates.sort((a, b) => b.priority - a.priority || (Math.random() - 0.5));
+    const placedTorches = [];
+    const maxTorches = cols >= 15 ? 10 : (cols >= 13 ? 8 : 6);
+    for (const cand of torchCandidates) {
+      if (placedTorches.length >= maxTorches) break;
+      const tooClose = placedTorches.some(t => (Math.abs(t.r - cand.r) + Math.abs(t.c - cand.c)) < 3);
+      if (tooClose) continue;
+      grid[cand.r][cand.c].hasTorch = true;
+      placedTorches.push(cand);
+    }
+
     return { cols, rows, grid, rooms, enemies, startPos, grandChestCell };
   }
 

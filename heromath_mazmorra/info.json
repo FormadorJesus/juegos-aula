@@ -1,7 +1,7 @@
 {
-  "titulo": "HeroMath: La Mazmorra de los Enteros",
-  "curso": "1º ESO · Números Enteros",
-  "descripcion": "Aventura por equipos estilo HeroQuest con duelos (10 s), puertas y cofres (20 s).",
+  "titulo": "HeroMath: La Mazmorra Matemática",
+  "curso": "1.º ESO – 2.º Bachillerato · Multitema",
+  "descripcion": "Aventura RPG pixel-art 16-bit por equipos estilo HeroQuest con duelos (10 s), puertas y cofres (20 s). Compatible con Enteros, Fracciones, Potencias, Ecuaciones y Funciones.",
   "icono": "🏰",
   "entrada": "index.html"
 }

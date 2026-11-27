@@ -1,0 +1,1283 @@
+/* ==========================================================================
+   Gladiadores/css/styles.css
+   Estilos del Coliseo Matemático — Pixel Art 16-Bit & Integración Banco de Ejercicios
+   ========================================================================== */
+:root {
+    --bg-dark: #16110e;
+    --panel-bg: rgba(28, 21, 16, 0.94);
+    --panel-border: #8c6239;
+    --gold-light: #fde047;
+    --gold-mid: #eab308;
+    --gold-dark: #a16207;
+    --crimson: #991b1b;
+    --crimson-bright: #dc2626;
+    --cobalt: #1e40af;
+    --cobalt-bright: #2563eb;
+    --text-light: #fef3c7;
+    --text-muted: #d6c5b3;
+    --sand-top: #eab364;
+    --sand-bottom: #b46928;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+.font-roman {
+    font-family: Georgia, 'Times New Roman', serif;
+    letter-spacing: 0.06em;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Renderizado Pixel Art 100% nítido sin suavizado */
+.pixel-canvas {
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    display: block;
+}
+
+/* ==========================================================================
+   BARRA SUPERIOR PERMANENTE DE CONTROLES
+   ========================================================================== */
+.top-bar {
+    width: 100%;
+    background: linear-gradient(180deg, #241912 0%, #140e0a 100%);
+    border-bottom: 2px solid var(--gold-dark);
+    padding: 0.65rem 1.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    z-index: 100;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.75);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.brand-emblem {
+    width: 38px;
+    height: 38px;
+    background: radial-gradient(circle, var(--gold-mid), var(--gold-dark));
+    border: 2px solid var(--gold-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    color: #1c1108;
+    font-size: 0.85rem;
+    box-shadow: 0 0 10px rgba(234, 179, 8, 0.4);
+    flex-shrink: 0;
+}
+
+.brand-title {
+    font-size: 1.15rem;
+    font-weight: 900;
+    color: var(--gold-light);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    line-height: 1.1;
+}
+
+.brand-sub {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.top-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.ctrl-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.85rem;
+    border-radius: 0.65rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: transform 0.12s ease, filter 0.15s ease, background 0.2s ease;
+    color: #fff;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.45);
+}
+
+.ctrl-btn:hover {
+    filter: brightness(1.12);
+    transform: translateY(-1px);
+}
+
+.ctrl-btn:active {
+    transform: translateY(1px);
+}
+
+.btn-sound {
+    background: linear-gradient(180deg, #3f3126, #261d16);
+    border-color: #785a3c;
+    color: var(--gold-light);
+}
+
+.btn-restart {
+    background: linear-gradient(180deg, #b91c1c, #7f1d1d);
+    border-color: #f87171;
+}
+
+.btn-fullscreen {
+    background: linear-gradient(180deg, #d97706, #92400e);
+    border-color: #fcd34d;
+}
+
+/* Armonización visual del botón selector del Banco con la estética romana */
+.top-controls .bm-selector-trigger {
+    padding: 0.46rem 0.8rem;
+    border-radius: 0.65rem;
+    border-color: rgba(253, 224, 71, 0.6);
+    background: linear-gradient(180deg, #1e3a5f, #132540);
+    font-size: 0.82rem;
+}
+
+/* ==========================================================================
+   PANTALLA 1: PERSONALIZACIÓN PREVIA AL COMBATE
+   ========================================================================== */
+.setup-screen {
+    flex: 1;
+    background: radial-gradient(circle at top, #3b2618 0%, #1a120d 75%, #0f0a07 100%);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.setup-container {
+    width: 100%;
+    max-width: 1220px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.setup-header {
+    text-align: center;
+}
+
+.setup-badge {
+    display: inline-block;
+    background: rgba(234, 179, 8, 0.16);
+    border: 1px solid rgba(234, 179, 8, 0.45);
+    color: var(--gold-light);
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    padding: 0.25rem 0.9rem;
+    border-radius: 999px;
+    margin-bottom: 0.4rem;
+}
+
+.setup-header h1 {
+    font-size: clamp(1.5rem, 3vw, 2.3rem);
+    color: var(--gold-light);
+    text-shadow: 0 3px 10px rgba(0, 0, 0, 0.85);
+}
+
+.setup-header p {
+    color: var(--text-muted);
+    font-size: 0.92rem;
+    margin-top: 0.25rem;
+}
+
+.gladiators-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+}
+
+@media (max-width: 920px) {
+    .gladiators-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.setup-card {
+    background: var(--panel-bg);
+    border-radius: 1.25rem;
+    padding: 1.2rem;
+    display: flex;
+    gap: 1.15rem;
+    align-items: center;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.65);
+    position: relative;
+}
+
+.setup-card.p1-card {
+    border: 2px solid #b91c1c;
+}
+
+.setup-card.p2-card {
+    border: 2px solid #1d4ed8;
+    flex-direction: row-reverse;
+}
+
+@media (max-width: 560px) {
+    .setup-card, .setup-card.p2-card {
+        flex-direction: column;
+    }
+}
+
+.preview-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.55rem;
+    flex-shrink: 0;
+}
+
+.preview-box {
+    width: 210px;
+    height: 255px;
+    border-radius: 1rem;
+    background:
+        radial-gradient(circle at 50% 38%, rgba(120, 78, 42, 0.55) 0%, rgba(35, 22, 13, 0.92) 72%, #160d07 100%),
+        repeating-conic-gradient(rgba(255, 255, 255, 0.03) 0% 25%, transparent 0% 50%) 50% / 16px 16px;
+    border: 2px solid #6b4c30;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 0.65rem;
+    overflow: hidden;
+    box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.75);
+}
+
+.player-tag {
+    position: absolute;
+    top: 0.6rem;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #fff;
+    z-index: 5;
+}
+
+.p1-tag {
+    left: 0.6rem;
+    background: var(--crimson-bright);
+    box-shadow: 0 2px 6px rgba(220, 38, 38, 0.5);
+}
+
+.p2-tag {
+    right: 0.6rem;
+    background: var(--cobalt-bright);
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.5);
+}
+
+.pixel-badge {
+    position: absolute;
+    top: 0.6rem;
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    color: #fde68a;
+    background: rgba(20, 14, 10, 0.75);
+    border: 1px solid rgba(234, 179, 8, 0.45);
+    padding: 0.16rem 0.45rem;
+    border-radius: 0.4rem;
+    z-index: 5;
+}
+
+.p1-card .pixel-badge { right: 0.6rem; }
+.p2-card .pixel-badge { left: 0.6rem; }
+
+.preview-avatar {
+    width: 182px;
+    height: 208px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.preview-avatar canvas {
+    width: 182px;
+    height: 208px;
+}
+
+.btn-download-gif {
+    width: 210px;
+    background: linear-gradient(180deg, #33251a, #1f1610);
+    border: 1.5px solid #785838;
+    color: #fde68a;
+    padding: 0.45rem 0.75rem;
+    border-radius: 0.65rem;
+    font-size: 0.76rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    transition: all 0.15s ease;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.45);
+}
+
+.btn-download-gif:hover {
+    background: linear-gradient(180deg, #473322, #2b1e14);
+    border-color: var(--gold-mid);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.btn-download-gif:active {
+    transform: translateY(1px);
+}
+
+.btn-download-gif.saved {
+    background: linear-gradient(180deg, #15803d, #166534);
+    border-color: #4ade80;
+    color: #fff;
+}
+
+.config-fields {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.field-group label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gold-mid);
+    margin-bottom: 0.32rem;
+}
+
+.name-input {
+    width: 100%;
+    background: #140e0a;
+    border: 2px solid #5c432c;
+    border-radius: 0.65rem;
+    padding: 0.5rem 0.75rem;
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    outline: none;
+    transition: border-color 0.2s;
+    user-select: text;
+}
+
+.name-input:focus {
+    border-color: var(--gold-light);
+}
+
+.opts-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.4rem;
+}
+
+.opts-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.4rem;
+}
+
+.opt-choice {
+    background: #231912;
+    border: 1.5px solid #523b26;
+    color: #e7d7c5;
+    padding: 0.42rem 0.45rem;
+    border-radius: 0.55rem;
+    font-size: 0.76rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.1rem;
+}
+
+.opt-choice:hover {
+    background: #332419;
+    border-color: #9c744c;
+}
+
+.opt-choice.active {
+    background: linear-gradient(180deg, #f59e0b, #b45309);
+    border-color: #fef08a;
+    color: #1a0f05;
+    font-weight: 900;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+}
+
+.opt-sub {
+    font-size: 0.65rem;
+    opacity: 0.85;
+    font-weight: 600;
+}
+
+/* Barra inferior de Banco de Ejercicios y Arranque */
+.launch-bar {
+    background: var(--panel-bg);
+    border: 2px solid var(--gold-dark);
+    border-radius: 1rem;
+    padding: 0.95rem 1.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.65);
+}
+
+.selector-setup-box {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.selector-setup-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.18rem;
+}
+
+.selector-setup-label {
+    font-size: 0.76rem;
+    font-weight: 800;
+    color: var(--gold-light);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.selector-setup-summary {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.btn-start-battle {
+    background: linear-gradient(180deg, #fde047 0%, #eab308 50%, #a16207 100%);
+    border: 2px solid #fef9c3;
+    color: #1c1004;
+    padding: 0.8rem 2rem;
+    border-radius: 0.85rem;
+    font-size: 1.15rem;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 5px 0 #713f12, 0 8px 20px rgba(0, 0, 0, 0.6);
+    transition: transform 0.1s, box-shadow 0.1s, filter 0.15s;
+}
+
+.btn-start-battle:hover {
+    filter: brightness(1.07);
+}
+
+.btn-start-battle:active {
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 #713f12, 0 4px 10px rgba(0, 0, 0, 0.6);
+}
+
+/* ==========================================================================
+   PANTALLA 2: ARENA DEL COLISEO ROMANO
+   ========================================================================== */
+.arena-screen {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: calc(100vh - 62px);
+}
+
+.colosseum-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.colosseum-backdrop svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* Capa de antorchas/braseros y estandartes animados en Pixel Art 16-bit */
+.arena-props-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    max-width: 1360px;
+    margin: 0 auto;
+}
+
+.arena-banner-left,
+.arena-banner-right {
+    position: absolute;
+    top: 39%;
+    width: 68px;
+    height: 122px;
+    filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.6));
+}
+
+.arena-banner-left { left: 2.5%; }
+.arena-banner-right { right: 2.5%; }
+
+.arena-torch-left,
+.arena-torch-right {
+    position: absolute;
+    bottom: 24%;
+    width: 78px;
+    height: 130px;
+    filter: drop-shadow(0 0 14px rgba(251, 146, 60, 0.65));
+}
+
+.arena-torch-left { left: 3%; }
+.arena-torch-right { right: 3%; }
+
+@media (max-width: 960px) {
+    .arena-banner-left,
+    .arena-banner-right {
+        width: 48px;
+        height: 86px;
+        top: 42%;
+    }
+    .arena-torch-left,
+    .arena-torch-right {
+        width: 56px;
+        height: 94px;
+        bottom: 22%;
+    }
+}
+
+@media (max-width: 640px) {
+    .arena-banner-left,
+    .arena-banner-right,
+    .arena-torch-left,
+    .arena-torch-right {
+        display: none;
+    }
+}
+
+/* Partículas de polvo dorado flotando en la arena */
+.dust-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.dust-speck {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: rgba(254, 240, 138, 0.55);
+    border-radius: 50%;
+    animation: floatDust linear infinite;
+}
+
+@keyframes floatDust {
+    0% { transform: translateY(0) translateX(0); opacity: 0; }
+    25% { opacity: 0.7; }
+    75% { opacity: 0.5; }
+    100% { transform: translateY(-140px) translateX(45px); opacity: 0; }
+}
+
+/* Zona superior de pregunta y bocadillo */
+.combat-hud-top {
+    position: relative;
+    z-index: 20;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0.75rem 1rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.hud-pills-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    margin-bottom: 0.6rem;
+}
+
+.turn-pill {
+    background: rgba(20, 14, 10, 0.92);
+    border: 2px solid var(--gold-mid);
+    padding: 0.35rem 1.2rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.65);
+}
+
+.arena-topic-badge {
+    background: rgba(17, 37, 64, 0.92);
+    border: 1.5px solid rgba(253, 224, 71, 0.55);
+    color: #fef08a;
+    padding: 0.32rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.55);
+}
+
+.turn-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--gold-light);
+    box-shadow: 0 0 8px var(--gold-light);
+    animation: pulseDot 1s infinite;
+}
+
+@keyframes pulseDot {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.4); opacity: 0.6; }
+}
+
+.turn-label {
+    font-size: 0.92rem;
+    font-weight: 900;
+    color: var(--gold-light);
+}
+
+/* Bocadillo de cómic */
+.comic-wrapper {
+    width: 100%;
+    max-width: 640px;
+    transition: transform 0.3s ease;
+}
+
+.comic-bubble {
+    position: relative;
+    background: linear-gradient(180deg, #ffffff 0%, #fef9ee 100%);
+    color: #1c140d;
+    border: 4px solid #1c140d;
+    border-radius: 1.35rem;
+    padding: 0.9rem 1.15rem;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5), 5px 5px 0 #1c140d;
+}
+
+.comic-bubble.point-left::after {
+    content: '';
+    position: absolute;
+    bottom: -22px;
+    left: 16%;
+    border-width: 22px 18px 0 0;
+    border-style: solid;
+    border-color: #1c140d transparent transparent transparent;
+}
+
+.comic-bubble.point-left::before {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: calc(16% + 3px);
+    border-width: 16px 13px 0 0;
+    border-style: solid;
+    border-color: #fef9ee transparent transparent transparent;
+    z-index: 2;
+}
+
+.comic-bubble.point-right::after {
+    content: '';
+    position: absolute;
+    bottom: -22px;
+    right: 16%;
+    border-width: 22px 0 0 18px;
+    border-style: solid;
+    border-color: #1c140d transparent transparent transparent;
+}
+
+.comic-bubble.point-right::before {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    right: calc(16% + 3px);
+    border-width: 16px 0 0 13px;
+    border-style: solid;
+    border-color: #fef9ee transparent transparent transparent;
+    z-index: 2;
+}
+
+.bubble-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.45rem;
+    margin-bottom: 0.45rem;
+}
+
+.speaker-pill {
+    padding: 0.2rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: #fff;
+    letter-spacing: 0.05em;
+}
+
+.speaker-p1 { background: var(--crimson); }
+.speaker-p2 { background: var(--cobalt); }
+
+.exercise-meta-badge {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #57412b;
+    background: #f3e4c6;
+    border: 1px solid #d6b884;
+    padding: 0.16rem 0.6rem;
+    border-radius: 999px;
+}
+
+/* Barra de temporizador */
+.timer-box {
+    background: #f3ead8;
+    border: 1.5px solid #d6c3a5;
+    border-radius: 0.65rem;
+    padding: 0.32rem 0.65rem;
+    margin-bottom: 0.5rem;
+}
+
+.timer-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.74rem;
+    font-weight: 800;
+    margin-bottom: 0.22rem;
+    color: #3d3126;
+}
+
+.timer-value {
+    font-size: 0.88rem;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    color: #047857;
+}
+
+.timer-value.warn { color: #b45309; }
+.timer-value.danger {
+    color: #dc2626;
+    animation: blinkFast 0.45s infinite;
+}
+
+@keyframes blinkFast {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+}
+
+.timer-track {
+    width: 100%;
+    height: 8px;
+    background: #d6c8b4;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.timer-fill {
+    height: 100%;
+    width: 100%;
+    background: #10b981;
+    border-radius: 999px;
+    transition: width 0.1s linear, background-color 0.2s ease;
+}
+
+.timer-fill.warn { background: #f59e0b; }
+.timer-fill.danger { background: #dc2626; }
+
+/* Caja de expresión o enunciado de problema */
+.math-box {
+    background: linear-gradient(180deg, #fef3c7, #fde68a);
+    border: 2.5px solid #d97706;
+    border-radius: 0.85rem;
+    padding: 0.55rem 0.85rem;
+    text-align: center;
+    margin-bottom: 0.6rem;
+    box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.7);
+}
+
+.math-text {
+    font-size: clamp(1.3rem, 3vw, 1.95rem);
+    font-weight: 900;
+    color: #1c140d;
+    letter-spacing: 0.015em;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+}
+
+.math-text.is-medium {
+    font-size: clamp(1.05rem, 2.2vw, 1.38rem);
+    font-weight: 800;
+    line-height: 1.32;
+}
+
+.math-text.is-problem {
+    font-size: clamp(0.92rem, 1.75vw, 1.08rem);
+    font-weight: 700;
+    line-height: 1.4;
+    text-align: left;
+}
+
+/* Botones de 4 opciones (4 columnas para cortas, 2x2 para largas) */
+.options-row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.5rem;
+}
+
+.options-row.opts-2col {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 520px) {
+    .options-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.ans-btn {
+    background: linear-gradient(180deg, #fbbf24, #f59e0b);
+    border: 2.5px solid #1c140d;
+    border-radius: 0.75rem;
+    padding: 0.55rem 0.5rem;
+    font-size: 1.08rem;
+    font-weight: 900;
+    color: #1c140d;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #1c140d;
+    transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.ans-btn.opt-medium {
+    font-size: 0.94rem;
+    padding: 0.5rem 0.55rem;
+}
+
+.ans-btn.opt-long {
+    font-size: 0.84rem;
+    font-weight: 800;
+    padding: 0.45rem 0.55rem;
+}
+
+.ans-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #1c140d;
+    background: linear-gradient(180deg, #fde047, #fbbf24);
+}
+
+.ans-btn:active:not(:disabled) {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #1c140d;
+}
+
+.ans-btn:disabled {
+    cursor: default;
+}
+
+.ans-btn.correct {
+    background: linear-gradient(180deg, #22c55e, #15803d) !important;
+    color: #fff !important;
+    border-color: #052e16 !important;
+}
+
+.ans-btn.wrong {
+    background: linear-gradient(180deg, #ef4444, #b91c1c) !important;
+    color: #fff !important;
+    border-color: #450a0a !important;
+}
+
+.ans-btn.dimmed {
+    opacity: 0.45;
+}
+
+.feedback-banner {
+    margin-top: 0.55rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.65rem;
+    font-size: 0.82rem;
+    text-align: center;
+    line-height: 1.35;
+}
+
+.fb-main {
+    font-weight: 900;
+}
+
+.fb-exp {
+    margin-top: 0.25rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    opacity: 0.92;
+}
+
+.fb-ok {
+    background: #dcfce7;
+    color: #14532d;
+    border: 1.5px solid #22c55e;
+}
+
+.fb-bad {
+    background: #fee2e2;
+    color: #7f1d1d;
+    border: 1.5px solid #ef4444;
+}
+
+/* ==========================================================================
+   ZONA DE COMBATE: BARRAS DE VIDA Y GLADIADORES PIXEL ART EN LA ARENA
+   ========================================================================== */
+.battle-stage {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0.6rem 3.5rem 1.35rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+@media (max-width: 960px) {
+    .battle-stage {
+        padding: 0.6rem 1.5rem 1.25rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .battle-stage {
+        padding: 0.5rem 0.65rem 1rem;
+    }
+}
+
+.fighter-column {
+    width: 46%;
+    max-width: 310px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.hp-card {
+    width: 100%;
+    background: rgba(20, 14, 10, 0.92);
+    border: 2px solid var(--gold-mid);
+    border-radius: 0.95rem;
+    padding: 0.55rem 0.8rem;
+    margin-bottom: 0.55rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+}
+
+.hp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.4rem;
+    margin-bottom: 0.25rem;
+}
+
+.fighter-name {
+    font-size: clamp(0.85rem, 2vw, 1.15rem);
+    font-weight: 900;
+    color: var(--gold-light);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hp-numbers {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #fff;
+    white-space: nowrap;
+}
+
+.weapon-sub {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    margin-bottom: 0.35rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.hp-bar-outer {
+    width: 100%;
+    height: 15px;
+    background: #292018;
+    border-radius: 999px;
+    border: 1.5px solid #6b533b;
+    padding: 2px;
+    overflow: hidden;
+}
+
+.hp-bar-inner {
+    height: 100%;
+    width: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #16a34a, #4ade80);
+    transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1), background 0.3s ease;
+}
+
+.hp-bar-inner.mid {
+    background: linear-gradient(90deg, #d97706, #facc15);
+}
+
+.hp-bar-inner.low {
+    background: linear-gradient(90deg, #991b1b, #ef4444);
+}
+
+/* Contenedor del Sprite Pixel Art y desplazamientos de combate */
+.fighter-rig {
+    position: relative;
+    width: 245px;
+    height: 280px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    transition: transform 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+}
+
+@media (max-width: 768px) {
+    .fighter-rig {
+        width: 175px;
+        height: 200px;
+    }
+}
+
+.fighter-sprite {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.fighter-sprite canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Sacudida de la arena al impactar */
+.arena-shake {
+    animation: arenaShake 0.42s cubic-bezier(.36, .07, .19, .97) both;
+}
+
+@keyframes arenaShake {
+    0%, 100% { transform: translate(0, 0); }
+    20% { transform: translate(-8px, 4px); }
+    40% { transform: translate(8px, -3px); }
+    60% { transform: translate(-5px, -2px); }
+    80% { transform: translate(5px, 2px); }
+}
+
+/* Texto flotante de daño o fallo */
+.float-anchor {
+    position: absolute;
+    top: 85px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 35;
+    pointer-events: none;
+}
+
+.float-badge {
+    font-size: clamp(1.35rem, 3vw, 2.2rem);
+    font-weight: 900;
+    white-space: nowrap;
+    text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000;
+    animation: floatPop 1.25s ease-out forwards;
+}
+
+.float-dmg { color: #f87171; }
+.float-miss { color: #fde047; }
+
+@keyframes floatPop {
+    0% { opacity: 0; transform: translateY(10px) scale(0.7); }
+    20% { opacity: 1; transform: translateY(-12px) scale(1.18); }
+    80% { opacity: 1; transform: translateY(-38px) scale(1); }
+    100% { opacity: 0; transform: translateY(-58px) scale(0.9); }
+}
+
+/* Destello central de choque metálico en Pixel Art */
+.clash-burst {
+    position: absolute;
+    left: 50%;
+    bottom: 120px;
+    transform: translateX(-50%);
+    z-index: 30;
+    pointer-events: none;
+    width: 148px;
+    height: 148px;
+}
+
+.clash-burst canvas {
+    width: 100%;
+    height: 100%;
+}
+
+/* ==========================================================================
+   MODALES (VICTORIA Y CONFIRMACIÓN DE REINICIO)
+   ========================================================================== */
+.modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 7, 5, 0.78);
+    backdrop-filter: blur(4px);
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.modal-card {
+    background: linear-gradient(180deg, #261b14 0%, #140e0a 100%);
+    border: 3px solid var(--gold-mid);
+    border-radius: 1.5rem;
+    max-width: 460px;
+    width: 100%;
+    padding: 1.75rem 1.5rem;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85);
+}
+
+.victory-crown {
+    font-size: 3.2rem;
+    margin-bottom: 0.35rem;
+}
+
+.modal-title {
+    font-size: 1.65rem;
+    font-weight: 900;
+    color: var(--gold-light);
+    margin-bottom: 0.4rem;
+}
+
+.modal-desc {
+    font-size: 0.92rem;
+    color: var(--text-muted);
+    margin-bottom: 1.15rem;
+}
+
+.stats-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid #57412d;
+    border-radius: 0.9rem;
+    padding: 0.75rem;
+    margin-bottom: 1.25rem;
+    font-size: 0.82rem;
+}
+
+.stat-col:first-child {
+    border-right: 1px solid #4a3726;
+    padding-right: 0.5rem;
+}
+
+.stat-name {
+    font-weight: 900;
+    color: var(--gold-light);
+    margin-bottom: 0.2rem;
+}
+
+.modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.modal-btn-primary {
+    background: linear-gradient(180deg, #fde047, #d97706);
+    border: 2px solid #fef9c3;
+    color: #1c1004;
+    padding: 0.75rem 1rem;
+    border-radius: 0.8rem;
+    font-size: 0.95rem;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.modal-btn-secondary {
+    background: #2e2219;
+    border: 1.5px solid #785a3c;
+    color: var(--gold-light);
+    padding: 0.68rem 1rem;
+    border-radius: 0.8rem;
+    font-size: 0.9rem;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.modal-btn-ghost {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 0.45rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+}

@@ -1,0 +1,312 @@
+/* ==========================================================================
+   banco_ejercicios/selector.css
+   Componente reutilizable de botón + modal selector de Temas y Curso
+   Compatible con todos los juegos del repositorio (temas oscuros y claros).
+   ========================================================================== */
+
+.bm-selector-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 13px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(56, 189, 248, 0.55);
+  background: linear-gradient(135deg, rgba(15, 76, 92, 0.92), rgba(17, 45, 78, 0.95));
+  color: #f0f9ff;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.28);
+  transition: transform 0.14s ease, border-color 0.14s ease, filter 0.14s ease;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.bm-selector-trigger:hover {
+  transform: translateY(-1px);
+  border-color: #fde047;
+  filter: brightness(1.1);
+}
+
+.bm-selector-trigger:active {
+  transform: translateY(0);
+}
+
+.bm-trigger-badge {
+  background: rgba(253, 224, 71, 0.18);
+  color: #fde047;
+  border: 1px solid rgba(253, 224, 71, 0.4);
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 210px;
+}
+
+/* Modal overlay */
+.bm-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  background: rgba(7, 11, 20, 0.78);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: bmFadeIn 0.16s ease;
+}
+
+.bm-modal-backdrop[hidden] {
+  display: none !important;
+}
+
+.bm-modal-dialog {
+  width: min(560px, 100%);
+  max-height: 92vh;
+  overflow-y: auto;
+  background: #111827;
+  color: #f3f4f6;
+  border: 2px solid #334155;
+  border-radius: 18px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  text-align: left;
+}
+
+.bm-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid #1f2937;
+}
+
+.bm-modal-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #fde047;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bm-modal-close {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid #374151;
+  background: #1f2937;
+  color: #e5e7eb;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bm-modal-close:hover {
+  background: #374151;
+  color: #ffffff;
+}
+
+.bm-modal-body {
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.bm-group-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 9px;
+}
+
+.bm-group-label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.bm-link-action {
+  border: none;
+  background: none;
+  color: #38bdf8;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.bm-link-action:hover {
+  text-decoration: underline;
+}
+
+.bm-topics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+  gap: 8px;
+}
+
+.bm-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1.5px solid #334155;
+  background: #1e293b;
+  color: #e2e8f0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.14s ease, background 0.14s ease;
+}
+
+.bm-chip:hover {
+  border-color: #64748b;
+}
+
+.bm-chip[aria-pressed="true"] {
+  border-color: #38bdf8;
+  background: rgba(14, 116, 144, 0.42);
+  color: #ffffff;
+}
+
+.bm-chip-mark {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid #64748b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+
+.bm-chip[aria-pressed="true"] .bm-chip-mark {
+  background: #38bdf8;
+  border-color: #38bdf8;
+  color: #082f49;
+}
+
+.bm-stage-sub {
+  font-size: 0.74rem;
+  color: #94a3b8;
+  margin: 0 0 6px;
+  font-weight: 600;
+}
+
+.bm-levels-eso {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+  margin-bottom: 10px;
+}
+
+.bm-levels-bach {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.bm-types-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.bm-seg {
+  padding: 9px 8px;
+  border-radius: 9px;
+  border: 1.5px solid #334155;
+  background: #1e293b;
+  color: #e2e8f0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.14s ease, background 0.14s ease, color 0.14s ease;
+}
+
+.bm-seg:hover {
+  border-color: #64748b;
+}
+
+.bm-seg[aria-pressed="true"] {
+  border-color: #fde047;
+  background: linear-gradient(135deg, #eab308, #ca8a04);
+  color: #111827;
+}
+
+.bm-modal-footer {
+  padding: 14px 22px 18px;
+  border-top: 1px solid #1f2937;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.bm-btn-sync {
+  padding: 9px 13px;
+  border-radius: 9px;
+  border: 1px solid #475569;
+  background: #1e293b;
+  color: #cbd5e1;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bm-btn-sync:hover {
+  border-color: #38bdf8;
+  color: #ffffff;
+}
+
+.bm-btn-apply {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #22c55e, #15803d);
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(21, 128, 61, 0.4);
+}
+
+.bm-btn-apply:hover {
+  filter: brightness(1.08);
+}
+
+.bm-note {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.4;
+}
+
+@keyframes bmFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 520px) {
+  .bm-levels-eso {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .bm-types-grid {
+    grid-template-columns: 1fr;
+  }
+}
