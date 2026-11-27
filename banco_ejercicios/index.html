@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Banco de Ejercicios Matemáticos · Central para Juegos de Aula</title>
+  <meta name="description" content="Generador y servicio conectable de ejercicios y problemas matemáticos de opción múltiple (4 respuestas) para 1.º–4.º ESO y 1.º–2.º Bachillerato." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="api-standby-notice">Banco de Ejercicios Matemáticos · Servicio API activo (postMessage / BroadcastChannel)</div>
+
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">∑</div>
+          <div class="brand-text">
+            <h1>Banco de Ejercicios Matemáticos</h1>
+            <p>Servicio de operaciones y problemas tipo test (4 opciones) para juegos del aula</p>
+          </div>
+        </div>
+
+        <div class="topbar-actions">
+          <nav class="nav-tabs" role="tablist" aria-label="Secciones de la aplicación">
+            <button type="button" class="nav-tab" role="tab" data-tab="generador" aria-selected="true" id="tab-generador">
+              Generador y Prueba
+            </button>
+            <button type="button" class="nav-tab" role="tab" data-tab="conectar" aria-selected="false" id="tab-conectar">
+              Conectar Juegos (API)
+            </button>
+          </nav>
+          <a class="back-link" href="../index.html">← Lanzador</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-wrap">
+      <!-- ==================== VISTA 1: GENERADOR Y PRUEBA ==================== -->
+      <section id="panel-generador" class="view-panel" role="tabpanel" aria-labelledby="tab-generador">
+        <div class="studio-grid">
+          <!-- Panel lateral de configuración -->
+          <aside class="panel-card" aria-label="Configuración de ejercicios">
+            <div class="control-section">
+              <div class="section-header">
+                <span class="section-label">1. Temas</span>
+                <button type="button" class="link-btn" id="btn-toggle-all-topics">Seleccionar todos</button>
+              </div>
+              <div class="topic-grid" id="topic-grid"></div>
+            </div>
+
+            <div class="control-section">
+              <div class="section-header">
+                <span class="section-label">2. Nivel educativo</span>
+              </div>
+              <div class="stage-group">
+                <div class="stage-title">Educación Secundaria Obligatoria (ESO)</div>
+                <div class="level-row eso">
+                  <button type="button" class="seg-btn" data-nivel="1eso" aria-pressed="true" id="lvl-1eso">1.º</button>
+                  <button type="button" class="seg-btn" data-nivel="2eso" aria-pressed="false" id="lvl-2eso">2.º</button>
+                  <button type="button" class="seg-btn" data-nivel="3eso" aria-pressed="false" id="lvl-3eso">3.º</button>
+                  <button type="button" class="seg-btn" data-nivel="4eso" aria-pressed="false" id="lvl-4eso">4.º</button>
+                </div>
+              </div>
+              <div class="stage-group">
+                <div class="stage-title">Bachillerato</div>
+                <div class="level-row bach">
+                  <button type="button" class="seg-btn" data-nivel="1bach" aria-pressed="false" id="lvl-1bach">1.º Bach.</button>
+                  <button type="button" class="seg-btn" data-nivel="2bach" aria-pressed="false" id="lvl-2bach">2.º Bach.</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="control-section">
+              <div class="section-header">
+                <span class="section-label">3. Modalidad</span>
+              </div>
+              <div class="type-row">
+                <button type="button" class="seg-btn" data-tipo="operacion" aria-pressed="false" id="type-operacion">Operaciones</button>
+                <button type="button" class="seg-btn" data-tipo="problema" aria-pressed="false" id="type-problema">Problemas</button>
+                <button type="button" class="seg-btn" data-tipo="mixto" aria-pressed="true" id="type-mixto">Ambos</button>
+              </div>
+            </div>
+
+            <div class="control-section">
+              <div class="action-stack">
+                <button type="button" class="btn btn-primary" id="btn-generate-one">
+                  Generar nuevo ejercicio
+                </button>
+                <div class="batch-controls">
+                  <input type="number" class="qty-input" id="input-batch-qty" min="2" max="30" value="8" aria-label="Cantidad de ejercicios en el lote" />
+                  <button type="button" class="btn btn-secondary" id="btn-generate-batch">
+                    Generar lote
+                  </button>
+                </div>
+                <button type="button" class="btn btn-warm" id="btn-sync-aula">
+                  Fijar como configuración del aula
+                </button>
+              </div>
+              <div class="aula-status" id="aula-status-text"></div>
+            </div>
+          </aside>
+
+          <!-- Escenario principal de ejercicio y lote -->
+          <div>
+            <section class="stage-card" aria-live="polite" aria-label="Vista previa interactiva">
+              <div class="stage-top">
+                <div class="meta-crumbs" id="meta-crumbs"></div>
+                <div class="score-strip">
+                  <span>Aciertos: <strong id="score-correct">0</strong> / <strong id="score-total">0</strong></span>
+                </div>
+              </div>
+
+              <p class="exercise-statement" id="exercise-statement">Cargando ejercicio…</p>
+
+              <div class="choices-grid" id="choices-grid"></div>
+
+              <div class="feedback-box" id="feedback-box" hidden>
+                <div class="feedback-title" id="feedback-title"></div>
+                <p class="feedback-text" id="feedback-text"></p>
+              </div>
+
+              <div class="stage-footer">
+                <div class="kbd-hint">
+                  Atajos: <kbd>A</kbd>–<kbd>D</kbd> o <kbd>1</kbd>–<kbd>4</kbd> para responder · <kbd>Enter</kbd> siguiente
+                </div>
+                <div class="batch-tools">
+                  <button type="button" class="btn btn-secondary btn-sm" id="btn-copy-single-json">Copiar JSON</button>
+                  <button type="button" class="btn btn-primary btn-sm" id="btn-next-exercise">Siguiente →</button>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel-card batch-panel" id="batch-panel" hidden>
+              <div class="batch-header">
+                <h2 id="batch-title">Lote generado</h2>
+                <div class="batch-tools">
+                  <button type="button" class="btn btn-secondary btn-sm" id="btn-toggle-batch-solutions">Mostrar soluciones</button>
+                  <button type="button" class="btn btn-secondary btn-sm" id="btn-copy-batch-json">Copiar JSON</button>
+                  <button type="button" class="btn btn-primary btn-sm" id="btn-download-batch-json">Descargar JSON</button>
+                </div>
+              </div>
+              <div class="batch-list" id="batch-list"></div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== VISTA 2: CONECTAR JUEGOS (API) ==================== -->
+      <section id="panel-conectar" class="view-panel" role="tabpanel" aria-labelledby="tab-conectar" hidden>
+        <div class="connect-grid">
+          <div class="panel-card connect-intro">
+            <h2>Cómo conectar tus juegos</h2>
+            <p>
+              Cualquier juego del repositorio (o alojado en otra web) puede solicitar ejercicios o lotes completos de 4 opciones indicando tema, nivel y tipo, o bien heredar la configuración activa que el profesor haya fijado en el aula.
+            </p>
+
+            <div class="code-block-wrap">
+              <div class="code-head">
+                <h3>1. Conexión rápida con 1 script (recomendada)</h3>
+                <button type="button" class="btn btn-secondary btn-sm" data-copy-target="snippet-client">Copiar</button>
+              </div>
+              <pre class="code-box" id="snippet-client">&lt;script src="../banco_ejercicios/client.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  async function nuevaPregunta() {
+    const ej = await BancoMathClient.solicitarEjercicio({
+      tema: 'ecuaciones',     // 'enteros' | 'fracciones' | 'potencias' | 'ecuaciones' | 'funciones' | 'mixto'
+      nivel: '3eso',          // '1eso' | '2eso' | '3eso' | '4eso' | '1bach' | '2bach'
+      tipo: 'problema'        // 'operacion' | 'problema' | 'mixto'
+    });
+    console.log(ej.enunciado, ej.opciones, ej.indiceCorrecto);
+  }
+&lt;/script&gt;</pre>
+            </div>
+
+            <div class="code-block-wrap">
+              <div class="code-head">
+                <h3>2. Pedir un lote usando la configuración activa del profesor</h3>
+                <button type="button" class="btn btn-secondary btn-sm" data-copy-target="snippet-aula">Copiar</button>
+              </div>
+              <pre class="code-box" id="snippet-aula">const lote = await BancoMathClient.solicitarLote({
+  usarConfiguracionAula: true,
+  cantidad: 10,
+  origen: 'MiJuegoDeAula'
+});</pre>
+            </div>
+
+            <div class="code-block-wrap">
+              <div class="code-head">
+                <h3>3. Conexión remota directa por iframe + postMessage</h3>
+                <button type="button" class="btn btn-secondary btn-sm" data-copy-target="snippet-iframe">Copiar</button>
+              </div>
+              <pre class="code-box" id="snippet-iframe">const frame = document.createElement('iframe');
+frame.src = '../banco_ejercicios/index.html?modo=api';
+frame.style.display = 'none';
+document.body.appendChild(frame);
+
+window.addEventListener('message', (ev) =&gt; {
+  if (ev.data?.type === 'BANCO_MATH_READY') {
+    frame.contentWindow.postMessage({
+      type: 'BANCO_MATH_REQUEST',
+      requestId: 'peticion-1',
+      action: 'solicitarLote',
+      params: { tema: 'fracciones', nivel: '2eso', tipo: 'operacion', cantidad: 5 }
+    }, '*');
+  }
+  if (ev.data?.type === 'BANCO_MATH_RESPONSE') {
+    console.log('Ejercicios recibidos:', ev.data.ejercicios);
+  }
+});</pre>
+            </div>
+          </div>
+
+          <div class="panel-card">
+            <div class="section-header">
+              <span class="section-label">Simulador de petición desde un juego</span>
+            </div>
+
+            <div class="sim-form">
+              <div class="field">
+                <label for="sim-tema">Tema</label>
+                <select id="sim-tema">
+                  <option value="enteros">Enteros</option>
+                  <option value="fracciones">Fracciones</option>
+                  <option value="potencias">Potencias</option>
+                  <option value="ecuaciones" selected>Ecuaciones</option>
+                  <option value="funciones">Funciones</option>
+                  <option value="mixto">Mixto (todos)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="sim-nivel">Nivel</label>
+                <select id="sim-nivel">
+                  <option value="1eso">1.º ESO</option>
+                  <option value="2eso">2.º ESO</option>
+                  <option value="3eso" selected>3.º ESO</option>
+                  <option value="4eso">4.º ESO</option>
+                  <option value="1bach">1.º Bachillerato</option>
+                  <option value="2bach">2.º Bachillerato</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="sim-tipo">Tipo</label>
+                <select id="sim-tipo">
+                  <option value="operacion">Operación</option>
+                  <option value="problema">Problema</option>
+                  <option value="mixto" selected>Mixto</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="sim-cantidad">Cantidad</label>
+                <input type="number" id="sim-cantidad" min="1" max="10" value="2" />
+              </div>
+            </div>
+
+            <label class="sim-check">
+              <input type="checkbox" id="sim-usar-aula" />
+              Usar la configuración activa del aula fijada por el profesor
+            </label>
+
+            <button type="button" class="btn btn-primary" id="btn-run-sim" style="width: 100%; margin-bottom: 14px;">
+              Simular petición de juego
+            </button>
+
+            <div class="section-header" style="margin-top: 6px;">
+              <span class="section-label">Respuesta JSON devuelta al juego</span>
+            </div>
+            <pre class="code-box" id="sim-output" style="max-height: 290px;"></pre>
+
+            <div class="section-header" style="margin-top: 18px;">
+              <span class="section-label">Registro en vivo de peticiones externas</span>
+            </div>
+            <div class="log-list" id="connection-log"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Motor modular y servicio API -->
+  <script src="engine/utils.js"></script>
+  <script src="engine/generators/enteros.js"></script>
+  <script src="engine/generators/fracciones.js"></script>
+  <script src="engine/generators/potencias.js"></script>
+  <script src="engine/generators/ecuaciones.js"></script>
+  <script src="engine/generators/funciones.js"></script>
+  <script src="api.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
