@@ -30,6 +30,10 @@
         <span>📚 Ejercicios</span>
         <span class="bm-trigger-badge">1.º ESO · Enteros</span>
       </button>
+      <button type="button" id="btn-records" class="ctrl-btn btn-records" title="Ver los mejores tiempos por circuito y curso">
+        <span>🏆</span>
+        <span>Récords</span>
+      </button>
       <button type="button" id="btn-sound" class="ctrl-btn btn-sound" title="Activar o silenciar sonido">
         <span id="sound-icon">🔊</span>
         <span id="sound-text">Sonido: ON</span>
@@ -250,6 +254,7 @@
 
         <div class="modal-actions">
           <button type="button" id="btn-rematch" class="modal-btn-primary font-pixel">🏁 REVANCHA</button>
+          <button type="button" id="btn-podium-records" class="modal-btn-records">🏆 Ver Récords</button>
           <button type="button" id="btn-to-setup" class="modal-btn-secondary">🗺️ Cambiar Circuito / Pilotos</button>
         </div>
       </div>
@@ -271,6 +276,41 @@
       </div>
     </div>
   </section>
+
+  <!-- =====================================================================
+       MODAL GLOBAL: MEJORES TIEMPOS POR CIRCUITO Y CURSO DE DIFICULTAD
+       ===================================================================== -->
+  <div id="records-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="records-modal-title">
+    <div class="modal-card modal-card--records">
+      <div class="records-header">
+        <div>
+          <h2 id="records-modal-title" class="modal-title font-pixel" style="margin-bottom:0.2rem;">🏆 MEJORES TIEMPOS</h2>
+          <p class="records-subtitle">Récords guardados por circuito y curso de dificultad</p>
+        </div>
+        <button type="button" id="btn-records-close" class="records-close-btn" aria-label="Cerrar récords">✕</button>
+      </div>
+
+      <!-- Selector de Curso / Nivel -->
+      <div class="records-filter-block">
+        <span class="mini-label">Curso / Nivel de dificultad:</span>
+        <div id="records-level-tabs" class="records-level-tabs" role="tablist" aria-label="Filtrar récords por curso"></div>
+      </div>
+
+      <!-- Selector de Circuito -->
+      <div class="records-filter-block">
+        <span class="mini-label">Circuito:</span>
+        <div id="records-circuit-tabs" class="records-circuit-tabs" role="tablist" aria-label="Filtrar récords por circuito"></div>
+      </div>
+
+      <!-- Contenido dinámico (resumen de 6 circuitos o Top 5 detallado de 1 circuito) -->
+      <div id="records-body" class="records-body"></div>
+
+      <div class="records-footer">
+        <button type="button" id="btn-records-clear" class="btn-records-clear">🗑️ Borrar récords mostrados</button>
+        <button type="button" id="btn-records-done" class="modal-btn-secondary">Cerrar</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Banco de Ejercicios (motor compartido) -->
   <script src="../banco_ejercicios/engine/utils.js"></script>

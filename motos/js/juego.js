@@ -23,8 +23,27 @@
     riders: Data.DEFAULT_RIDERS.map((r) => Object.assign({}, r))
   };
 
+  const RECORDS_STORAGE_KEY = 'motogp_records_by_circuit_level_v1';
+  const MAX_RECORDS_PER_BUCKET = 5;
+
+  const LEVEL_ORDER = [
+    { id: '1eso', label: '1.º ESO', short: '1.º ESO' },
+    { id: '2eso', label: '2.º ESO', short: '2.º ESO' },
+    { id: '3eso', label: '3.º ESO', short: '3.º ESO' },
+    { id: '4eso', label: '4.º ESO', short: '4.º ESO' },
+    { id: '1bach', label: '1.º Bachillerato', short: '1.º Bach.' },
+    { id: '2bach', label: '2.º Bachillerato', short: '2.º Bach.' }
+  ];
+
+  const recordsUiState = {
+    selectedLevel: '1eso',
+    selectedCircuit: 'all',
+    confirmClearUntil: 0
+  };
+
   const raceState = {
     circuit: null,
+    nivelId: '1eso',
     racers: [],
     currentPartIndex: 0, // 0 .. parts-1
     roundOrder: [],      // array of racer IDs for current part
@@ -132,6 +151,14 @@
     updateConfigSummaries();
     Audio.play('click');
 
+    const cfg = selectorEjercicios ? selectorEjercicios.getConfig() : null;
+    if (cfg && cfg.nivel && raceState.phase !== 'idle' && raceState.phase !== 'finished') {
+      raceState.nivelId = cfg.nivel;
+    }
+
+    // Actualizar las tarjetas de circuitos para reflejar el récord del curso recién elegido
+    renderCircuitsGrid();
+
     // Si el docente cambia de tema mientras hay una pregunta abierta, refrescamos la pregunta y reiniciamos el crono del tramo
     if (raceState.phase === 'answering') {
       launchCurrentTurn(true);
@@ -145,6 +172,9 @@
     const grid = document.getElementById('circuits-grid');
     if (!grid) return;
 
+    const activeNivel = getActiveNivelId();
+    const nivelShort = getLevelShortLabel(activeNivel);
+
     const list = Data.CIRCUITS.filter((c) => {
       if (setupState.filterParts === 'all') return true;
       return c.parts === Number(setupState.filterParts);
@@ -153,6 +183,12 @@
     // Asegurar que el circuito seleccionado sea visible o se mantenga
     grid.innerHTML = list.map((c) => {
       const isSelected = c.id === setupState.selectedCircuitId;
+      const topList = getRecordsFor(c.id, activeNivel);
+      const best = topList[0] || null;
+      const recPillHtml = best
+        ? `<div class="circuit-record-pill has-record"><span>🏆 ${escapeHtml(nivelShort)} · ${escapeHtml(best.name)}</span><span class="font-mono">${formatLapTime(best.time)}</span></div>`
+        : `<div class="circuit-record-pill"><span>🏆 ${escapeHtml(nivelShort)}</span><span>Sin récord</span></div>`;
+
       return `
         <button type="button" class="circuit-card ${isSelected ? 'active' : ''}" data-circuit-id="${c.id}">
           <div class="circuit-thumb-wrap">
@@ -161,6 +197,7 @@
           </div>
           <div class="circuit-card-name"><span>${c.icon}</span><span>${escapeHtml(c.name)}</span></div>
           <div class="circuit-card-desc">${escapeHtml(c.description)}</div>
+          ${recPillHtml}
         </button>
       `;
     }).join('');
@@ -316,6 +353,7 @@
 
     const circuit = Data.getCircuitById(setupState.selectedCircuitId);
     raceState.circuit = circuit;
+    raceState.nivelId = getActiveNivelId();
     raceState.racers = setupState.riders.slice(0, setupState.playerCount).map((r, idx) => ({
       id: r.id,
       name: r.name,
@@ -720,24 +758,336 @@
   }
 
   /* ==========================================================================
-   * PODIO FINAL Y RÉCORDS EN LOCALSTORAGE
+   * RÉCORDS POR CIRCUITO Y CURSO DE DIFICULTAD (LOCALSTORAGE + MODAL)
    * ========================================================================== */
-  function getBestRecordKey(circuitId) {
-    return `motogp_best_${circuitId}`;
+  function getActiveNivelId() {
+    if (selectorEjercicios && typeof selectorEjercicios.getConfig === 'function') {
+      const cfg = selectorEjercicios.getConfig();
+      if (cfg && cfg.nivel) return cfg.nivel;
+    }
+    return '1eso';
   }
 
-  function checkAndSaveCircuitRecord(circuitId, timeSec) {
-    try {
-      const key = getBestRecordKey(circuitId);
-      const prev = parseFloat(localStorage.getItem(key));
-      if (!Number.isFinite(prev) || timeSec < prev) {
-        localStorage.setItem(key, String(timeSec));
-        return { isNew: true, best: timeSec };
-      }
-      return { isNew: false, best: prev };
-    } catch (_) {
-      return { isNew: false, best: timeSec };
+  function getLevelLabel(nivelId) {
+    const api = root.BancoMatematicas;
+    if (api && api.NIVELES && api.NIVELES[nivelId]) {
+      return api.NIVELES[nivelId].label;
     }
+    const found = LEVEL_ORDER.find((l) => l.id === nivelId);
+    return found ? found.label : nivelId;
+  }
+
+  function getLevelShortLabel(nivelId) {
+    const found = LEVEL_ORDER.find((l) => l.id === nivelId);
+    return found ? found.short : getLevelLabel(nivelId);
+  }
+
+  function loadAllRecords() {
+    try {
+      const raw = localStorage.getItem(RECORDS_STORAGE_KEY);
+      if (!raw) return {};
+      const parsed = JSON.parse(raw);
+      return (parsed && typeof parsed === 'object') ? parsed : {};
+    } catch (_) {
+      return {};
+    }
+  }
+
+  function saveAllRecords(store) {
+    try {
+      localStorage.setItem(RECORDS_STORAGE_KEY, JSON.stringify(store));
+    } catch (_) {}
+  }
+
+  function getRecordsFor(circuitId, nivelId) {
+    const store = loadAllRecords();
+    const list = store[circuitId] && Array.isArray(store[circuitId][nivelId])
+      ? store[circuitId][nivelId]
+      : [];
+    return list.slice().sort((a, b) => a.time - b.time);
+  }
+
+  function countRecordsForLevel(nivelId) {
+    const store = loadAllRecords();
+    let count = 0;
+    Data.CIRCUITS.forEach((c) => {
+      if (store[c.id] && Array.isArray(store[c.id][nivelId])) {
+        count += store[c.id][nivelId].length;
+      }
+    });
+    return count;
+  }
+
+  function formatShortDate(isoStr) {
+    if (!isoStr) return '—';
+    try {
+      const d = new Date(isoStr);
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      return `${dd}/${mm}`;
+    } catch (_) {
+      return '—';
+    }
+  }
+
+  function recordRaceFinishers(circuitId, nivelId, standings) {
+    const store = loadAllRecords();
+    if (!store[circuitId]) store[circuitId] = {};
+    const prevList = Array.isArray(store[circuitId][nivelId]) ? store[circuitId][nivelId].slice() : [];
+    const prevBestTime = prevList.length ? prevList[0].time : Infinity;
+
+    const cfg = selectorEjercicios ? selectorEjercicios.getConfig() : { temas: ['enteros'], tipo: 'operacion' };
+    const api = root.BancoMatematicas;
+    const temasShort = (cfg.temas || []).map((t) => (api && api.TEMAS && api.TEMAS[t] ? api.TEMAS[t].corto : t)).join(', ');
+    const nowIso = new Date().toISOString();
+
+    const merged = prevList.concat(
+      standings.map((r) => ({
+        name: r.name,
+        time: Number(r.totalTime.toFixed(2)),
+        hits: r.hits,
+        misses: r.misses,
+        teamId: r.id,
+        temas: temasShort || 'Enteros',
+        tipo: cfg.tipo || 'operacion',
+        date: nowIso
+      }))
+    );
+
+    merged.sort((a, b) => {
+      if (Math.abs(a.time - b.time) > 0.0005) return a.time - b.time;
+      return (b.hits || 0) - (a.hits || 0);
+    });
+
+    const trimmed = merged.slice(0, MAX_RECORDS_PER_BUCKET);
+    store[circuitId][nivelId] = trimmed;
+    saveAllRecords(store);
+
+    const winner = standings[0];
+    const isNewRecord = winner && (winner.totalTime < prevBestTime - 0.005 || !Number.isFinite(prevBestTime));
+    const bestEntry = trimmed[0] || { name: winner.name, time: winner.totalTime };
+
+    return {
+      isNew: Boolean(isNewRecord),
+      best: bestEntry.time,
+      bestHolder: bestEntry.name,
+      topList: trimmed
+    };
+  }
+
+  function openRecordsModal(opts) {
+    Audio.play('click');
+    const options = opts || {};
+    recordsUiState.selectedLevel = options.nivelId || getActiveNivelId();
+    recordsUiState.selectedCircuit = options.circuitId || 'all';
+    recordsUiState.confirmClearUntil = 0;
+
+    renderRecordsModal();
+    document.getElementById('records-modal').classList.remove('hidden');
+  }
+
+  function closeRecordsModal() {
+    recordsUiState.confirmClearUntil = 0;
+    document.getElementById('records-modal').classList.add('hidden');
+  }
+
+  function renderRecordsModal() {
+    const levelTabsEl = document.getElementById('records-level-tabs');
+    const circuitTabsEl = document.getElementById('records-circuit-tabs');
+    const bodyEl = document.getElementById('records-body');
+    const clearBtn = document.getElementById('btn-records-clear');
+    if (!levelTabsEl || !circuitTabsEl || !bodyEl) return;
+
+    const selLevel = recordsUiState.selectedLevel;
+    const selCircuit = recordsUiState.selectedCircuit;
+    const levelLabel = getLevelLabel(selLevel);
+
+    // 1. Pestañas de curso / dificultad
+    levelTabsEl.innerHTML = LEVEL_ORDER.map((lvl) => {
+      const cnt = countRecordsForLevel(lvl.id);
+      const isAct = lvl.id === selLevel;
+      return `
+        <button type="button" class="rec-tab-btn ${isAct ? 'active' : ''}" data-rec-level="${lvl.id}" role="tab" aria-selected="${isAct}">
+          <span>${escapeHtml(lvl.short)}</span>
+          ${cnt > 0 ? `<span class="rec-tab-count">${cnt}</span>` : ''}
+        </button>
+      `;
+    }).join('');
+
+    levelTabsEl.querySelectorAll('[data-rec-level]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        Audio.play('click');
+        recordsUiState.selectedLevel = btn.dataset.recLevel;
+        recordsUiState.confirmClearUntil = 0;
+        renderRecordsModal();
+      });
+    });
+
+    // 2. Pestañas de circuito
+    circuitTabsEl.innerHTML = `
+      <button type="button" class="rec-tab-btn ${selCircuit === 'all' ? 'active' : ''}" data-rec-circuit="all" role="tab" aria-selected="${selCircuit === 'all'}">
+        🗺️ Todos los circuitos
+      </button>
+      ${Data.CIRCUITS.map((c) => {
+        const list = getRecordsFor(c.id, selLevel);
+        const isAct = selCircuit === c.id;
+        return `
+          <button type="button" class="rec-tab-btn ${isAct ? 'active' : ''}" data-rec-circuit="${c.id}" role="tab" aria-selected="${isAct}">
+            <span>${c.icon} ${escapeHtml(c.name)} (${c.parts}p)</span>
+            ${list.length > 0 ? `<span class="rec-tab-count">${list.length}</span>` : ''}
+          </button>
+        `;
+      }).join('')}
+    `;
+
+    circuitTabsEl.querySelectorAll('[data-rec-circuit]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        Audio.play('click');
+        recordsUiState.selectedCircuit = btn.dataset.recCircuit;
+        recordsUiState.confirmClearUntil = 0;
+        renderRecordsModal();
+      });
+    });
+
+    // 3. Cuerpo: vista resumen (6 circuitos) o vista detallada Top 5 de 1 circuito
+    const medals = ['🥇', '🥈', '🥉', '4.º', '5.º'];
+    if (selCircuit === 'all') {
+      bodyEl.innerHTML = `
+        <div class="records-summary-grid">
+          ${Data.CIRCUITS.map((c) => {
+            const list = getRecordsFor(c.id, selLevel).slice(0, 3);
+            const rowsHtml = list.length
+              ? `<div class="rec-mini-list">
+                  ${list.map((entry, idx) => {
+                    const pal = Data.TEAM_PALETTES[entry.teamId] || Data.TEAM_PALETTES[1];
+                    return `
+                      <div class="rec-mini-row ${idx === 0 ? 'rank-1' : ''}">
+                        <span class="rec-mini-left">
+                          <span>${medals[idx]}</span>
+                          <span style="width:8px;height:8px;border-radius:2px;background:${pal.cssMain};flex-shrink:0;"></span>
+                          <span class="rec-mini-rider">${escapeHtml(entry.name)}</span>
+                        </span>
+                        <span class="rec-mini-time font-mono">${formatLapTime(entry.time)}</span>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>`
+              : `<div class="rec-empty-note">Sin tiempos guardados en ${escapeHtml(levelLabel)}</div>`;
+
+            return `
+              <div class="record-circuit-box" data-open-circuit="${c.id}" title="Ver Top 5 de ${escapeHtml(c.name)}">
+                <div class="rec-box-head">
+                  <span class="rec-box-name">${c.icon} ${escapeHtml(c.name)}</span>
+                  <span class="circuit-parts-tag parts-${c.parts}" style="position:static;">${c.badge}</span>
+                </div>
+                ${rowsHtml}
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+
+      bodyEl.querySelectorAll('[data-open-circuit]').forEach((card) => {
+        card.addEventListener('click', () => {
+          Audio.play('click');
+          recordsUiState.selectedCircuit = card.dataset.openCircuit;
+          recordsUiState.confirmClearUntil = 0;
+          renderRecordsModal();
+        });
+      });
+    } else {
+      const circuit = Data.getCircuitById(selCircuit);
+      const list = getRecordsFor(circuit.id, selLevel);
+      const tableHtml = list.length
+        ? `
+          <table class="podium-table" style="margin-bottom:0;">
+            <thead>
+              <tr>
+                <th>Pos</th>
+                <th>Piloto</th>
+                <th>Tiempo</th>
+                <th>Aciertos</th>
+                <th>Temas</th>
+                <th>Fecha</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${list.map((entry, idx) => {
+                const pal = Data.TEAM_PALETTES[entry.teamId] || Data.TEAM_PALETTES[1];
+                return `
+                  <tr class="${idx === 0 ? 'is-winner' : ''}">
+                    <td>${medals[idx] || `${idx + 1}.º`}</td>
+                    <td>
+                      <span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:${pal.cssMain};margin-right:6px;"></span>
+                      ${escapeHtml(entry.name)}
+                    </td>
+                    <td class="font-mono" style="color:#4ade80;">${formatLapTime(entry.time)}</td>
+                    <td>✓ ${entry.hits || 0} / ✗ ${entry.misses || 0}</td>
+                    <td style="color:#cbd5e1;font-size:0.8rem;">${escapeHtml(entry.temas || '—')}</td>
+                    <td class="font-mono" style="color:#94a3b8;font-size:0.8rem;">${formatShortDate(entry.date)}</td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        `
+        : `<div class="rec-empty-note" style="padding:2rem 1rem;">Todavía no hay tiempos registrados en <strong>${escapeHtml(circuit.name)}</strong> para <strong>${escapeHtml(levelLabel)}</strong>. ¡Completa una carrera para estrenar el marcador!</div>`;
+
+      bodyEl.innerHTML = `
+        <div class="rec-detail-header">
+          <span class="rec-detail-title">${circuit.icon} ${escapeHtml(circuit.name)} (${circuit.parts} partes) · ${escapeHtml(levelLabel)}</span>
+          <span style="font-size:0.8rem;color:#94a3b8;font-weight:700;">Top ${MAX_RECORDS_PER_BUCKET} mejores vueltas</span>
+        </div>
+        ${tableHtml}
+      `;
+    }
+
+    // 4. Botón de borrado seguro en dos pasos
+    if (clearBtn) {
+      const hasAny = selCircuit === 'all'
+        ? countRecordsForLevel(selLevel) > 0
+        : getRecordsFor(selCircuit, selLevel).length > 0;
+      clearBtn.disabled = !hasAny;
+      clearBtn.style.opacity = hasAny ? '1' : '0.4';
+      clearBtn.classList.remove('confirming');
+      clearBtn.textContent = selCircuit === 'all'
+        ? `🗑️ Borrar récords de ${getLevelShortLabel(selLevel)}`
+        : `🗑️ Borrar récords de este circuito (${getLevelShortLabel(selLevel)})`;
+    }
+  }
+
+  function handleClearRecordsClick() {
+    const clearBtn = document.getElementById('btn-records-clear');
+    if (!clearBtn || clearBtn.disabled) return;
+
+    const now = performance.now();
+    if (now > recordsUiState.confirmClearUntil) {
+      Audio.play('click');
+      recordsUiState.confirmClearUntil = now + 4000;
+      clearBtn.classList.add('confirming');
+      clearBtn.textContent = '⚠️ Pulsa otra vez para confirmar borrado';
+      return;
+    }
+
+    Audio.play('skid');
+    const store = loadAllRecords();
+    const selLevel = recordsUiState.selectedLevel;
+    const selCircuit = recordsUiState.selectedCircuit;
+
+    if (selCircuit === 'all') {
+      Data.CIRCUITS.forEach((c) => {
+        if (store[c.id] && store[c.id][selLevel]) {
+          delete store[c.id][selLevel];
+        }
+      });
+    } else if (store[selCircuit] && store[selCircuit][selLevel]) {
+      delete store[selCircuit][selLevel];
+    }
+
+    saveAllRecords(store);
+    recordsUiState.confirmClearUntil = 0;
+    renderRecordsModal();
+    renderCircuitsGrid();
   }
 
   function showPodium() {
@@ -746,15 +1096,17 @@
     Audio.play('victory');
 
     const circuit = raceState.circuit;
+    const nivelId = raceState.nivelId || getActiveNivelId();
+    const nivelLabel = getLevelLabel(nivelId);
     const standings = getSortedStandings();
     const winner = standings[0];
-    const rec = checkAndSaveCircuitRecord(circuit.id, winner.totalTime);
+    const rec = recordRaceFinishers(circuit.id, nivelId, standings);
 
     document.getElementById('podium-title').textContent = standings.length === 1
       ? `¡META ALCANZADA, ${winner.name.toUpperCase()}!`
       : `¡VICTORIA PARA ${winner.name.toUpperCase()}!`;
     document.getElementById('podium-subtitle').textContent =
-      `${circuit.icon} ${circuit.name} (${circuit.parts} partes) · Mejor vuelta histórica: ${formatLapTime(rec.best)}`;
+      `${circuit.icon} ${circuit.name} (${circuit.parts} partes) · ${nivelLabel} · Récord: ${formatLapTime(rec.best)} (${rec.bestHolder})`;
 
     document.getElementById('winner-name-big').textContent = winner.name;
     document.getElementById('winner-time-big').textContent = formatLapTime(winner.totalTime);
@@ -770,11 +1122,11 @@
       } else if (avgPerPart <= circuit.silverTargetPerPart) {
         medal = '🥈 Medalla de Plata';
       }
-      medalEl.textContent = rec.isNew ? `${medal} · ⭐ ¡Nuevo Récord!` : medal;
+      medalEl.textContent = rec.isNew ? `${medal} · ⭐ ¡Nuevo Récord en ${nivelLabel}!` : medal;
     } else {
       medalEl.textContent = rec.isNew
-        ? '🏆 Campeón del GP · ⭐ ¡Nuevo Récord del Circuito!'
-        : '🏆 Campeón del Gran Premio';
+        ? `🏆 Campeón del GP · ⭐ ¡Nuevo Récord en ${nivelLabel}!`
+        : `🏆 Campeón del Gran Premio (${nivelLabel})`;
     }
 
     Pixel.registerBikePreview('podium-winner', document.getElementById('winner-bike-box'), winner, { state: 'victory' });
@@ -801,6 +1153,7 @@
     }).join('');
 
     renderStandingsTable();
+    renderCircuitsGrid();
     document.getElementById('podium-overlay').classList.remove('hidden');
   }
 
@@ -855,6 +1208,7 @@
     document.getElementById('reset-modal').classList.add('hidden');
     document.getElementById('setup-screen').classList.remove('hidden');
 
+    renderCircuitsGrid();
     renderRidersSetup();
   }
 
@@ -878,6 +1232,13 @@
   }
 
   function handleKeyShortcuts(e) {
+    // Cerrar modal de récords con Escape
+    const recordsModal = document.getElementById('records-modal');
+    if (recordsModal && !recordsModal.classList.contains('hidden')) {
+      if (e.key === 'Escape') closeRecordsModal();
+      return;
+    }
+
     // No interferir si se está escribiendo un nombre o si el modal del Banco está abierto
     const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
     if (tag === 'input' || tag === 'textarea') return;
@@ -962,11 +1323,25 @@
     document.getElementById('btn-next-turn').addEventListener('click', advanceAfterFeedback);
 
     // 5. Controles de barra superior y modales
+    document.getElementById('btn-records').addEventListener('click', () => openRecordsModal());
+    document.getElementById('btn-records-close').addEventListener('click', closeRecordsModal);
+    document.getElementById('btn-records-done').addEventListener('click', closeRecordsModal);
+    document.getElementById('btn-records-clear').addEventListener('click', handleClearRecordsClick);
+    document.getElementById('records-modal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closeRecordsModal();
+    });
+
     document.getElementById('btn-sound').addEventListener('click', toggleSound);
     document.getElementById('btn-restart').addEventListener('click', handleRestartClick);
     bindFullscreen();
 
     document.getElementById('btn-rematch').addEventListener('click', startRace);
+    document.getElementById('btn-podium-records').addEventListener('click', () => {
+      openRecordsModal({
+        nivelId: raceState.nivelId || getActiveNivelId(),
+        circuitId: raceState.circuit ? raceState.circuit.id : 'all'
+      });
+    });
     document.getElementById('btn-to-setup').addEventListener('click', goBackToSetup);
     document.getElementById('btn-reset-race').addEventListener('click', startRace);
     document.getElementById('btn-reset-setup').addEventListener('click', goBackToSetup);

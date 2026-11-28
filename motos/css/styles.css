@@ -418,6 +418,8 @@ body {
   border-radius: 3px;
   font-size: 0.68rem;
   font-weight: 900;
+  white-space: nowrap;
+  flex-shrink: 0;
   letter-spacing: 0.04em;
   background: #0f172a;
   color: var(--gold);
@@ -1485,6 +1487,297 @@ body {
   font-weight: 700;
   font-size: 0.9rem;
   cursor: pointer;
+}
+
+.modal-btn-records {
+  padding: 0.78rem 1.2rem;
+  border-radius: 7px;
+  border: 2px solid #fde047;
+  background: linear-gradient(180deg, #ca8a04 0%, #a16207 100%);
+  color: #fffbeb;
+  font-weight: 900;
+  font-size: 0.9rem;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #422006;
+}
+
+.modal-btn-records:hover {
+  filter: brightness(1.08);
+}
+
+/* Botón Récords en barra superior y pill en tarjeta de circuito */
+.btn-records {
+  background: linear-gradient(180deg, #a16207 0%, #713f12 100%);
+  border-color: #facc15;
+  color: #fef9c3;
+}
+
+.btn-records:hover {
+  background: linear-gradient(180deg, #ca8a04 0%, #854d0e 100%);
+  border-color: #fef08a;
+}
+
+.circuit-record-pill {
+  margin-top: auto;
+  padding: 0.28rem 0.48rem;
+  border-radius: 4px;
+  background: #0d131d;
+  border: 1px solid #334155;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+}
+
+.circuit-record-pill.has-record {
+  border-color: rgba(250, 204, 21, 0.55);
+  color: #fde047;
+  background: rgba(250, 204, 21, 0.08);
+}
+
+/* ==========================================================================
+   MODAL DE RÉCORDS POR CIRCUITO Y CURSO
+   ========================================================================== */
+.modal-card--records {
+  width: min(880px, 100%);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.records-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 2px solid #293548;
+}
+
+.records-subtitle {
+  font-size: 0.88rem;
+  color: var(--text-soft);
+  margin-top: 0.25rem;
+}
+
+.records-close-btn {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  border: 2px solid #475569;
+  background: #131a26;
+  color: var(--text-main);
+  font-size: 1rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.records-close-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.records-filter-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.records-level-tabs,
+.records-circuit-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.rec-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.72rem;
+  border-radius: 5px;
+  border: 2px solid #334155;
+  background: #111722;
+  color: var(--text-soft);
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.rec-tab-btn:hover {
+  border-color: #64748b;
+  color: #ffffff;
+}
+
+.rec-tab-btn.active {
+  background: linear-gradient(180deg, #facc15 0%, #eab308 100%);
+  border-color: #fef08a;
+  color: #0f172a;
+}
+
+.rec-tab-count {
+  font-size: 0.68rem;
+  font-weight: 900;
+  padding: 1px 5px;
+  border-radius: 99px;
+  background: rgba(15, 23, 42, 0.72);
+  color: #fde047;
+}
+
+.rec-tab-btn.active .rec-tab-count {
+  background: #0f172a;
+  color: #fde047;
+}
+
+.records-body {
+  min-height: 240px;
+}
+
+.records-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
+  gap: 0.7rem;
+}
+
+.record-circuit-box {
+  background: #101622;
+  border: 2px solid #2b384c;
+  border-radius: 7px;
+  padding: 0.7rem 0.78rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: border-color 0.12s ease, transform 0.1s ease;
+}
+
+.record-circuit-box:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+
+.rec-box-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid #243044;
+}
+
+.rec-box-name {
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--text-main);
+}
+
+.rec-mini-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.rec-mini-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  padding: 0.26rem 0.4rem;
+  border-radius: 4px;
+  background: #172030;
+}
+
+.rec-mini-row.rank-1 {
+  background: rgba(250, 204, 21, 0.12);
+  border: 1px solid rgba(250, 204, 21, 0.35);
+}
+
+.rec-mini-left {
+  display: flex;
+  align-items: center;
+  gap: 0.38rem;
+  min-width: 0;
+  font-weight: 700;
+}
+
+.rec-mini-rider {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rec-mini-time {
+  color: #4ade80;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.rec-empty-note {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 0.6rem 0.2rem;
+  text-align: center;
+}
+
+.rec-detail-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-bottom: 0.65rem;
+  padding: 0.55rem 0.75rem;
+  background: #101622;
+  border: 2px solid #2b384c;
+  border-radius: 6px;
+}
+
+.rec-detail-title {
+  font-weight: 900;
+  font-size: 1rem;
+  color: var(--gold);
+}
+
+.records-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-top: 0.65rem;
+  border-top: 2px solid #293548;
+}
+
+.btn-records-clear {
+  padding: 0.55rem 0.9rem;
+  border-radius: 6px;
+  border: 2px solid #475569;
+  background: #171e2b;
+  color: #fca5a5;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.btn-records-clear:hover {
+  border-color: #f87171;
+  background: rgba(220, 38, 38, 0.16);
+}
+
+.btn-records-clear.confirming {
+  background: #dc2626;
+  border-color: #fca5a5;
+  color: #ffffff;
 }
 
 /* ==========================================================================
