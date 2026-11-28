@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Moto GP Matemático: juego educativo de carreras de motos pixel-art 16-bit de 1 a 4 jugadores con circuitos de 5, 7 y 10 partes conectado al Banco de Ejercicios.">
+  <title>Moto GP Matemático — Carreras de Motos 16-Bit Pixel Art</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@600;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../banco_ejercicios/selector.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- =====================================================================
+       BARRA SUPERIOR PERMANENTE DE CONTROLES
+       ===================================================================== -->
+  <header class="top-bar">
+    <div class="brand">
+      <div class="brand-emblem" aria-hidden="true">🏍️</div>
+      <div>
+        <div class="brand-title font-pixel">MOTO GP MATEMÁTICO</div>
+        <div id="brand-sub" class="brand-sub">Carreras Pixel Art 16-bit · 1.º ESO · Enteros</div>
+      </div>
+    </div>
+
+    <div class="top-controls">
+      <button type="button" id="btn-selector-ejercicios" data-label="📚 Ejercicios" title="Elegir temas, curso y tipo de ejercicio">
+        <span>📚 Ejercicios</span>
+        <span class="bm-trigger-badge">1.º ESO · Enteros</span>
+      </button>
+      <button type="button" id="btn-sound" class="ctrl-btn btn-sound" title="Activar o silenciar sonido">
+        <span id="sound-icon">🔊</span>
+        <span id="sound-text">Sonido: ON</span>
+      </button>
+      <button type="button" id="btn-restart" class="ctrl-btn btn-restart" title="Reiniciar carrera o configuración">
+        <span>🔄</span>
+        <span>Reiniciar</span>
+      </button>
+      <button type="button" id="btn-fullscreen" class="ctrl-btn btn-fullscreen" title="Alternar pantalla completa">
+        <span id="fs-icon">⛶</span>
+        <span id="fs-text">Pantalla Completa</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- =====================================================================
+       PANTALLA 1: PADDOCK / CONFIGURACIÓN (1-4 JUGADORES Y CIRCUITOS)
+       ===================================================================== -->
+  <main id="setup-screen" class="setup-screen">
+    <div class="setup-container">
+      <section class="setup-hero" aria-label="Bienvenida al campeonato">
+        <div>
+          <h1 class="font-pixel">GRAN PREMIO DE CÁLCULO 16-BIT</h1>
+          <p>Elige de 1 a 4 pilotos, selecciona un circuito de 5, 7 o 10 partes y compite contra el cronómetro.</p>
+        </div>
+        <div class="setup-rules-strip">
+          <span class="rule-chip">🎲 Tramo 1: Orden aleatorio</span>
+          <span class="rule-chip">🏆 Tramo 2+: Orden por posición</span>
+          <span class="rule-chip">⏱️ Tiempo de respuesta = Tiempo de vuelta</span>
+        </div>
+      </section>
+
+      <!-- PASO 1: NÚMERO DE JUGADORES + SELECCIÓN DE CIRCUITO -->
+      <section class="paddock-panel" aria-label="Selección de circuito y jugadores">
+        <div class="panel-head">
+          <h2 class="panel-title font-pixel">1. PILOTOS Y CIRCUITO</h2>
+          <div class="player-count-row" id="player-count-row" role="group" aria-label="Número de jugadores">
+            <button type="button" class="count-btn" data-count="1">1 Jugador</button>
+            <button type="button" class="count-btn active" data-count="2">2 Jugadores</button>
+            <button type="button" class="count-btn" data-count="3">3 Jugadores</button>
+            <button type="button" class="count-btn" data-count="4">4 Jugadores</button>
+          </div>
+        </div>
+
+        <div class="panel-head" style="border-bottom: none; padding-bottom: 0; margin-bottom: 0.65rem;">
+          <span class="mini-label" style="margin:0;">Elige circuito (5, 7 o 10 partes):</span>
+          <div class="circuit-filter-tabs" id="circuit-filter-tabs" role="tablist" aria-label="Filtrar circuitos por partes">
+            <button type="button" class="filter-tab active" data-parts="all">Todos (6)</button>
+            <button type="button" class="filter-tab" data-parts="5">⚡ 5 Partes</button>
+            <button type="button" class="filter-tab" data-parts="7">🏁 7 Partes</button>
+            <button type="button" class="filter-tab" data-parts="10">🏆 10 Partes</button>
+          </div>
+        </div>
+
+        <div id="circuits-grid" class="circuits-grid"></div>
+      </section>
+
+      <!-- PASO 2: GARAJE DE PILOTOS -->
+      <section class="paddock-panel" aria-label="Personalización de motos y pilotos">
+        <div class="panel-head">
+          <h2 class="panel-title font-pixel">2. GARAJE DE PILOTOS</h2>
+          <span class="mini-label" style="margin:0;">Personaliza nombre, modelo de moto y casco 16-bit</span>
+        </div>
+        <div id="riders-setup-grid" class="riders-grid"></div>
+      </section>
+
+      <!-- BARRA DE EJERCICIOS Y BOTÓN DE SALIDA -->
+      <div class="launch-bar">
+        <div class="launch-exercise-box">
+          <button type="button" id="btn-selector-setup" data-label="📚 Configurar Ejercicios">
+            <span>📚 Configurar Ejercicios</span>
+            <span class="bm-trigger-badge">1.º ESO · Enteros</span>
+          </button>
+          <div id="setup-config-summary" class="setup-config-summary">
+            Banco activo: <strong>1.º ESO · Enteros (Operación)</strong>
+          </div>
+        </div>
+
+        <button type="button" id="btn-start-race" class="btn-start-race font-pixel">
+          🏁 ¡ENCENDER MOTORES!
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- =====================================================================
+       PANTALLA 2: CARRERA EN VIVO
+       ===================================================================== -->
+  <section id="race-screen" class="race-screen hidden" aria-label="Circuito de carreras en vivo">
+    <!-- Tira de estado superior: Circuito, Tramo actual, Regla de orden y Cola de turnos -->
+    <div class="race-status-strip">
+      <div class="race-circuit-info">
+        <span id="race-circuit-pill" class="race-circuit-pill">🌴 Costa del Sol GP</span>
+        <span id="race-sector-pill" class="race-sector-pill">Tramo 1 / 5 · Recta de Meta</span>
+        <span id="order-mode-badge" class="order-mode-badge">🎲 Tramo 1: Orden Aleatorio</span>
+      </div>
+      <div id="turn-order-queue" class="turn-order-queue" aria-label="Orden de salida del tramo actual"></div>
+    </div>
+
+    <div class="race-main-grid">
+      <!-- COLUMNA IZQUIERDA: CIRCUITO PIXEL-ART + TIRA DE VELOCIDAD + CLASIFICACIÓN -->
+      <div class="visual-col">
+        <div class="track-viewport-card">
+          <div class="track-canvas-wrap">
+            <canvas id="track-canvas" class="pixel-canvas" width="360" height="210"></canvas>
+            <div class="track-overlay-legend">
+              <span id="track-sector-legend" class="track-mini-tag">TRAMO ACTIVO: 1 / 5</span>
+            </div>
+          </div>
+          <div class="sprint-strip-wrap">
+            <canvas id="sprint-canvas" class="pixel-canvas" width="320" height="68"></canvas>
+          </div>
+        </div>
+
+        <div class="standings-card">
+          <div class="standings-head">
+            <h3 class="standings-title font-pixel">⏱️ CLASIFICACIÓN EN VIVO</h3>
+            <span id="standings-sub" class="standings-sub">Menor tiempo total gana</span>
+          </div>
+          <div id="standings-list" class="standings-list"></div>
+        </div>
+      </div>
+
+      <!-- COLUMNA DERECHA: CRONÓMETRO DEL PILOTO + PANEL DE PREGUNTA -->
+      <div class="action-col">
+        <div id="stopwatch-card" class="stopwatch-card">
+          <div class="active-rider-id">
+            <div id="hud-active-bike" class="hud-bike-mini"></div>
+            <div class="active-rider-meta">
+              <div id="active-turn-kicker" class="active-turn-kicker">TURNO ACTUAL · 1.º EN PARRILLA</div>
+              <div id="active-rider-name" class="active-rider-name">Rayo</div>
+              <div id="active-rider-sub" class="active-rider-sub">Vuelta acumulada: 00:00.00 · Tramo 1/5</div>
+            </div>
+          </div>
+
+          <div class="led-stopwatch-box">
+            <div class="led-label">CRONO TRAMO</div>
+            <div id="led-stopwatch" class="led-time font-mono">00:00.00</div>
+            <div id="led-sub" class="led-sub">Se suma a tu vuelta</div>
+          </div>
+        </div>
+
+        <div class="question-panel">
+          <!-- ESTADO A: PUERTA DE SALIDA / SEMÁFORO (JUSTA PARA CAMBIO DE JUGADOR) -->
+          <div id="ready-gate" class="ready-gate">
+            <div class="gantry-lights" aria-hidden="true">
+              <span id="bulb-1" class="gantry-bulb lit-red"></span>
+              <span id="bulb-2" class="gantry-bulb lit-red"></span>
+              <span id="bulb-3" class="gantry-bulb lit-red"></span>
+            </div>
+            <div id="ready-title" class="ready-title font-pixel">¡A PISTA, RAYO!</div>
+            <div id="ready-sector-desc" class="ready-sector-desc">Tramo 1 de 5 · Recta del Paseo Marítimo</div>
+            <div id="ready-order-note" class="ready-order-note">
+              🎲 Primer tramo: el orden de salida se ha sorteado de forma aleatoria. A partir del tramo 2 se correrá por orden de clasificación.
+            </div>
+            <button type="button" id="btn-launch-turn" class="btn-launch-turn font-pixel">
+              🏁 ¡ACELERAR Y VER PREGUNTA!
+            </button>
+            <div class="ready-shortcut-hint">Pulsa el botón o Espacio / Enter cuando el piloto esté listo</div>
+          </div>
+
+          <!-- ESTADO B: PREGUNTA ACTIVA (4 OPCIONES DEL BANCO) -->
+          <div id="exercise-view" class="exercise-view hidden">
+            <div class="exercise-top-meta">
+              <span id="exercise-meta-badge" class="exercise-meta-badge">1.º ESO · Enteros · Operación</span>
+              <span class="penalty-reminder">⚠️ Fallo: +10.00s penalización</span>
+            </div>
+
+            <div class="math-box">
+              <div id="math-expression" class="math-text math-text--short">Cargando ejercicio...</div>
+            </div>
+
+            <div id="options-grid" class="options-grid"></div>
+
+            <div id="feedback-bar" class="feedback-banner hidden"></div>
+
+            <div id="next-turn-bar" class="next-turn-bar hidden">
+              <button type="button" id="btn-next-turn" class="btn-next-turn">
+                ▶ Siguiente Piloto
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =================================================================
+         MODAL DE PODIO FINAL
+         ================================================================= -->
+    <div id="podium-overlay" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="podium-title">
+      <div class="modal-card">
+        <div class="podium-crown">🏆🏁</div>
+        <h2 id="podium-title" class="modal-title font-pixel">¡BANDERA A CUADROS!</h2>
+        <p id="podium-subtitle" class="modal-desc">Carrera completada en Costa del Sol GP (5 partes).</p>
+
+        <div class="winner-showcase">
+          <div id="winner-bike-box" class="winner-bike-canvas"></div>
+          <div style="text-align:left;">
+            <div id="winner-name-big" style="font-size:1.25rem; font-weight:900; color:#facc15;">Rayo</div>
+            <div id="winner-time-big" class="winner-time-big font-mono">00:24.35</div>
+            <div id="winner-medal-badge" class="medal-badge">🏆 Campeón del Gran Premio</div>
+          </div>
+        </div>
+
+        <table class="podium-table" aria-label="Resultados finales de la carrera">
+          <thead>
+            <tr>
+              <th>Pos</th>
+              <th>Piloto</th>
+              <th>Tiempo Total</th>
+              <th>Dif.</th>
+              <th>Mejor Tramo</th>
+              <th>Aciertos</th>
+            </tr>
+          </thead>
+          <tbody id="podium-tbody"></tbody>
+        </table>
+
+        <div class="modal-actions">
+          <button type="button" id="btn-rematch" class="modal-btn-primary font-pixel">🏁 REVANCHA</button>
+          <button type="button" id="btn-to-setup" class="modal-btn-secondary">🗺️ Cambiar Circuito / Pilotos</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- =================================================================
+         MODAL DE REINICIO
+         ================================================================= -->
+    <div id="reset-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="reset-modal-title">
+      <div class="modal-card modal-card--compact">
+        <div class="podium-crown">🔄</div>
+        <h3 id="reset-modal-title" class="modal-title font-pixel">¿REINICIAR CARRERA?</h3>
+        <p class="modal-desc">Puedes reiniciar este circuito desde el Tramo 1 o volver al Paddock para cambiar jugadores o circuito.</p>
+        <div class="modal-actions">
+          <button type="button" id="btn-reset-race" class="modal-btn-primary">Reiniciar Carrera Actual</button>
+          <button type="button" id="btn-reset-setup" class="modal-btn-secondary">Volver al Paddock</button>
+          <button type="button" id="btn-reset-cancel" class="modal-btn-ghost">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Banco de Ejercicios (motor compartido) -->
+  <script src="../banco_ejercicios/engine/utils.js"></script>
+  <script src="../banco_ejercicios/engine/generators/enteros.js"></script>
+  <script src="../banco_ejercicios/engine/generators/fracciones.js"></script>
+  <script src="../banco_ejercicios/engine/generators/potencias.js"></script>
+  <script src="../banco_ejercicios/engine/generators/ecuaciones.js"></script>
+  <script src="../banco_ejercicios/engine/generators/funciones.js"></script>
+  <script src="../banco_ejercicios/api.js"></script>
+  <script src="../banco_ejercicios/selector.js"></script>
+
+  <!-- Módulos de Moto GP Matemático -->
+  <script src="data/circuitos.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/pixel-art.js"></script>
+  <script src="js/juego.js"></script>
+</body>
+</html>
